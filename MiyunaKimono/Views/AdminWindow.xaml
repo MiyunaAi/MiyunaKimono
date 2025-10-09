@@ -1,0 +1,100 @@
+﻿<Window x:Class="MiyunaKimono.Views.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kimono Admin" Height="800" Width="1280"
+        WindowStartupLocation="CenterScreen" Background="#F6F6F6">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="White" Padding="20" BorderBrush="#EEE" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Kimono Admin" FontWeight="Bold" FontSize="22" Margin="0,8,0,24"/>
+
+                <StackPanel Grid.Row="1">
+                    <Button Style="{StaticResource SideMenuButton}" Click="Dashboard_Click" Height="44">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="pack://application:,,,/Assets/ic_dashboard.png" Width="22" Margin="0,0,12,0"/>
+                            <TextBlock Text="Dashboard" FontSize="16"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SideMenuButton}" Click="Product_Click" Height="44">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="pack://application:,,,/Assets/ic_product.png" Width="22" Margin="0,0,12,0"/>
+                            <TextBlock Text="Product" FontSize="16"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SideMenuButton}" Click="Orders_Click" Height="44">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="pack://application:,,,/Assets/ic_orders.png" Width="22" Margin="0,0,12,0"/>
+                            <TextBlock Text="Orders" FontSize="16"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SideMenuButton}" Click="Report_Click" Height="44">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="pack://application:,,,/Assets/ic_report.png" Width="22" Margin="0,0,12,0"/>
+                            <TextBlock Text="Report" FontSize="16"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <Button Grid.Row="2" Style="{StaticResource SideLogoutButton}" Click="Logout_Click" Height="44" Margin="0,12,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Assets/ic_logout.png" Width="22" Margin="0,0,12,0"/>
+                        <TextBlock Text="Log Out" FontSize="16"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Header + Content -->
+        <!-- TOP BAR -->
+        <!-- ด้านซ้าย Sidebar ของคุณคงเดิม -->
+
+        <!-- ด้านขวา (คอนเทนต์) -->
+        <Grid Grid.Column="1" Margin="24,16,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Top bar -->
+                <RowDefinition Height="*"/>
+                <!-- Content card -->
+            </Grid.RowDefinitions>
+
+            <!-- แถบสีขาวด้านบน -->
+            <Border Style="{StaticResource TopWhiteBar}">
+                <Grid>
+                    <!-- ชื่อหน้า ผูกกับ CurrentHeader -->
+                    <TextBlock Text="{Binding CurrentHeader}"
+                       VerticalAlignment="Center"
+                       FontSize="18" FontWeight="SemiBold"/>
+
+                    <!-- ปุ่ม Add เฉพาะหน้า Product -->
+                    <Button Content="Add new Product"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource BlueRoundedButton}"
+                    Visibility="{Binding IsProductTab, Converter={StaticResource BoolToVisibility}}"
+                    Click="AddProduct_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- การ์ดสีขาวล้อมคอนเทนต์ -->
+            <Border Grid.Row="1" Style="{StaticResource CardWhite}">
+                <!-- ที่วางหน้าภายในทั้งหมด -->
+                <ContentControl x:Name="ContentHost"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

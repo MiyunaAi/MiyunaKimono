@@ -1,0 +1,104 @@
+﻿<Window x:Class="MiyunaKimono.Views.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MiyunaKimono.Views"
+        mc:Ignorable="d"
+        Title="RegisterWindow" Height="1000" Width="1850" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" >
+    <Grid Margin="40">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="1.1*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT: Image Slider -->
+        <Grid Grid.Column="0" Margin="0,10,30,10" ClipToBounds="True">
+            <Image x:Name="SlideImage" Stretch="UniformToFill" />
+            <StackPanel Orientation="Horizontal"
+                  HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,15">
+                <Ellipse Width="10" Height="10" Fill="#ddd" Margin="4"/>
+                <Ellipse Width="10" Height="10" Fill="#ddd" Margin="4"/>
+                <Ellipse Width="10" Height="10" Fill="#ddd" Margin="4"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- RIGHT: Form -->
+        <StackPanel Grid.Column="1" Margin="10,10,0,10">
+            <TextBlock Text="Create an account" FontSize="48" FontWeight="Bold" Margin="0,0,0,6"/>
+
+            <TextBlock Margin="0,0,0,18">
+        <Run Text="already have an account ? "/>
+        <Hyperlink Click="GoLogin_Click">Log in</Hyperlink>
+            </TextBlock>
+
+            <!-- Name + Last name -->
+            <Grid Margin="0,0,0,10">
+                <!-- แถว 0 = labels, แถว 1 = bars -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Labels -->
+                <TextBlock Grid.Row="0" Grid.Column="0"
+             Style="{StaticResource FormLabel}" Text="Name" />
+                <TextBlock Grid.Row="0" Grid.Column="1"
+             Style="{StaticResource FormLabel}" Text="Last name" Margin="10,14,0,6"/>
+
+                <!-- Bars -->
+                <Border Grid.Row="1" Grid.Column="0"
+          CornerRadius="10" Background="#F2F2F2"
+          Padding="10" Margin="0,0,10,0" Height="48">
+                    <TextBox x:Name="TxtFirst"
+             Style="{StaticResource WatermarkTextBox}" Tag="Name"
+             VerticalContentAlignment="Center"/>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1"
+          CornerRadius="10" Background="#F2F2F2"
+          Padding="10" Height="48">
+                    <TextBox x:Name="TxtLast"
+             Style="{StaticResource WatermarkTextBox}" Tag="Last name"
+             VerticalContentAlignment="Center"/>
+                </Border>
+            </Grid>
+            <!-- Email -->
+            <TextBlock Style="{StaticResource FormLabel}" Text="Email"/>
+            <Border CornerRadius="10" Background="#F2F2F2" Padding="10" Margin="0,0,0,10" Height="48">
+                <TextBox x:Name="TxtEmail" Style="{StaticResource WatermarkTextBox}" Tag="Email" VerticalContentAlignment="Center"/>
+            </Border>
+
+            <!-- Phone number -->
+            <TextBlock Style="{StaticResource FormLabel}" Text="Phone number"/>
+            <Border CornerRadius="10" Background="#F2F2F2" Padding="10" Margin="0,0,0,10" Height="48">
+                <TextBox x:Name="TxtPhone" Style="{StaticResource WatermarkTextBox}" Tag="Phone number" VerticalContentAlignment="Center"/>
+            </Border>
+
+            <!-- Username -->
+            <TextBlock Style="{StaticResource FormLabel}" Text="Username"/>
+            <Border CornerRadius="10" Background="#F2F2F2" Padding="10" Margin="0,0,0,10" Height="48">
+                <TextBox x:Name="TxtUser" Style="{StaticResource WatermarkTextBox}" Tag="Username" VerticalContentAlignment="Center"/>
+            </Border>
+
+            <!-- Password -->
+            <TextBlock Style="{StaticResource FormLabel}" Text="Password"/>
+            <Border CornerRadius="10" Background="#F2F2F2" Padding="10" Margin="0,0,0,10" Height="48">
+                <TextBox x:Name="TxtPass" Style="{StaticResource WatermarkTextBox}" Tag="Password" VerticalContentAlignment="Center"/>
+            </Border>
+
+            <!-- Confirm Password -->
+            <TextBlock Style="{StaticResource FormLabel}" Text="Confirm Password"/>
+            <Border CornerRadius="10" Background="#F2F2F2" Padding="10" Margin="0,0,0,18" Height="48">
+                <TextBox x:Name="TxtPass2" Style="{StaticResource WatermarkTextBox}" Tag="Confirm Password" VerticalContentAlignment="Center"/>
+            </Border>
+
+            <!-- Create account button คงสไตล์เดิม -->
+            <Button Content="Create account" Style="{StaticResource PinkPrimaryButton}" Height="52" Click="CreateAccount_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>False</UseWindowsForms>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\eye_closed.png" />
+    <None Remove="Assets\eye_open.png" />
+    <None Remove="Assets\facebook.png" />
+    <None Remove="Assets\ic_dashboard.png" />
+    <None Remove="Assets\ic_logout.png" />
+    <None Remove="Assets\ic_orders.png" />
+    <None Remove="Assets\ic_product.png" />
+    <None Remove="Assets\ic_report.png" />
+    <None Remove="Assets\instagram.png" />
+    <None Remove="Assets\slide1.jpg" />
+    <None Remove="Assets\slide2.jpg" />
+    <None Remove="Assets\slide3.jpg" />
+    <None Remove="Assets\user.png" />
+    <None Remove="Assets\x.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="MailKit" Version="4.14.0" />
+    <PackageReference Include="MySql.Data" Version="9.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\eye_closed.png" />
+    <Resource Include="Assets\eye_open.png" />
+    <Resource Include="Assets\facebook.png" />
+    <Resource Include="Assets\ic_dashboard.png" />
+    <Resource Include="Assets\ic_logout.png" />
+    <Resource Include="Assets\ic_orders.png" />
+    <Resource Include="Assets\ic_product.png" />
+    <Resource Include="Assets\ic_report.png" />
+    <Resource Include="Assets\instagram.png" />
+    <Resource Include="Assets\slide1.jpg" />
+    <Resource Include="Assets\slide2.jpg" />
+    <Resource Include="Assets\slide3.jpg" />
+    <Resource Include="Assets\user.png" />
+    <Resource Include="Assets\x.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
