@@ -343,7 +343,207 @@
             </Setter>
         </Style>
 
+        <!-- ===== COMMON STYLES USED BY ADMIN PAGES ===== -->
+
+        <!-- ปุ่มสีฟ้ามุมโค้งเล็ก -->
+        <Style x:Key="BlueRoundedButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#1E7BFF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Padding" Value="24,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#126CFA"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0F5FE0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ป้ายข้อความบนฟอร์ม -->
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#444"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
+        </Style>
+
+        <!-- TextBox มี Watermark (ใช้ Tag เป็น placeholder) -->
+        <Style x:Key="WatermarkTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                            <TextBlock Text="{TemplateBinding Tag}"
+                     Foreground="#999"
+                     Margin="2,0,0,0"
+                     VerticalAlignment="Center"
+                     IsHitTestVisible="False"
+                     Visibility="Collapsed">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value=""/>
+                                                    <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource TemplatedParent}}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox แบนสำหรับช่องในกรอบเทา -->
+        <Style x:Key="FlatEditableCombo" TargetType="{x:Type ComboBox}">
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid SnapsToDevicePixels="True">
+                            <ToggleButton x:Name="DropDownButton" Width="24" Height="24"
+                        HorizontalAlignment="Right" Margin="0,0,2,0"
+                        Background="Transparent" BorderThickness="0"
+                        FocusVisualStyle="{x:Null}"
+                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        ClickMode="Press">
+                                <Viewbox Width="12" Height="8">
+                                    <Path Data="M 0 0 L 6 6 L 12 0 Z" Fill="#666" Stretch="Uniform"/>
+                                </Viewbox>
+                            </ToggleButton>
+
+                            <Border x:Name="ContentSite" Margin="0,0,28,0" Background="Transparent">
+                                <Grid>
+                                    <TextBox x:Name="PART_EditableTextBox" Background="Transparent" BorderThickness="0" Padding="0"/>
+                                    <ContentPresenter x:Name="ContentPresenter" IsHitTestVisible="False" Margin="3"/>
+                                </Grid>
+                            </Border>
+
+                            <Popup x:Name="Popup" Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
+                 IsOpen="{TemplateBinding IsDropDownOpen}">
+                                <Border Background="White" CornerRadius="6" Padding="4">
+                                    <ScrollViewer>
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEditable" Value="False">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
         
+
+        <!-- ปุ่มเมนู Sidebar ด้านซ้าย -->
+        <Style x:Key="SideMenuButton" TargetType="Button" BasedOn="{StaticResource GhostLinkButton}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,4,0,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="10,8">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#F4F4F6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#ECECEF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- (ถ้ามีปุ่มออกจากระบบอ้าง SideLogoutButton ด้วย ให้ใส่ไว้ด้วย) -->
+        <Style x:Key="SideLogoutButton" TargetType="Button" BasedOn="{StaticResource SideMenuButton}">
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+
+
+
+        <!-- หัวเรื่องใหญ่ ใช้ใน PlaceholderView -->
+        <Style x:Key="HeaderTitle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+
+        <!-- ถ้ายังไม่มีอยู่ ให้เพิ่ม 3 อันนี้ -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <Style x:Key="TopWhiteBar" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="20,14"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="BorderBrush" Value="#E9E9EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="CardWhite" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="BorderBrush" Value="#E9E9EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
     </Application.Resources>
 </Application>
