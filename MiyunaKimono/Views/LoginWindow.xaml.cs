@@ -123,7 +123,7 @@ namespace MiyunaKimono.Views
             Properties.Settings.Default.Save();
 
             MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            new MainWindow().Show();
+            new UserMainWindow().Show();
             Close();
         }
 

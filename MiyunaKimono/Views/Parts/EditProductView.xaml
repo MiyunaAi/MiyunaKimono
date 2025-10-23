@@ -1,0 +1,162 @@
+﻿<UserControl x:Class="MiyunaKimono.Views.Parts.EditProductView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="650">
+
+    <Grid Background="Transparent">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="420"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- UPLOAD (ซ้าย) -->
+                <Border Grid.Row="0" Grid.Column="0" Background="White" CornerRadius="12" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="Upload 3 product image scale 1:1" FontWeight="SemiBold" Margin="4,0,0,12"/>
+                        <ItemsControl ItemsSource="{Binding Images}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="8">
+                                        <Border CornerRadius="12" Background="#eee" Width="200" Height="200">
+                                            <Image Source="{Binding Path}" Stretch="UniformToFill" ClipToBounds="True"/>
+                                        </Border>
+                                        <Button Content="✕" Width="24" Height="24"
+                                                Style="{StaticResource IconButtonNoHover}"
+                                                Background="#77000000" Foreground="White"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                                                Command="{Binding DataContext.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Button Content="Upload product image"
+                                Click="UploadImage_Click"
+                                Style="{StaticResource BlueRoundedButton}" Height="40" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- VISIBILITY -->
+                <Border Grid.Row="2" Grid.Column="0" Background="White" CornerRadius="12" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="Visibility" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="You can change the visibility of this product for customers"
+                                   Foreground="#777" FontSize="12"/>
+                        <CheckBox Content="Visible" Margin="0,10,0,0"
+                                  IsChecked="{Binding Visible}" Style="{StaticResource FlatCheckBox}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- DETAILS (ขวา) -->
+                <Border Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Background="White" CornerRadius="12" Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
+                            <TextBlock Text="Product Details" FontWeight="SemiBold" FontSize="16"/>
+                            <TextBlock Text="Key info to describe and display your product"
+                                       Foreground="#777" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- Name / Code -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Product Name"/>
+                        <Border Grid.Row="2" Grid.Column="0" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <TextBox Text="{Binding ProductName}" Style="{StaticResource WatermarkTextBox}" Tag="Product name"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource FormLabel}" Text="Product Code"/>
+                        <Border Grid.Row="2" Grid.Column="2" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <TextBox Text="{Binding ProductCode}" Style="{StaticResource WatermarkTextBox}" Tag="Product code"/>
+                        </Border>
+
+                        <!-- Status / Brand -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Status"/>
+                        <Border Grid.Row="4" Grid.Column="0" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <ComboBox ItemsSource="{Binding StatusList}" Style="{StaticResource FlatEditableCombo}"
+                                      Text="{Binding Status, Mode=TwoWay}"/>
+                        </Border>
+                        <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource FormLabel}" Text="Brand"/>
+                        <Border Grid.Row="4" Grid.Column="2" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <ComboBox ItemsSource="{Binding BrandList}" Style="{StaticResource FlatEditableCombo}"
+                                      Text="{Binding Brand, Mode=TwoWay}"/>
+                        </Border>
+
+                        <!-- Category / Qty -->
+                        <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Category"/>
+                        <Border Grid.Row="6" Grid.Column="0" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <ComboBox ItemsSource="{Binding CategoryList}" Style="{StaticResource FlatEditableCombo}"
+                                      Text="{Binding Category, Mode=TwoWay}"/>
+                        </Border>
+                        <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource FormLabel}" Text="Quantity"/>
+                        <Border Grid.Row="6" Grid.Column="2" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <TextBox Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource WatermarkTextBox}" Tag="Total item"/>
+                        </Border>
+
+                        <!-- Price / Discount -->
+                        <TextBlock Grid.Row="7" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Price"/>
+                        <Border Grid.Row="8" Grid.Column="0" Background="#F2F2F2" CornerRadius="10" Padding="10" Height="44">
+                            <TextBox Text="{Binding PriceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource WatermarkTextBox}" Tag="e.g. 45,000 THB"/>
+                        </Border>
+
+                        <TextBlock Grid.Row="7" Grid.Column="2" Style="{StaticResource FormLabel}" Text="Discount"/>
+                        <Grid Grid.Row="8" Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="48"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Background="#F2F2F2" CornerRadius="10,0,0,10" Padding="10" Height="44">
+                                <TextBox Text="{Binding DiscountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource WatermarkTextBox}" Tag="e.g. 15"/>
+                            </Border>
+                            <Border Grid.Column="1" Background="#F2F2F2" CornerRadius="0,10,10,0" Height="44" Padding="0">
+                                <TextBlock Text="%" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="15" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Description -->
+                        <TextBlock Grid.Row="9" Grid.ColumnSpan="3" Style="{StaticResource FormLabel}" Text="Description"/>
+                        <Border Grid.Row="10" Grid.ColumnSpan="3" Background="#F2F2F2" CornerRadius="10" Padding="10" Margin="0,40,0,0">
+                            <TextBox Text="{Binding Description}" AcceptsReturn="True" MinHeight="120"
+                                     BorderThickness="0" TextWrapping="Wrap"
+                                     Style="{StaticResource WatermarkTextBox}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

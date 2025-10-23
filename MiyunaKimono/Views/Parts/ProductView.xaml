@@ -3,8 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:MiyunaKimono"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="800">
+
+
     <Grid>
         <DataGrid x:Name="GridProducts"
               AutoGenerateColumns="False"
@@ -12,7 +15,46 @@
               HeadersVisibility="Column"
               CanUserAddRows="False" CanUserDeleteRows="False"
               IsReadOnly="True" RowHeaderWidth="0" GridLinesVisibility="None"
-              ColumnHeaderHeight="38" RowHeight="56">
+              ColumnHeaderHeight="38" RowHeight="56" SelectionMode="Single" SelectionUnit="FullRow">
+
+            <DataGrid.Resources>
+                <!-- สี selection และสีตัวอักษรตอนถูกเลือก -->
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#EAF2FF"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#222222"/>
+                <!-- กัน brush บางธีม -->
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
+
+                <!-- แถว -->
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Foreground" Value="#222"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#EAF2FF"/>
+                            <Setter Property="Foreground" Value="#222"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#F5F9FF"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+                <!-- เซลล์ (เผื่อคอนเทนต์ภายในใช้สีของตัวเอง) -->
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Foreground" Value="#222"/>
+                    <Setter Property="TextElement.Foreground" Value="#222"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#EAF2FF"/>
+                            <Setter Property="Foreground" Value="#222"/>
+                            <Setter Property="TextElement.Foreground" Value="#222"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+
 
             <DataGrid.Columns>
 
@@ -50,12 +92,15 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Content="Edit"
-                      Background="#1177FF" Foreground="White"
-                      Padding="12,4" BorderBrush="{x:Null}" Width="70"
-                      HorizontalAlignment="Center"/>
+                    Style="{StaticResource EditButton}"
+                    HorizontalAlignment="Center"
+                    Click="Edit_Click"
+                    CommandParameter="{Binding}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+                
 
             </DataGrid.Columns>
         </DataGrid>

@@ -24,6 +24,10 @@ namespace MiyunaKimono.Models
         public string Image2Path { get; set; }
         public string Image3Path { get; set; }
 
+        // >>> เพิ่มสองตัวนี้ <<<
+        public bool Visible { get; set; } = true;     // แสดง/ซ่อนสินค้า
+        public DateTime? UpdatedAt { get; set; }      // เวลาอัปเดตล่าสุด (null ได้)
+
         // เผื่อโชว์ thumbnail ใน Grid (ใช้รูปแรก)
         public string ThumbPath => string.IsNullOrWhiteSpace(Image1Path) ? null : Image1Path;
     }

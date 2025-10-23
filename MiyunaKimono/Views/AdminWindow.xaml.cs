@@ -1,92 +1,154 @@
-﻿using MiyunaKimono.Views.Parts;
-using MiyunaKimono.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.ComponentModel;
+using MiyunaKimono.Views.Parts;
 
 namespace MiyunaKimono.Views
 {
     public partial class AdminWindow : Window, INotifyPropertyChanged
     {
-        // ====== Properties ให้ TopBar ผูก ======
-        private string _currentHeader;
-        public string CurrentHeader
-        {
-            get => _currentHeader;
-            set { _currentHeader = value; OnPropertyChanged(nameof(CurrentHeader)); }
-        }
-
-        private bool _isProductTab;
-        public bool IsProductTab
-        {
-            get => _isProductTab;
-            set { _isProductTab = value; OnPropertyChanged(nameof(IsProductTab)); }
-        }
-        // ======================================
-
         public AdminWindow()
         {
             InitializeComponent();
-
-            // ให้ Top Bar (Text/Visibility) ผูกกับพร็อพฯ ในคลาสนี้
             DataContext = this;
-
-            // หน้าเปิดเริ่มต้น (ถ้าอยากเริ่มที่ Dashboard ให้เปลี่ยนเป็น ShowDashboard())
-            ShowProduct();
+            ShowProduct(); // เริ่มที่ All Product
         }
 
-        // ---------- เมนูซ้าย: เปลี่ยนหน้า + ตั้งค่าหัวข้อ/ปุ่ม ----------
-        private void ShowDashboard()
-        {
-            CurrentHeader = "Dashboard";
-            IsProductTab = false;                           // ซ่อนปุ่ม Add
-            ContentHost.Content = new PlaceholderView();     // เนื้อหา placeholder
-        }
+   
 
-        private void ShowOrders()
-        {
-            CurrentHeader = "Orders";
-            IsProductTab = false;
-            ContentHost.Content = new PlaceholderView();
-        }
+        // ===== INotifyPropertyChanged =====
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string n = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        private void ShowReport()
-        {
-            CurrentHeader = "Report";
-            IsProductTab = false;
-            ContentHost.Content = new PlaceholderView();
-        }
+        // ===== Header =====
+        private string _currentHeader = "All Product";
+        public string CurrentHeader { get => _currentHeader; set { _currentHeader = value; OnPropertyChanged(); } }
 
-        private void ShowProduct()
+        // ===== ปุ่มใน Top Bar =====
+        private bool _showBackBtn;
+        public bool ShowBackBtn { get => _showBackBtn; set { _showBackBtn = value; OnPropertyChanged(); } }
+
+        private bool _showAddBtn;
+        public bool ShowAddBtn { get => _showAddBtn; set { _showAddBtn = value; OnPropertyChanged(); } }
+
+        private bool _showPublishBtn;
+        public bool ShowPublishBtn { get => _showPublishBtn; set { _showPublishBtn = value; OnPropertyChanged(); } }
+
+        private bool _showSaveBtn;
+        public bool ShowSaveBtn { get => _showSaveBtn; set { _showSaveBtn = value; OnPropertyChanged(); } }
+
+        private bool _showDeleteBtn;
+        public bool ShowDeleteBtn { get => _showDeleteBtn; set { _showDeleteBtn = value; OnPropertyChanged(); } }
+
+        // views
+        private AddProductView _addView;
+        private EditProductView _editView;
+
+        // ===== Navigation =====
+        public void ShowProduct()
         {
             CurrentHeader = "All Product";
-            IsProductTab = true;                            // โชว์ปุ่ม Add new Product
-            ContentHost.Content = new ProductView();         // ตารางสินค้า
+            ShowBackBtn = false;
+            ShowAddBtn = true;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            ContentHost.Content = new ProductView();
+            _addView = null; _editView = null;
         }
-        // ---------------------------------------------------------------
 
-        // ปุ่มในเมนูซ้าย (ผูกจาก XAML)
-        private void Dashboard_Click(object s, RoutedEventArgs e) => ShowDashboard();
-        private void Product_Click(object s, RoutedEventArgs e) => ShowProduct();
-        private void Orders_Click(object s, RoutedEventArgs e) => ShowOrders();
-        private void Report_Click(object s, RoutedEventArgs e) => ShowReport();
-
-        // ปุ่ม Add new Product บน Top Bar (ตอนนี้ยังไม่ทำอะไร ใส่ dialog/หน้าเพิ่มสินค้าภายหลังได้)
-        private void AddProduct_Click(object sender, RoutedEventArgs e)
+        public void ShowAddProduct()
         {
-            // TODO: เปิดหน้าสร้างสินค้าใหม่ หรือ dialog
-            MessageBox.Show("Add new Product (coming soon)");
+            _addView = new AddProductView();
+            _addView.Published += (_, __) => ShowProduct();
+            _addView.RequestBack += (_, __) => ShowProduct();
+
+            CurrentHeader = "Add New Product";
+            ShowBackBtn = true;   // แสดง back
+            ShowAddBtn = false;
+            ShowPublishBtn = true;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            ContentHost.Content = _addView;
+            _editView = null;
+        }
+
+        public async Task ShowEditProductAsync(int productId)
+        {
+            _editView = new EditProductView(productId);
+            _editView.Saved += (_, __) => ShowProduct();
+            _editView.Deleted += (_, __) => ShowProduct();
+            _editView.RequestBack += (_, __) => ShowProduct();
+
+            CurrentHeader = "Edit Product";
+            ShowBackBtn = true;   // แสดง back
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = true;
+            ShowDeleteBtn = true;
+
+            await _editView.LoadAsync();
+            ContentHost.Content = _editView;
+            _addView = null;
+        }
+
+        // ===== Top bar handlers =====
+        private void Back_Click(object sender, RoutedEventArgs e) => ShowProduct();
+
+        private void AddProduct_Click(object s, RoutedEventArgs e) => ShowAddProduct();
+
+        private async void Publish_Click(object s, RoutedEventArgs e)
+        {
+            if (_addView == null) return;
+            var ok = await _addView.PublishAsync();
+            if (ok) ShowProduct();
+        }
+
+        private async void Save_Click(object s, RoutedEventArgs e)
+        {
+            if (_editView == null) return;
+            var ok = await _editView.SaveAsync();
+            if (ok) ShowProduct();
+        }
+
+        private async void Delete_Click(object s, RoutedEventArgs e)
+        {
+            if (_editView == null) return;
+
+            if (MessageBox.Show("Delete this product?", "Confirm",
+                MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
+            {
+                var ok = await _editView.DeleteAsync();
+                if (ok) ShowProduct();
+            }
+        }
+
+        // ===== Left menu =====
+        private void Product_Click(object s, RoutedEventArgs e) => ShowProduct();
+
+        private void Dashboard_Click(object s, RoutedEventArgs e)
+        {
+            CurrentHeader = "Dashboard";
+            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
+            ContentHost.Content = new PlaceholderView { Title = "Dashboard" };
+        }
+
+        private void Orders_Click(object s, RoutedEventArgs e)
+        {
+            CurrentHeader = "Orders";
+            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
+            ContentHost.Content = new PlaceholderView { Title = "Orders" };
+        }
+
+        private void Report_Click(object s, RoutedEventArgs e)
+        {
+            CurrentHeader = "Report";
+            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
+            ContentHost.Content = new PlaceholderView { Title = "Report" };
         }
 
         private void Logout_Click(object s, RoutedEventArgs e)
@@ -94,10 +156,5 @@ namespace MiyunaKimono.Views
             new LoginWindow().Show();
             Close();
         }
-
-        // INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

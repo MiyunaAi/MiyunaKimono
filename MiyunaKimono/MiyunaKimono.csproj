@@ -11,15 +11,37 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\cat_accessories.png" />
+    <None Remove="Assets\cat_furisode.png" />
+    <None Remove="Assets\cat_hakama.png" />
+    <None Remove="Assets\cat_homongi.png" />
+    <None Remove="Assets\cat_kurotome.png" />
+    <None Remove="Assets\cat_shiromuku.png" />
+    <None Remove="Assets\cat_yukata.png" />
     <None Remove="Assets\eye_closed.png" />
     <None Remove="Assets\eye_open.png" />
     <None Remove="Assets\facebook.png" />
+    <None Remove="Assets\hero1.jpg" />
+    <None Remove="Assets\hero2.jpg" />
+    <None Remove="Assets\hero3.jpg" />
+    <None Remove="Assets\hero4.jpg" />
+    <None Remove="Assets\ic_back.png" />
+    <None Remove="Assets\ic_cart.png" />
+    <None Remove="Assets\ic_chev_left.png" />
+    <None Remove="Assets\ic_chev_right.png" />
     <None Remove="Assets\ic_dashboard.png" />
+    <None Remove="Assets\ic_heart.png" />
+    <None Remove="Assets\ic_heart_fill.png" />
+    <None Remove="Assets\ic_heart_line.png" />
     <None Remove="Assets\ic_logout.png" />
     <None Remove="Assets\ic_orders.png" />
     <None Remove="Assets\ic_product.png" />
     <None Remove="Assets\ic_report.png" />
+    <None Remove="Assets\ic_search.png" />
+    <None Remove="Assets\ic_trash.png" />
+    <None Remove="Assets\ic_user.png" />
     <None Remove="Assets\instagram.png" />
+    <None Remove="Assets\logo_miyuna.png" />
     <None Remove="Assets\slide1.jpg" />
     <None Remove="Assets\slide2.jpg" />
     <None Remove="Assets\slide3.jpg" />
@@ -38,15 +60,37 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\cat_accessories.png" />
+    <Resource Include="Assets\cat_furisode.png" />
+    <Resource Include="Assets\cat_hakama.png" />
+    <Resource Include="Assets\cat_homongi.png" />
+    <Resource Include="Assets\cat_kurotome.png" />
+    <Resource Include="Assets\cat_shiromuku.png" />
+    <Resource Include="Assets\cat_yukata.png" />
     <Resource Include="Assets\eye_closed.png" />
     <Resource Include="Assets\eye_open.png" />
     <Resource Include="Assets\facebook.png" />
+    <Resource Include="Assets\hero1.jpg" />
+    <Resource Include="Assets\hero2.jpg" />
+    <Resource Include="Assets\hero3.jpg" />
+    <Resource Include="Assets\hero4.jpg" />
+    <Resource Include="Assets\ic_back.png" />
+    <Resource Include="Assets\ic_cart.png" />
+    <Resource Include="Assets\ic_chev_left.png" />
+    <Resource Include="Assets\ic_chev_right.png" />
     <Resource Include="Assets\ic_dashboard.png" />
+    <Resource Include="Assets\ic_heart.png" />
+    <Resource Include="Assets\ic_heart_fill.png" />
+    <Resource Include="Assets\ic_heart_line.png" />
     <Resource Include="Assets\ic_logout.png" />
     <Resource Include="Assets\ic_orders.png" />
     <Resource Include="Assets\ic_product.png" />
     <Resource Include="Assets\ic_report.png" />
+    <Resource Include="Assets\ic_search.png" />
+    <Resource Include="Assets\ic_trash.png" />
+    <Resource Include="Assets\ic_user.png" />
     <Resource Include="Assets\instagram.png" />
+    <Resource Include="Assets\logo_miyuna.png" />
     <Resource Include="Assets\slide1.jpg" />
     <Resource Include="Assets\slide2.jpg" />
     <Resource Include="Assets\slide3.jpg" />

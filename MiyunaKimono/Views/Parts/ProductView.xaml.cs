@@ -1,17 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Collections.Generic;
 using MiyunaKimono.Models;
 using MiyunaKimono.Services;
 
@@ -24,13 +14,34 @@ namespace MiyunaKimono.Views.Parts
         public ProductView()
         {
             InitializeComponent();
-            LoadData();
+            // ให้ดึงข้อมูลหลัง UI พร้อมแล้ว ป้องกันกรณีชื่อคอนโทรลยังไม่ถูกสร้าง
+            Loaded += (_, __) => LoadData();
         }
 
         private void LoadData()
         {
-            List<Product> items = _svc.GetAll();
-            GridProducts.ItemsSource = items;
+            try
+            {
+                List<Product> items = _svc.GetAll();
+                GridProducts.ItemsSource = items;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("โหลดข้อมูลสินค้าไม่สำเร็จ:\n" + ex.Message, "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void Edit_Click(object sender, RoutedEventArgs e)
+        {
+            // ดึง Product จาก DataContext ของปุ่ม Edit แถวที่กด
+            if ((sender as FrameworkElement)?.DataContext is Product p)
+            {
+                if (Window.GetWindow(this) is AdminWindow win)
+                {
+                    await win.ShowEditProductAsync(p.Id);
+                }
+            }
         }
     }
 }

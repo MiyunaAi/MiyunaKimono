@@ -9,7 +9,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <!-- Sidebar -->
+        <!-- ===== Sidebar (ของเดิม) ===== -->
         <Border Grid.Column="0" Background="White" Padding="20" BorderBrush="#EEE" BorderThickness="0,0,1,0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -59,40 +59,77 @@
             </Grid>
         </Border>
 
-        <!-- Header + Content -->
-        <!-- TOP BAR -->
-        <!-- ด้านซ้าย Sidebar ของคุณคงเดิม -->
-
-        <!-- ด้านขวา (คอนเทนต์) -->
+        <!-- ===== Content ===== -->
         <Grid Grid.Column="1" Margin="24,16,24,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Top bar -->
                 <RowDefinition Height="*"/>
-                <!-- Content card -->
             </Grid.RowDefinitions>
 
-            <!-- แถบสีขาวด้านบน -->
+            <!-- Top Bar -->
             <Border Style="{StaticResource TopWhiteBar}">
                 <Grid>
-                    <!-- ชื่อหน้า ผูกกับ CurrentHeader -->
-                    <TextBlock Text="{Binding CurrentHeader}"
-                       VerticalAlignment="Center"
-                       FontSize="18" FontWeight="SemiBold"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Back -->
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition/>
+                        <!-- Title -->
+                    </Grid.ColumnDefinitions>
 
-                    <!-- ปุ่ม Add เฉพาะหน้า Product -->
-                    <Button Content="Add new Product"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource BlueRoundedButton}"
-                    Visibility="{Binding IsProductTab, Converter={StaticResource BoolToVisibility}}"
-                    Click="AddProduct_Click"/>
+                    <!-- Back icon (เฉพาะ Add/Edit) -->
+                    <Button Grid.Column="0"
+                            Style="{StaticResource IconButtonNoHover}"
+                            Visibility="{Binding ShowBackBtn, Converter={StaticResource BoolToVisibility}}"
+                            Click="Back_Click"
+                            ToolTip="Back to All">
+                        <Image Source="pack://application:,,,/Assets/ic_back.png" Width="22" Height="22"/>
+                    </Button>
+
+                    <!-- ชื่อหน้า -->
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding CurrentHeader}"
+                               VerticalAlignment="Center"
+                               FontSize="18" FontWeight="SemiBold"/>
+
+                    <!-- ปุ่มด้านขวา -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                        <!-- Add new Product (เฉพาะหน้า All Product) -->
+                        <Button Content="Add new Product"
+                                Margin="0,0,0,0"
+                                Style="{StaticResource BlueRoundedButton}"
+                                Visibility="{Binding ShowAddBtn, Converter={StaticResource BoolToVisibility}}"
+                                Click="AddProduct_Click"/>
+
+                        <!-- Publish (เฉพาะหน้า Add New Product) -->
+                        <Button Content="Publish"
+                                Margin="0,0,0,0"
+                                Style="{StaticResource BlueRoundedButton}"
+                                Visibility="{Binding ShowPublishBtn, Converter={StaticResource BoolToVisibility}}"
+                                Click="Publish_Click"/>
+
+                        <!-- ถังขยะ PNG (เฉพาะหน้า Edit) -->
+                        <Button Margin="0,0,14,0"
+                                Style="{StaticResource IconButtonNoHover}"
+                                Visibility="{Binding ShowDeleteBtn, Converter={StaticResource BoolToVisibility}}"
+                                Click="Delete_Click"
+                                ToolTip="Delete this product">
+                            <Image Source="pack://application:,,,/Assets/ic_trash.png" Width="40" Height="40"/>
+                        </Button>
+
+                        <!-- Save (เฉพาะหน้า Edit) -->
+                        <Button Content="Save"
+                                Style="{StaticResource BlueRoundedButton}"
+                                Visibility="{Binding ShowSaveBtn, Converter={StaticResource BoolToVisibility}}"
+                                Click="Save_Click"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- การ์ดสีขาวล้อมคอนเทนต์ -->
+            <!-- เนื้อหา -->
             <Border Grid.Row="1" Style="{StaticResource CardWhite}">
-                <!-- ที่วางหน้าภายในทั้งหมด -->
                 <ContentControl x:Name="ContentHost"/>
             </Border>
         </Grid>
