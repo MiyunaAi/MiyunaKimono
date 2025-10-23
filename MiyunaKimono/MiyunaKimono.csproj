@@ -25,6 +25,10 @@
     <None Remove="Assets\hero2.jpg" />
     <None Remove="Assets\hero3.jpg" />
     <None Remove="Assets\hero4.jpg" />
+    <None Remove="Assets\hero5.jpg" />
+    <None Remove="Assets\hero6.jpg" />
+    <None Remove="Assets\hero7.jpg" />
+    <None Remove="Assets\hero8.jpg" />
     <None Remove="Assets\ic_back.png" />
     <None Remove="Assets\ic_cart.png" />
     <None Remove="Assets\ic_chev_left.png" />
@@ -74,6 +78,10 @@
     <Resource Include="Assets\hero2.jpg" />
     <Resource Include="Assets\hero3.jpg" />
     <Resource Include="Assets\hero4.jpg" />
+    <Resource Include="Assets\hero5.jpg" />
+    <Resource Include="Assets\hero6.jpg" />
+    <Resource Include="Assets\hero7.jpg" />
+    <Resource Include="Assets\hero8.jpg" />
     <Resource Include="Assets\ic_back.png" />
     <Resource Include="Assets\ic_cart.png" />
     <Resource Include="Assets\ic_chev_left.png" />

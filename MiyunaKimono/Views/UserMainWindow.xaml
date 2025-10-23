@@ -268,27 +268,7 @@
                         SelectedIndex="{Binding HeroIndex, Mode=TwoWay}"
                         beh:AutoRotateBehavior.IsEnabled="True"
                         beh:AutoRotateBehavior.IntervalSeconds="4"/>
-                    <!-- ปุ่มย้อน -->
-                    <Button Style="{StaticResource ArrowButton}"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            Margin="12,0,0,0"
-            Click="PrevHero_Click">
-                        <Path Data="M 26,8 L 12,24 L 26,40"
-              Stroke="White" StrokeThickness="3"
-              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                    </Button>
-
-                    <!-- ปุ่มถัดไป -->
-                    <Button Style="{StaticResource ArrowButton}"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Center"
-            Margin="0,0,12,0"
-            Click="NextHero_Click">
-                        <Path Data="M 22,8 L 36,24 L 22,40"
-              Stroke="White" StrokeThickness="3"
-              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                    </Button>
+                    
 
                 </Grid>
 
@@ -490,6 +470,16 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <!-- 3.x HERO CAROUSEL #2 (ชุดรูปที่สอง) -->
+                <Grid Margin="0,24,0,24" Height="700">
+                    <ListBox
+    Style="{StaticResource HeroCarousel2}"
+    ItemsSource="{Binding HeroImages2}"
+    SelectedIndex="{Binding HeroIndex2, Mode=TwoWay}"/>
+
+                </Grid>
+
 
             </StackPanel>
         </ScrollViewer>
