@@ -282,7 +282,7 @@
             <Setter Property="Padding" Value="12,8"/>
         </Style>
 
-        <local:IntIndexTo1BasedConverter x:Key="IntIndexTo1Based"/>
+        <conv:IntIndexTo1BasedConverter x:Key="IntIndexTo1Based"/>
 
         <SolidColorBrush x:Key="BtnBlue"      Color="#1177FF"/>
         <SolidColorBrush x:Key="BtnBlueHover" Color="#0F67E3"/>

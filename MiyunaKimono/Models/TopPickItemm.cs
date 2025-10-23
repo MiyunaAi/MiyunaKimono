@@ -25,7 +25,8 @@ namespace MiyunaKimono.Models
 
         // ข้อความประกอบ UI
         public string PriceText => $"{Price:N0} THB";
-        public string OffText => Discount > 0 ? $"{Discount} % off" : "";
+        //public string OffText => Discount > 0 ? $"{Discount} % off" : "";
+        public string OffText { get; set; }
         public string HashCategory => string.IsNullOrWhiteSpace(Category) ? "—" : $"#{Category}";
     }
 }

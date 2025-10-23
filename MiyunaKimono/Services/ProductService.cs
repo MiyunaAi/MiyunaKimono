@@ -146,18 +146,23 @@ namespace MiyunaKimono.Services
         {
             var products = await GetRandomAsync(count);
             var list = new List<TopPickItem>();
+
             foreach (var p in products)
             {
+                // คิด % ส่วนลดจากคอลัมน์ discount (decimal) -> int
+                var discPercent = (int)Math.Round(p.Discount, MidpointRounding.AwayFromZero);
+
                 list.Add(new TopPickItem
                 {
                     ProductName = p.ProductName,
                     Category = p.Category,
-                    // p.Price เป็น decimal -> แปลงเป็น double ให้ตรง TopPickItem.Price (double)
-                    Price = (decimal)p.Price,
+                    Price = (decimal)p.Price,    // ถ้า TopPickItem.Price เป็น double
                     Quantity = p.Quantity,
-                    Image1Path = p.Image1Path
+                    Image1Path = p.Image1Path,       // <--- ใส่คอมมาให้ครบ
+                    OffText = discPercent > 0 ? $"{discPercent}% OFF" : null
                 });
             }
+
             return list;
         }
 

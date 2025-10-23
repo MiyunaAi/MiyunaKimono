@@ -95,7 +95,7 @@ namespace MiyunaKimono.Views
 
             // ใช้บริการของคุณ (ถ้ามี) ดึงรายการ Top Picks 8 ชิ้น
             // ถ้ายังไม่มีเมธอดนี้ ให้เปลี่ยนเป็น GetAll() แล้ว .Take(8) แทน
-            var items = await _productSvc.GetTopPicksAsync(8);
+            var items = await _productSvc.GetTopPicksAsync(6);
 
             foreach (TopPickItemModel it in items)
                 TopPicks.Add(it);
