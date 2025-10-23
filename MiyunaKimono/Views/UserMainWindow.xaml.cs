@@ -96,6 +96,57 @@ namespace MiyunaKimono.Views
 
             // เมื่อหน้า Loaded ให้เริ่ม/หยุด timer ให้ครบทั้ง 2 ตัว (มีของเดิมอยู่แล้วสำหรับ hero #1)
             Unloaded += (_, __) => _timer2.Stop();
+
+
+        }
+
+        // ข้อมูลสำหรับหน้า All Products
+        public ObservableCollection<TopPickItemModel> AllProducts { get; } = new();
+
+        // โหลดทั้งหมดจากฐานข้อมูล แล้ว map เป็นการ์ดแบบเดียวกับ Top Picks
+        private async Task LoadAllProductsAsync()
+        {
+            AllProducts.Clear();
+
+            var products = await Task.Run(() => _productSvc.GetAll());
+
+            foreach (var p in products)
+            {
+                // สร้าง OffText จาก Discount ถ้ามี (สมมติในตารางเก็บ %)
+                string off = null;
+                if (p.Discount is decimal d && d > 0)
+                {
+                    // ถ้าเก็บเป็น 0-1 ให้แปลงเป็น %
+                    var discPercent = d <= 1m ? (int)Math.Round(d * 100m) : (int)Math.Round(d);
+                    off = $"{discPercent}% OFF";
+                }
+
+                AllProducts.Add(new TopPickItemModel
+                {
+                    ProductName = p.ProductName,
+                    Category = p.Category,
+                    Price = (decimal)p.Price,
+                    Quantity = p.Quantity,
+                    Image1Path = p.Image1Path,
+                    OffText = off
+                });
+            }
+        }
+
+        private async void AllKimono_Click(object sender, RoutedEventArgs e)
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            AllProductsSection.Visibility = Visibility.Visible;
+
+            // โหลดข้อมูล (ครั้งแรก/ทุกครั้งแล้วแต่ต้องการ)
+            if (AllProducts.Count == 0)
+                await LoadAllProductsAsync();
+        }
+
+        private void Home_Click(object sender, RoutedEventArgs e)
+        {
+            AllProductsSection.Visibility = Visibility.Collapsed;
+            HomeSection.Visibility = Visibility.Visible;
         }
 
         // ===== Hero #2 =====

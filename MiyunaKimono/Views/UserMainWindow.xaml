@@ -224,10 +224,11 @@
         <Border Grid.Row="1" Background="White" BorderBrush="#DDD" BorderThickness="0,0,0,1">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4">
-                    <Button Style="{StaticResource NavTextButton}">
+                    <!-- ปุ่ม Home (ถ้าอยากให้กลับหน้าแรกได้) -->
+                    <Button Style="{StaticResource NavTextButton}" Click="Home_Click">
                         <TextBlock TextAlignment="Center"><Run Text="Home"/></TextBlock>
                     </Button>
-                    <Button Style="{StaticResource NavTextButton}">
+                    <Button Style="{StaticResource NavTextButton}" Click="AllKimono_Click">
                         <TextBlock TextAlignment="Center"><Run Text="ALL"/><LineBreak/><Run Text="Kimono"/></TextBlock>
                     </Button>
                     <Button Style="{StaticResource NavTextButton}">
@@ -256,7 +257,7 @@
         </Border>
 
         <!-- ===== 3) CONTENT ===== -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="HomeSection" Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <StackPanel>
 
                 <!-- 3.1 HERO CAROUSEL -->
@@ -483,5 +484,130 @@
 
             </StackPanel>
         </ScrollViewer>
+
+        <!-- All Products Section (เริ่มต้นซ่อน) -->
+        <Grid x:Name="AllProductsSection" Grid.Row="2" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="24,16,24,24">
+
+                    <!-- หัวข้อ: All Product (N Products Available) -->
+                    <TextBlock Margin="0,0,0,16">
+                <Run Text="All Product"/>
+                <Run Text="  ( "/>
+                <Run Text="{Binding AllProducts.Count,Mode=OneWay}"/>
+                <Run Text=" Products Available )"/>
+                    </TextBlock>
+
+                    <!-- การ์ดสินค้า (6 ใบ/แถว) -->
+                    <ItemsControl ItemsSource="{Binding AllProducts}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- บังคับ 6 คอลัมน์ -->
+                                <UniformGrid Columns="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <!-- ระยะห่างรอบการ์ด -->
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Margin" Value="12"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+
+                        <!-- การ์ด: ใช้เทมเพลตเดียวกับ Top Picks -->
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="{StaticResource TopCardWidth}"
+                                Padding="12"
+                                Background="#FAFAFA"
+                                BorderBrush="#E9E9EC" BorderThickness="1"
+                                CornerRadius="14">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- รูป 1:1 -->
+                                        <Grid>
+                                            <Border Background="#EEE" CornerRadius="10">
+                                                <Grid>
+                                                    <Border>
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Height"
+                                                                Value="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=ActualWidth}"/>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <Image Stretch="UniformToFill"
+                                                       Source="{Binding Image1Path}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- รายละเอียด -->
+                                        <StackPanel Grid.Row="1" Margin="0,10,0,8">
+                                            <TextBlock Text="{Binding ProductName}" FontWeight="SemiBold"/>
+                                            <TextBlock Foreground="#666" Margin="0,2,0,0">
+                                        <Run Text="#"/>
+                                        <Run Text="{Binding Category, TargetNullValue=—}"/>
+                                        <Run Text=" "/><Run Text="Kimono"/>
+                                            </TextBlock>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="Price " FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Price, StringFormat={}{0:N0} THB}"/>
+                                                <TextBlock Text="{Binding OffText}" Foreground="#888" FontSize="12" Margin="8,0,0,0"/>
+                                                <TextBlock Text="  "/>
+                                                <TextBlock Text="Qty "/>
+                                                <TextBlock Text="{Binding Quantity}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- ปุ่มล่าง -->
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="42"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0"
+                                            Content="VIEW DETAILS"
+                                            Height="34"
+                                            Style="{StaticResource PinkOutlineButton}"/>
+
+                                            <ToggleButton Grid.Column="1" Width="36" Height="34"
+                                                  Background="White"
+                                                  BorderBrush="#E9E9EC" BorderThickness="1"
+                                                  IsChecked="{Binding IsFavorite}" FocusVisualStyle="{x:Null}">
+                                                <ToggleButton.Template>
+                                                    <ControlTemplate TargetType="ToggleButton">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8" Padding="6">
+                                                            <Image x:Name="img" Source="pack://application:,,,/Assets/ic_heart_line.png"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsChecked" Value="True">
+                                                                <Setter TargetName="img" Property="Source"
+                                                                Value="pack://application:,,,/Assets/ic_heart_fill.png"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </ToggleButton.Template>
+                                            </ToggleButton>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
     </Grid>
 </Window>
