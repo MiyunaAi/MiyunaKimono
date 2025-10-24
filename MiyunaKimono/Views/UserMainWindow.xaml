@@ -283,72 +283,103 @@
                 </Grid>
 
                 <!-- 3.2 SHOP BY CATEGORIES -->
+                <!-- 3.2 SHOP BY CATEGORIES -->
                 <TextBlock Text="Shop by Categories" FontSize="22" FontWeight="SemiBold" Margin="24,0,0,12"/>
                 <WrapPanel Margin="24,0,24,36" ItemWidth="180" ItemHeight="160" HorizontalAlignment="Center">
-                    <!-- แต่ละหมวด -->
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_homongi.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Homongi"/><LineBreak/><Run Text="Kimono"/>
-                        </TextBlock>
-                    </StackPanel>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_furisode.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Furisode"/><LineBreak/><Run Text="Kimono"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Homongi -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Homongi" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_homongi.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Homongi"/><LineBreak/><Run Text="Kimono"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_hakama.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Hakama pattern"/><LineBreak/><Run Text="Kimono"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Furisode -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Furisode" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_furisode.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Furisode"/><LineBreak/><Run Text="Kimono"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_yukata.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Yukata"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Hakama -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Hakama" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_hakama.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Hakama pattern"/><LineBreak/><Run Text="Kimono"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_kurotome.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Kurotomesode pattern"/><LineBreak/><Run Text="Kimono"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Yukata -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Yukata" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_yukata.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Yukata"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_shiromuku.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Shiromuku wedding"/><LineBreak/><Run Text="Kimono"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Kurotomesode -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Kurotomesode" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_kurotome.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Kurotomesode pattern"/><LineBreak/><Run Text="Kimono"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel Margin="12" Width="160">
-                        <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
-                            <Image Source="pack://application:,,,/Assets/cat_accessories.png" Stretch="Uniform"/>
-                        </Border>
-                        <TextBlock TextAlignment="Center" Margin="0,8,0,0">
-                            <Run Text="Accessories"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Shiromuku -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Shiromuku" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_shiromuku.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Shiromuku wedding"/><LineBreak/><Run Text="Kimono"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Accessories -->
+                    <Button Style="{StaticResource IconGhostButton}" Width="160" Margin="12"
+            Tag="Accessories" Click="CategoryIcon_Click">
+                        <StackPanel>
+                            <Border Width="72" Height="72" CornerRadius="36" Background="#EFEFEF" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/cat_accessories.png" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock TextAlignment="Center" Margin="0,8,0,0">
+                <Run Text="Accessories"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
                 </WrapPanel>
+
 
                 <!-- Top Picks header + More -->
                 <Grid Margin="24,12,24,8">

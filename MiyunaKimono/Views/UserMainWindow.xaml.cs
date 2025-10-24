@@ -1,15 +1,15 @@
 ﻿// Views/UserMainWindow.xaml.cs
-using MiyunaKimono.Services;
 using MiyunaKimono.Models;
+using MiyunaKimono.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-
 // ป้องกันชื่อซ้อนกับคลาสอื่น
 using TopPickItemModel = MiyunaKimono.Models.TopPickItem;
 
@@ -241,6 +241,13 @@ namespace MiyunaKimono.Views
             => await ShowCategoryAsync("Accessories");
 
 
+        private async void CategoryIcon_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string category && !string.IsNullOrWhiteSpace(category))
+            {
+                await ShowCategoryAsync(category);
+            }
+        }
 
         // ข้อมูลสำหรับหน้า All Products
         public ObservableCollection<TopPickItemModel> AllProducts { get; } = new();
@@ -416,6 +423,8 @@ namespace MiyunaKimono.Views
         }
 
         // ===== Hero #2 =====
+
+
         
 
     }
