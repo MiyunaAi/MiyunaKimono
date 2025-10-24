@@ -30,5 +30,16 @@ namespace MiyunaKimono.Models
 
         // เผื่อโชว์ thumbnail ใน Grid (ใช้รูปแรก)
         public string ThumbPath => string.IsNullOrWhiteSpace(Image1Path) ? null : Image1Path;
+
+        public decimal? PriceAfterDiscount
+        {
+            get
+            {
+                if (Discount <= 0) return null;
+                var pct = Discount <= 1m ? Discount : Discount / 100m;
+                return Math.Round(Price * (1 - pct), 2, MidpointRounding.AwayFromZero);
+            }
+        }
+
     }
 }

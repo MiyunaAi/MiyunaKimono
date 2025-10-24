@@ -133,7 +133,9 @@
                                         <Button Grid.Column="0"
                                                 Content="VIEW DETAILS"
                                                 Height="34"
-                                                Style="{StaticResource PinkOutlineButton}"/>
+                                                Style="{StaticResource PinkOutlineButton}"
+                                                Click="ViewDetails_Click"
+                                                Tag="{Binding}"/>
 
                                         <ToggleButton Grid.Column="1" Width="36" Height="34"
                                                       Background="White"

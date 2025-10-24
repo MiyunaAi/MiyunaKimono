@@ -249,6 +249,37 @@ namespace MiyunaKimono.Views
             }
         }
 
+        private void ViewDetails_Click(object sender, RoutedEventArgs e)
+        {
+            // รับโมเดลจาก Tag ของปุ่ม
+            var ctx = (sender as FrameworkElement)?.Tag;
+
+            MiyunaKimono.Models.Product product = null;
+
+            if (ctx is MiyunaKimono.Models.Product p)
+            {
+                product = p;
+            }
+            else if (ctx is MiyunaKimono.Models.TopPickItem card)
+            {
+                // หากคุณเก็บแค่การ์ด ให้ดึงของจริงจากบริการ (ปรับตามที่คุณมี)
+                // ตัวอย่าง: หาจากชื่อ
+                product = _productSvc.GetByName(card.ProductName);
+            }
+
+            if (product == null)
+            {
+                MessageBox.Show("ไม่พบข้อมูลสินค้า");
+                return;
+            }
+
+            var w = new ProductDetailsWindow(product);
+            w.Owner = this;
+            w.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            w.ShowDialog();
+        }
+
+
         // ข้อมูลสำหรับหน้า All Products
         public ObservableCollection<TopPickItemModel> AllProducts { get; } = new();
 

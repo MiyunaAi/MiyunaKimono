@@ -232,6 +232,19 @@ namespace MiyunaKimono.Services
             }
         });
 
+        public Product GetByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            return GetAll().FirstOrDefault(p => string.Equals(p.ProductName, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public Product GetById(int id)
+        {
+            return GetAll().FirstOrDefault(p => p.Id == id);
+        }
+
+
+
         // ===== Read by Id =====
         public async Task<Product> GetByIdAsync(int id)
         {
