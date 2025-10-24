@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+
 // ป้องกันชื่อซ้อนกับคลาสอื่น
 using TopPickItemModel = MiyunaKimono.Models.TopPickItem;
 
@@ -69,6 +70,8 @@ namespace MiyunaKimono.Views
             HeroImages.Add("pack://application:,,,/Assets/hero4.jpg");
             HeroIndex = 0;
 
+
+
             // Auto-rotate hero
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
             _timer.Tick += (_, __) => NextHero();
@@ -100,6 +103,30 @@ namespace MiyunaKimono.Views
 
 
         }
+
+        // ===== Heart toggle handlers (สำหรับการ์ดบนหน้า Home/List) =====
+        private void Heart_Checked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+
+            // การ์ดบนหน้า Home/List ใช้ TopPickItem ของ Models
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, true);
+            // เผื่อบางกรณีเป็น Product ตรง ๆ (เช่นหน้า Details)
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, true);
+        }
+
+        private void Heart_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, false);
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, false);
+        }
+
 
         // ====== สำหรับหน้า List ======
         public ObservableCollection<TopPickItem> FilteredProducts { get; } = new();
@@ -161,12 +188,15 @@ namespace MiyunaKimono.Views
 
             return new TopPickItem
             {
+                Id = p.Id, // ★ เพิ่ม 
                 ProductName = p.ProductName,
                 Category = p.Category,
                 Price = price,           // <= ให้ชนิดตรงกับพร็อพใน TopPickItem ของคุณ
                 Quantity = p.Quantity,
                 Image1Path = p.Image1Path,
-                OffText = offText
+                OffText = offText,
+                IsFavorite = FavoritesService.Instance.IsFavorite(p.Id) // ★ เพิ่ม
+
             };
         }
 

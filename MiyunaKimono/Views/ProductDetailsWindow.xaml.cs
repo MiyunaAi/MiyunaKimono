@@ -51,6 +51,29 @@ namespace MiyunaKimono.Views
             }
         }
 
+        // ===== Heart toggle handlers (สำหรับการ์ดบนหน้า Home/List) =====
+        private void Heart_Checked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+
+            // การ์ดบนหน้า Home/List ใช้ TopPickItem ของ Models
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, true);
+            // เผื่อบางกรณีเป็น Product ตรง ๆ (เช่นหน้า Details)
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, true);
+        }
+
+        private void Heart_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, false);
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, false);
+        }
+
         public string PriceAfterText
         {
             get

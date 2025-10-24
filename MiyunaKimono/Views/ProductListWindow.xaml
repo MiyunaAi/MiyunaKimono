@@ -137,27 +137,32 @@
                                                 Click="ViewDetails_Click"
                                                 Tag="{Binding}"/>
 
+                                        <!-- ⬇️ ตำแหน่งที่ต้องแก้ -->
                                         <ToggleButton Grid.Column="1" Width="36" Height="34"
-                                                      Background="White"
-                                                      BorderBrush="#E9E9EC" BorderThickness="1"
-                                                      IsChecked="{Binding IsFavorite}" FocusVisualStyle="{x:Null}">
+                  Background="White"
+                  BorderBrush="#E9E9EC" BorderThickness="1"
+                  IsChecked="{Binding IsFavorite, Mode=TwoWay}"
+                  Checked="Heart_Checked"
+                  Unchecked="Heart_Unchecked"
+                  FocusVisualStyle="{x:Null}">
                                             <ToggleButton.Template>
                                                 <ControlTemplate TargetType="ToggleButton">
                                                     <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="8" Padding="6">
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="8" Padding="6">
                                                         <Image x:Name="img" Source="pack://application:,,,/Assets/ic_heart_line.png"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsChecked" Value="True">
                                                             <Setter TargetName="img" Property="Source"
-                                                                    Value="pack://application:,,,/Assets/ic_heart_fill.png"/>
+                                Value="pack://application:,,,/Assets/ic_heart_fill.png"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </ToggleButton.Template>
                                         </ToggleButton>
+
                                     </Grid>
                                 </Grid>
                             </Border>

@@ -10,6 +10,8 @@ using System;
 
 namespace MiyunaKimono.Services
 {
+
+
     // เก็บข้อมูลผู้ใช้แบบย่อ (ไว้ใช้ทั้งแอป)
     public class AppUser
     {
@@ -58,7 +60,14 @@ namespace MiyunaKimono.Services
             };
             return true;
         }
-
+        public int GetUserIdByUsername(string username)
+        {
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand("SELECT id FROM users WHERE username=@u LIMIT 1;", conn);
+            cmd.Parameters.AddWithValue("@u", username);
+            var obj = cmd.ExecuteScalar();
+            return obj == null ? 0 : Convert.ToInt32(obj);
+        }
         /// <summary>
         /// ตรวจว่าอีเมลนี้มีอยู่แล้วหรือไม่
         /// </summary>

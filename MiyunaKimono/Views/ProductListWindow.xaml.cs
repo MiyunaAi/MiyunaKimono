@@ -70,6 +70,25 @@ namespace MiyunaKimono.Views
             };
         }
 
+        private void Heart_Checked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, true);
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, true);
+        }
+
+        private void Heart_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var dc = (sender as FrameworkElement)?.DataContext;
+            if (dc is MiyunaKimono.Models.TopPickItem t)
+                FavoritesService.Instance.Set(t.Id, false);
+            else if (dc is MiyunaKimono.Models.Product p)
+                FavoritesService.Instance.Set(p.Id, false);
+        }
+
+
         // ===== Nav ปุ่มด้านบน =====
         private void Home_Click(object sender, RoutedEventArgs e)
         {

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace MiyunaKimono.Models
 {
-    public class Product
+    public class Product    
     {
         public int Id { get; set; }
         public string ProductCode { get; set; }
@@ -28,6 +29,8 @@ namespace MiyunaKimono.Models
         public bool Visible { get; set; } = true;     // แสดง/ซ่อนสินค้า
         public DateTime? UpdatedAt { get; set; }      // เวลาอัปเดตล่าสุด (null ได้)
 
+
+
         // เผื่อโชว์ thumbnail ใน Grid (ใช้รูปแรก)
         public string ThumbPath => string.IsNullOrWhiteSpace(Image1Path) ? null : Image1Path;
 
@@ -40,6 +43,16 @@ namespace MiyunaKimono.Models
                 return Math.Round(Price * (1 - pct), 2, MidpointRounding.AwayFromZero);
             }
         }
+        private bool _isFavorite;
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set { if (_isFavorite == value) return; _isFavorite = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsFavorite))); }
+        }
+
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
     }
 }

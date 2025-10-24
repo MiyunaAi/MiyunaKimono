@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using MiyunaKimono.Services;
+
 
 namespace MiyunaKimono.Services
 {
+
     // ✅ เหลือเฉพาะ DTO สร้างสินค้าไว้ที่ Services ก็ได้
     // (อัปเดตสินค้าให้ไปใช้ Models.ProductUpdateDto เท่านั้น)
     public class ProductCreateDto
@@ -133,6 +136,9 @@ namespace MiyunaKimono.Services
                         Discount = rd["discount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["discount"]),
                         UpdatedAt = rd["updated_at"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["updated_at"])
                     };
+
+                    // ★ เติมสถานะหัวใจ
+                    p.IsFavorite = FavoritesService.Instance.IsFavorite(p.Id);   // ← เพิ่ม
                     list.Add(p);
                 }
             }
@@ -149,22 +155,24 @@ namespace MiyunaKimono.Services
 
             foreach (var p in products)
             {
-                // คิด % ส่วนลดจากคอลัมน์ discount (decimal) -> int
                 var discPercent = (int)Math.Round(p.Discount, MidpointRounding.AwayFromZero);
 
                 list.Add(new TopPickItem
                 {
+                    Id = p.Id,                                     // ← เพิ่ม
                     ProductName = p.ProductName,
                     Category = p.Category,
-                    Price = (decimal)p.Price,    // ถ้า TopPickItem.Price เป็น double
+                    Price = p.Price,
                     Quantity = p.Quantity,
-                    Image1Path = p.Image1Path,       // <--- ใส่คอมมาให้ครบ
-                    OffText = discPercent > 0 ? $"{discPercent}% OFF" : null
+                    Image1Path = p.Image1Path,
+                    OffText = discPercent > 0 ? $"{discPercent}% OFF" : null,
+                    IsFavorite = FavoritesService.Instance.IsFavorite(p.Id) // ← เพิ่ม
                 });
             }
 
             return list;
         }
+
 
         // ===== Lookup dropdown =====
         public Task<List<string>> GetStatusesAsync() => Task.Run(() => DistinctString("status"));
@@ -240,7 +248,10 @@ namespace MiyunaKimono.Services
 
         public Product GetById(int id)
         {
-            return GetAll().FirstOrDefault(p => p.Id == id);
+            var p = GetAll().FirstOrDefault(x => x.Id == id);
+            if (p != null)
+                p.IsFavorite = FavoritesService.Instance.IsFavorite(p.Id); // ย้ำอีกครั้ง
+            return p;
         }
 
 
@@ -250,17 +261,17 @@ namespace MiyunaKimono.Services
         {
             using var conn = Db.GetConn();
             using var cmd = new MySqlCommand(@"
-                SELECT id, product_code, product_name, status, brand, category,
-                       quantity, price, discount, description,
-                       image1_path, image2_path, image3_path, visible, updated_at
-                FROM products
-                WHERE id=@id;", conn);
+        SELECT id, product_code, product_name, status, brand, category,
+               quantity, price, discount, description,
+               image1_path, image2_path, image3_path, visible, updated_at
+        FROM products
+        WHERE id=@id;", conn);
             cmd.Parameters.AddWithValue("@id", id);
 
             using var rd = await cmd.ExecuteReaderAsync();
             if (!await rd.ReadAsync()) return null;
 
-            return new Product
+            var prod = new Product
             {
                 Id = rd.GetInt32("id"),
                 ProductCode = rd["product_code"]?.ToString(),
@@ -278,7 +289,13 @@ namespace MiyunaKimono.Services
                 Visible = rd["visible"] != DBNull.Value && Convert.ToBoolean(rd["visible"]),
                 UpdatedAt = rd["updated_at"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["updated_at"])
             };
+
+            // ★ ใส่ตรงนี้
+            prod.IsFavorite = FavoritesService.Instance.IsFavorite(prod.Id);
+
+            return prod;
         }
+
 
         // ===== Update (แบบใช้ ProductCreateDto เดิม) / Delete =====
         public Task<bool> UpdateAsync(int id, ProductCreateDto dto) => Task.Run(() =>

@@ -166,7 +166,8 @@
                     <ToggleButton Width="44" Height="44" Margin="10,0,0,0"
               Background="White" BorderBrush="#E9E9EC" BorderThickness="1"
               FocusVisualStyle="{x:Null}"
-              IsChecked="{Binding IsFavorite, Mode=TwoWay}">
+              IsChecked="{Binding Product.IsFavorite, Mode=TwoWay}"
+              Checked="Heart_Checked" Unchecked="Heart_Unchecked">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="ToggleButton">
                                 <Border Background="{TemplateBinding Background}"

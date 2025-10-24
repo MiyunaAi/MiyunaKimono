@@ -122,6 +122,13 @@ namespace MiyunaKimono.Views
             Properties.Settings.Default.SavedUsername = (ChkRemember.IsChecked == true) ? user : "";
             Properties.Settings.Default.Save();
 
+            // ★ สำคัญ: ถ้ายังไม่มี CurrentUserId ใน AuthService ให้ใช้เมธอด GetUserId แทน
+            int userId = _auth.GetUserIdByUsername(user); // เมธอดนี้คุณจะเพิ่มใน AuthService (ข้อ 2)
+            if (userId > 0)
+            {
+                FavoritesService.Instance.InitForUser(userId);
+            }
+
             MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             new UserMainWindow().Show();
             Close();
