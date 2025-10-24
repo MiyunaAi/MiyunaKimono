@@ -98,7 +98,149 @@ namespace MiyunaKimono.Views
             Unloaded += (_, __) => _timer2.Stop();
 
 
+
         }
+
+        // ====== สำหรับหน้า List ======
+        public ObservableCollection<TopPickItem> FilteredProducts { get; } = new();
+
+        private string _listTitle;
+        public string ListTitle
+        {
+            get => _listTitle;
+            set { _listTitle = value; OnPropertyChanged(); }
+        }
+
+        private int _listCount;
+        public int ListCount
+        {
+            get => _listCount;
+            set { _listCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListCountText)); }
+        }
+
+        public string ListCountText => $"({ListCount} Products Available)";
+
+        // cache ข้อมูลทั้งหมดไว้ (ดึงทีเดียวแล้ว reuse)
+        private List<Product> _allDbProducts;
+        private bool _loadedAll;
+
+        private void ShowHome()
+        {
+            HomeSection.Visibility = Visibility.Visible;
+            ListSection.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowList()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Visible;
+        }
+
+        private async Task EnsureAllProductsAsync()
+        {
+            if (_loadedAll) return;
+            // ดึงจาก service (ของคุณมี GetAll())
+            _allDbProducts = _productSvc.GetAll();   // synchronous ในโค้ดคุณ
+            _loadedAll = true;
+        }
+
+        private static TopPickItem MapToTopPick(Product p)
+        {
+            // ถ้า TopPickItem.Price เป็น double ให้ cast ให้ตรง
+            // สมมุติ TopPickItem.Price เป็น decimal ตามที่เราใช้ในการ์ด
+            var price = p.Price; // decimal
+                                 // คิด % off ถ้าคุณเก็บ discount เป็นจำนวนเงิน/เปอร์เซ็นต์ ปรับตามจริง
+                                 // ตัวอย่างนี้ถือว่า discount เป็นเปอร์เซ็นต์ 0..100
+            string offText = null;
+            if (p.Discount != 0m)
+            {
+                // ถ้า p.Discount เก็บเป็นเปอร์เซ็นต์ (decimal)
+                var discPercent = (int)Math.Round(p.Discount);
+                offText = discPercent > 0 ? $"{discPercent}% OFF" : null;
+            }
+
+            return new TopPickItem
+            {
+                ProductName = p.ProductName,
+                Category = p.Category,
+                Price = price,           // <= ให้ชนิดตรงกับพร็อพใน TopPickItem ของคุณ
+                Quantity = p.Quantity,
+                Image1Path = p.Image1Path,
+                OffText = offText
+            };
+        }
+
+        private async Task ShowAllProductsAsync()
+        {
+            await EnsureAllProductsAsync();
+
+            FilteredProducts.Clear();
+            foreach (var p in _allDbProducts)
+                FilteredProducts.Add(MapToTopPick(p));
+
+            ListTitle = "All Product";
+            ListCount = FilteredProducts.Count;
+            ShowList();
+        }
+
+        private async Task ShowCategoryAsync(string category)
+        {
+            await EnsureAllProductsAsync();
+
+            FilteredProducts.Clear();
+            foreach (var p in _allDbProducts)
+            {
+                if (string.Equals(p.Category, category, StringComparison.OrdinalIgnoreCase))
+                    FilteredProducts.Add(MapToTopPick(p));
+            }
+
+            // ---- ตั้งชื่อหัวข้อ: บางหมวดไม่เติมคำว่า "Kimono"
+            var noSuffix = category.Equals("Yukata", StringComparison.OrdinalIgnoreCase)
+                        || category.Equals("Accessories", StringComparison.OrdinalIgnoreCase);
+
+            ListTitle = noSuffix ? category : $"{category} Kimono";
+            // -----------------------------------------------
+
+            ListCount = FilteredProducts.Count;
+            ShowList();
+        }
+
+
+        private void Nav_Home_Click(object sender, RoutedEventArgs e)
+        {
+            ShowHome();
+        }
+
+        private async void Nav_All_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowAllProductsAsync();
+        }
+
+        private async void Nav_Furisode_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Furisode");
+        }
+
+        // (ถ้ามีปุ่มหมวดอื่น ก็เพิ่ม method คู่กัน เช่น Nav_Homongi_Click => ShowCategoryAsync("Homongi"))
+        private async void Nav_Homongi_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Homongi");
+
+        private async void Nav_Hakama_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Hakama");
+
+        private async void Nav_Kurotomesode_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Kurotomesode");
+
+        private async void Nav_Shiromuku_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Shiromuku");
+
+        private async void Nav_Yukata_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Yukata");
+
+        private async void Nav_Accessories_Click(object sender, RoutedEventArgs e)
+            => await ShowCategoryAsync("Accessories");
+
+
 
         // ข้อมูลสำหรับหน้า All Products
         public ObservableCollection<TopPickItemModel> AllProducts { get; } = new();
@@ -135,19 +277,26 @@ namespace MiyunaKimono.Views
 
         private async void AllKimono_Click(object sender, RoutedEventArgs e)
         {
-            HomeSection.Visibility = Visibility.Collapsed;
-            AllProductsSection.Visibility = Visibility.Visible;
-
-            // โหลดข้อมูล (ครั้งแรก/ทุกครั้งแล้วแต่ต้องการ)
-            if (AllProducts.Count == 0)
-                await LoadAllProductsAsync();
+            await ShowAllProductsAsync();   // ไปใช้ ListSection
         }
 
         private void Home_Click(object sender, RoutedEventArgs e)
         {
-            AllProductsSection.Visibility = Visibility.Collapsed;
-            HomeSection.Visibility = Visibility.Visible;
+            ShowHome();                     // กลับมา HomeSection
         }
+
+        private void Furisode_Click(object sender, RoutedEventArgs e)
+        {
+            new ProductListWindow("Furisode Kimono", "Furisode").Show();
+            Close(); // ถ้าต้องการปิดหน้า Home เดิม
+        }
+
+        private void CF(object sender, RoutedEventArgs e)
+        {
+            new ProductListWindow("All Product", null).Show();
+            Close();
+        }
+
 
         // ===== Hero #2 =====
         public ObservableCollection<string> HeroImages2 { get; } = new();

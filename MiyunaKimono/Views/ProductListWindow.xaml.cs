@@ -1,0 +1,97 @@
+﻿using MiyunaKimono.Models;
+using MiyunaKimono.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+
+namespace MiyunaKimono.Views
+{
+    public partial class ProductListWindow : Window, INotifyPropertyChanged
+    {
+        private readonly ProductService _service = new();
+
+        public string CategoryFilter { get; }
+        public string PageTitle { get; }
+
+        public ObservableCollection<TopPickItem> AllProducts { get; } = new();
+        public int AllProductsCount => AllProducts.Count;
+
+        public ProductListWindow(string pageTitle, string categoryFilter = null)
+        {
+            InitializeComponent();
+            DataContext = this;
+
+            PageTitle = pageTitle;
+            CategoryFilter = categoryFilter;
+
+            Loaded += async (_, __) =>
+            {
+                try
+                {
+                    // ดึงทั้งหมดแล้วค่อยกรอง
+                    var list = _service.GetAll();
+
+                    if (!string.IsNullOrWhiteSpace(CategoryFilter))
+                    {
+                        list = list
+                            .Where(p => string.Equals(p.Category ?? "",
+                                                      CategoryFilter,
+                                                      StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
+
+                    AllProducts.Clear();
+                    foreach (var p in list)
+                    {
+                        // คำนวณข้อความส่วนลด (ถ้าตารางเก็บเป็น % ก็แปลงตามจริง)
+                        var discPercent = (int)Math.Round(p.Discount, MidpointRounding.AwayFromZero);
+                        var offText = discPercent > 0 ? $"{discPercent}% OFF" : null;
+
+                        AllProducts.Add(new TopPickItem
+                        {
+                            ProductName = p.ProductName,
+                            Category = p.Category,
+                            Price = p.Price,            // TopPickItem.Price เป็น decimal แล้ว
+                            Quantity = p.Quantity,
+                            Image1Path = p.Image1Path,
+                            OffText = offText
+                        });
+                    }
+
+                    OnPropertyChanged(nameof(AllProductsCount));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Load products failed: " + ex.Message);
+                }
+            };
+        }
+
+        // ===== Nav ปุ่มด้านบน =====
+        private void Home_Click(object sender, RoutedEventArgs e)
+        {
+            new UserMainWindow().Show();
+            Close();
+        }
+
+        private void AllKimono_Click(object sender, RoutedEventArgs e)
+        {
+            new ProductListWindow("All Product", null).Show();
+            Close();
+        }
+
+        private void Furisode_Click(object sender, RoutedEventArgs e)
+        {
+            new ProductListWindow("Furisode Kimono", "Furisode").Show();
+            Close();
+        }
+
+        // ===== INotifyPropertyChanged =====
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+}
