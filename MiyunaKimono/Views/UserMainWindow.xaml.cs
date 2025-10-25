@@ -250,17 +250,21 @@ namespace MiyunaKimono.Views
         private List<Product> _allDbProducts;
         private bool _loadedAll;
 
+        // เดิมในไฟล์มีเมธอดนี้อยู่ช่วงล่างของคลาส
         private void ShowHome()
         {
             HomeSection.Visibility = Visibility.Visible;
             ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
         }
 
         private void ShowList()
         {
             HomeSection.Visibility = Visibility.Collapsed;
             ListSection.Visibility = Visibility.Visible;
+            CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
         }
+
 
 
         private static TopPickItem MapToTopPick(Product p)
