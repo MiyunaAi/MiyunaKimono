@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-// Helpers/PasswordBoxHelper.cs
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace MiyunaKimono.Helpers
 {
-    // ทำ property Length ให้ bind ได้ และเปิด/ปิดการติดตามด้วย Track
     public static class PasswordBoxHelper
     {
         public static readonly DependencyProperty TrackProperty =
@@ -17,29 +10,38 @@ namespace MiyunaKimono.Helpers
                 "Track", typeof(bool), typeof(PasswordBoxHelper),
                 new PropertyMetadata(false, OnTrackChanged));
 
-        public static void SetTrack(DependencyObject obj, bool value) => obj.SetValue(TrackProperty, value);
-        public static bool GetTrack(DependencyObject obj) => (bool)obj.GetValue(TrackProperty);
+        public static void SetTrack(DependencyObject d, bool v) => d.SetValue(TrackProperty, v);
+        public static bool GetTrack(DependencyObject d) => (bool)d.GetValue(TrackProperty);
 
         public static readonly DependencyProperty LengthProperty =
             DependencyProperty.RegisterAttached(
                 "Length", typeof(int), typeof(PasswordBoxHelper),
                 new PropertyMetadata(0));
 
-        public static int GetLength(DependencyObject obj) => (int)obj.GetValue(LengthProperty);
-        private static void SetLength(DependencyObject obj, int value) => obj.SetValue(LengthProperty, value);
+        public static void SetLength(DependencyObject d, int v) => d.SetValue(LengthProperty, v);
+        public static int GetLength(DependencyObject d) => (int)d.GetValue(LengthProperty);
 
         private static void OnTrackChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var pb = d as PasswordBox;
-            if (pb == null) return;
-
-            if ((bool)e.NewValue)
+            if (d is PasswordBox pb)
             {
-                pb.PasswordChanged += (s, ev) => SetLength(pb, pb.Password?.Length ?? 0);
-                // set initial
-                SetLength(pb, pb.Password?.Length ?? 0);
+                if ((bool)e.NewValue)
+                {
+                    pb.PasswordChanged -= Pb_PasswordChanged;
+                    pb.PasswordChanged += Pb_PasswordChanged;
+                    SetLength(pb, pb.Password?.Length ?? 0);
+                }
+                else
+                {
+                    pb.PasswordChanged -= Pb_PasswordChanged;
+                }
             }
+        }
+
+        private static void Pb_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is PasswordBox pb)
+                SetLength(pb, pb.Password?.Length ?? 0);
         }
     }
 }
-

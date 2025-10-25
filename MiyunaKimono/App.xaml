@@ -4,9 +4,13 @@
              xmlns:conv="clr-namespace:MiyunaKimono.Converters"
              xmlns:local="clr-namespace:MiyunaKimono"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             
+             ShutdownMode="OnMainWindowClose"
              StartupUri="Views/LoginWindow.xaml">
     <Application.Resources>
 
+        
+        
         <!-- ปุ่มไอคอนโปร่งใส ไม่มีเอฟเฟกต์ hover -->
         <Style x:Key="IconButtonNoHover" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -735,6 +739,52 @@
             </Style.Triggers>
         </Style>
 
+        <!-- ใช้ปุ่มชมพูเป็นปุ่มหลักทั่วแอป -->
+        <Style x:Key="PrimaryButton" TargetType="Button"
+       BasedOn="{StaticResource PinkPrimaryButton}"/>
 
+        <!-- ปุ่มตัวหนังสือบนแถบนำทาง -->
+        <Style x:Key="TopTextButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>   
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#111"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconGhostButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        
+        
     </Application.Resources>
 </Application>

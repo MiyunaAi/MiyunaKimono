@@ -126,11 +126,21 @@ namespace MiyunaKimono.Views
 
         private void AddToCart_Click(object sender, RoutedEventArgs e)
         {
-            var (ok, msg) = CartService.Instance.Add(Product, Quantity);
-            MessageBox.Show(msg, ok ? "Success" : "Warning", MessageBoxButton.OK,
-                ok ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            if (Quantity > Product.Quantity)
+            {
+                MessageBox.Show("Not enough stock.", "Warning",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            // เรียก Add ตามปกติ (คาดว่าเป็น void)
+            CartService.Instance.Add(Product, Quantity);
 
-            if (ok) Close();
+            // แจ้งผลแบบง่าย ๆ
+            MessageBox.Show("Added to cart", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // ปิดหน้ารายละเอียด (ไม่ปิดแอป)
+            this.Close();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

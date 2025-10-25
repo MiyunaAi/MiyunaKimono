@@ -124,6 +124,7 @@ namespace MiyunaKimono.Views
             var w = new ProductDetailsWindow(product);
             w.Owner = this;
             w.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            var win = new ProductDetailsWindow(product) { Owner = this };
             w.ShowDialog();
         }
 

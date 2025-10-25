@@ -123,15 +123,23 @@ namespace MiyunaKimono.Views
             Properties.Settings.Default.Save();
 
             // ★ สำคัญ: ถ้ายังไม่มี CurrentUserId ใน AuthService ให้ใช้เมธอด GetUserId แทน
-            int userId = _auth.GetUserIdByUsername(user); // เมธอดนี้คุณจะเพิ่มใน AuthService (ข้อ 2)
+            // ===== ดึง userId และตั้งค่า context ผู้ใช้ปัจจุบัน =====
+            int userId = _auth.GetUserIdByUsername(user); // ใช้เมธอดใน AuthService ที่เราเพิ่งเพิ่ม
             if (userId > 0)
             {
+                // บอก AuthService ว่าผู้ใช้คนไหนกำลังล็อกอินอยู่
+                AuthService.SetCurrentUserId(userId);
+
+                // โหลด favorite และ cart ของผู้ใช้
                 FavoritesService.Instance.InitForUser(userId);
+                CartPersistenceService.Instance.Load(userId);
             }
 
             MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            new UserMainWindow().Show();
-            Close();
+            var main = new UserMainWindow();
+            Application.Current.MainWindow = main;    // ✅ บอก WPF ว่านี่คือหน้าหลัก
+            main.Show();
+            this.Close();
         }
 
 

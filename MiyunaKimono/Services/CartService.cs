@@ -2,24 +2,17 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
+using MiyunaKimono.Models;
 
 namespace MiyunaKimono.Services
 {
-    public class CartLine
+    public class CartService : INotifyPropertyChanged
     {
-        public Models.Product Product { get; set; }
-        public int Quantity { get; set; }
+        private static readonly Lazy<CartService> _lazy = new(() => new CartService());
+        public static CartService Instance => _lazy.Value;
 
-        // ใช้ราคาหลังหักส่วนลด (ถ้ามี) * จำนวน
-        public decimal LineTotal => (Product.PriceAfterDiscount ?? Product.Price) * Quantity;
-    }
-
-    /// <summary>บริการตะกร้าแบบ Singleton ใช้ร่วมทั้งแอป</summary>
-    public sealed class CartService : INotifyPropertyChanged
-    {
-        public static CartService Instance { get; } = new CartService();
-        private CartService() { }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void Raise(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
         public ObservableCollection<CartLine> Lines { get; } = new();
 
@@ -27,72 +20,51 @@ namespace MiyunaKimono.Services
         public int TotalQuantity
         {
             get => _totalQuantity;
-            private set
-            {
-                if (_totalQuantity == value) return;
-                _totalQuantity = value;
-                OnPropertyChanged(nameof(TotalQuantity));
-                OnPropertyChanged(nameof(HasItems)); // ให้ XAML รีเฟรช Visibility ของ Badge
-            }
+            private set { _totalQuantity = value; Raise(nameof(TotalQuantity)); Raise(nameof(HasItems)); }
         }
-
         public bool HasItems => TotalQuantity > 0;
 
-        public (bool ok, string message) Add(Models.Product product, int qty)
+        private CartService() { }
+
+        public void Add(Product p, int qty)
         {
-            if (qty <= 0) return (false, "จำนวนต้องมากกว่าศูนย์");
-            if (qty > product.Quantity) return (false, "จำนวนมากเกินไป โปรดตรวจสอบจำนวนอีกครั้ง");
-
-            var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
-            if (line == null)
-            {
-                Lines.Add(new CartLine { Product = product, Quantity = qty });
-            }
-            else
-            {
-                if (line.Quantity + qty > product.Quantity)
-                    return (false, "จำนวนรวมเกินสต็อก โปรดลดจำนวน");
-                line.Quantity += qty;
-            }
-
-            RecalcTotals();
-            return (true, "เพิ่มลงตะกร้าสำเร็จ");
+            if (p == null || qty <= 0) return;
+            var line = Find(p);
+            if (line == null) Lines.Add(new CartLine { Product = p, Quantity = qty });
+            else line.Quantity += qty;
+            Recalc();
         }
 
-        public void SetQuantity(Models.Product product, int qty)
+        public void SetQuantity(Product p, int qty)
         {
-            var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
+            if (p == null) return;
+            var line = Find(p);
             if (line == null) return;
 
-            if (qty <= 0) { Lines.Remove(line); }
-            else { line.Quantity = Math.Min(qty, product.Quantity); }
+            if (qty <= 0) Lines.Remove(line);
+            else line.Quantity = qty;
 
-            RecalcTotals();
-        }
-
-        public void Remove(Models.Product product)
-        {
-            var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
-            if (line != null)
-            {
-                Lines.Remove(line);
-                RecalcTotals();
-            }
+            Recalc();
         }
 
         public void Clear()
         {
             Lines.Clear();
-            RecalcTotals();
+            Recalc();
         }
 
-        private void RecalcTotals()
+        private CartLine Find(Product p)
         {
-            TotalQuantity = Lines.Sum(l => l.Quantity);
+            foreach (var l in Lines)
+                if (l.Product?.Id == p.Id) return l;
+            return null;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void Recalc()
+        {
+            int q = 0;
+            foreach (var l in Lines) q += l.Quantity;
+            TotalQuantity = q;
+        }
     }
 }

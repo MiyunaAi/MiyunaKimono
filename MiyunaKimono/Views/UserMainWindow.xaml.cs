@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Collections.Generic;
+
 
 // ป้องกันชื่อซ้อนกับคลาสอื่น
 using TopPickItemModel = MiyunaKimono.Models.TopPickItem;
@@ -53,6 +55,97 @@ namespace MiyunaKimono.Views
         // Commands (ใช้กับปุ่มลูกศรใน HeroCarousel)
         public ICommand PrevHeroCommand { get; }
         public ICommand NextHeroCommand { get; }
+
+        private void ShowHomeSection()
+        {
+            HomeSection.Visibility = Visibility.Visible;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+        }
+
+
+
+        // ไปหน้า Home (Hero + Top Picks)
+        public void NavigateHome()
+        {
+            HomeSection.Visibility = Visibility.Visible;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+            Activate();
+        }
+
+        public void NavigateCategory(string category)
+        {
+            // TODO: ใส่ logic กรองข้อมูลของคุณเอง
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Visible;
+            CartSection.Visibility = Visibility.Collapsed;
+            Activate();
+        }
+
+
+        // ไปหน้า List ตามหมวด
+
+
+        // ให้ปุ่มเดิมเรียกใช้เมธอดด้านบน (ลดโค้ดซ้ำ)
+        public async void AllKimono_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowAllProductsAsync();
+        }
+
+        public async void Nav_Furisode_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Furisode");
+        }
+
+        public async void Nav_Homongi_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Homongi");
+        }
+
+        public async void Nav_Hakama_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Hakama");
+        }
+
+        public async void Nav_Kurotomesode_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Kurotomesode");
+        }
+
+        public async void Nav_Shiromuku_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Shiromuku");
+        }
+
+        public async void Nav_Yukata_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Yukata");
+        }
+
+        public async void Nav_Accessories_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowCategoryAsync("Accessories"); // <- แก้จาก "Yukata" เป็น "Accessories"
+        }
+
+        private async Task EnsureAllProductsAsync()
+        {
+            if (_loadedAll) return;
+            _allDbProducts = _productSvc.GetAll() ?? new List<Product>();
+            _loadedAll = true;
+        }
+
+
+        // ถ้ามีปุ่มเปิด Cart แบบฝังในหน้านี้
+
+
+
+        private void ShowCartSection()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Visible;
+        }
 
         public UserMainWindow()
         {
@@ -99,10 +192,16 @@ namespace MiyunaKimono.Views
 
             // เมื่อหน้า Loaded ให้เริ่ม/หยุด timer ให้ครบทั้ง 2 ตัว (มีของเดิมอยู่แล้วสำหรับ hero #1)
             Unloaded += (_, __) => _timer2.Stop();
-
+            CartViewHost.BackRequested += () => ShowHomeSection();
 
 
         }
+
+        private void OpenCart_Click(object sender, RoutedEventArgs e)
+        {
+            ShowCartSection();
+        }
+
 
         // ===== Heart toggle handlers (สำหรับการ์ดบนหน้า Home/List) =====
         private void Heart_Checked(object sender, RoutedEventArgs e)
@@ -163,13 +262,6 @@ namespace MiyunaKimono.Views
             ListSection.Visibility = Visibility.Visible;
         }
 
-        private async Task EnsureAllProductsAsync()
-        {
-            if (_loadedAll) return;
-            // ดึงจาก service (ของคุณมี GetAll())
-            _allDbProducts = _productSvc.GetAll();   // synchronous ในโค้ดคุณ
-            _loadedAll = true;
-        }
 
         private static TopPickItem MapToTopPick(Product p)
         {
@@ -246,29 +338,7 @@ namespace MiyunaKimono.Views
             await ShowAllProductsAsync();
         }
 
-        private async void Nav_Furisode_Click(object sender, RoutedEventArgs e)
-        {
-            await ShowCategoryAsync("Furisode");
-        }
 
-        // (ถ้ามีปุ่มหมวดอื่น ก็เพิ่ม method คู่กัน เช่น Nav_Homongi_Click => ShowCategoryAsync("Homongi"))
-        private async void Nav_Homongi_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Homongi");
-
-        private async void Nav_Hakama_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Hakama");
-
-        private async void Nav_Kurotomesode_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Kurotomesode");
-
-        private async void Nav_Shiromuku_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Shiromuku");
-
-        private async void Nav_Yukata_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Yukata");
-
-        private async void Nav_Accessories_Click(object sender, RoutedEventArgs e)
-            => await ShowCategoryAsync("Accessories");
 
 
         private async void CategoryIcon_Click(object sender, RoutedEventArgs e)
@@ -343,15 +413,9 @@ namespace MiyunaKimono.Views
             }
         }
 
-        private async void AllKimono_Click(object sender, RoutedEventArgs e)
-        {
-            await ShowAllProductsAsync();   // ไปใช้ ListSection
-        }
+        
 
-        private void Home_Click(object sender, RoutedEventArgs e)
-        {
-            ShowHome();                     // กลับมา HomeSection
-        }
+        
 
         private void Furisode_Click(object sender, RoutedEventArgs e)
         {
@@ -428,6 +492,11 @@ namespace MiyunaKimono.Views
         private void ReflowTopPicks()
         {
             // TODO: ถ้าจะคำนวณจำนวนการ์ดต่อแถวค่อยมาเติม logic ทีหลัง
+        }
+        // เรียกจากปุ่ม Home ใน XAML: Click="Home_Click"
+        private void Home_Click(object sender, RoutedEventArgs e)
+        {
+            ShowHomeSection(); // แสดง Home ซ่อน List/Cart
         }
 
         private void PrevHero()

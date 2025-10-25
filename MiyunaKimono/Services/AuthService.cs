@@ -66,7 +66,7 @@ namespace MiyunaKimono.Services
             using var cmd = new MySqlCommand("SELECT id FROM users WHERE username=@u LIMIT 1;", conn);
             cmd.Parameters.AddWithValue("@u", username);
             var obj = cmd.ExecuteScalar();
-            return obj == null ? 0 : Convert.ToInt32(obj);
+            return (obj == null || obj == DBNull.Value) ? 0 : Convert.ToInt32(obj);
         }
         /// <summary>
         /// ตรวจว่าอีเมลนี้มีอยู่แล้วหรือไม่
@@ -212,5 +212,19 @@ namespace MiyunaKimono.Services
             try { return rd.GetOrdinal(col); }
             catch { return -1; }
         }
+        // เก็บ user ที่ล็อกอินปัจจุบันแบบ static
+        private static int _currentUserId;
+        public static int CurrentUserId => _currentUserId;
+        public static int CurrentUserIdSafe() => _currentUserId; // ถ้ายังไม่ล็อกอินจะเป็น 0
+
+        // เรียกเมธอดนี้หลัง Login สำเร็จเพื่อเซ็ตค่า user id ปัจจุบัน
+        public static void SetCurrentUserId(int userId)
+        {
+            _currentUserId = userId;
+        }
+
+
+
+
     }
 }

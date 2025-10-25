@@ -1,5 +1,4 @@
-﻿// Behaviors/AutoRotateBehavior.cs
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -13,72 +12,50 @@ namespace MiyunaKimono.Behaviors
                 "IsEnabled", typeof(bool), typeof(AutoRotateBehavior),
                 new PropertyMetadata(false, OnIsEnabledChanged));
 
-        public static void SetIsEnabled(DependencyObject obj, bool value) => obj.SetValue(IsEnabledProperty, value);
-        public static bool GetIsEnabled(DependencyObject obj) => (bool)obj.GetValue(IsEnabledProperty);
+        public static void SetIsEnabled(DependencyObject d, bool v) => d.SetValue(IsEnabledProperty, v);
+        public static bool GetIsEnabled(DependencyObject d) => (bool)d.GetValue(IsEnabledProperty);
 
         public static readonly DependencyProperty IntervalSecondsProperty =
             DependencyProperty.RegisterAttached(
                 "IntervalSeconds", typeof(int), typeof(AutoRotateBehavior),
                 new PropertyMetadata(4, OnIntervalChanged));
 
-        public static void SetIntervalSeconds(DependencyObject obj, int value) => obj.SetValue(IntervalSecondsProperty, value);
-        public static int GetIntervalSeconds(DependencyObject obj) => (int)obj.GetValue(IntervalSecondsProperty);
+        public static void SetIntervalSeconds(DependencyObject d, int v) => d.SetValue(IntervalSecondsProperty, v);
+        public static int GetIntervalSeconds(DependencyObject d) => (int)d.GetValue(IntervalSecondsProperty);
 
         private static readonly DependencyProperty TimerProperty =
             DependencyProperty.RegisterAttached("Timer", typeof(DispatcherTimer), typeof(AutoRotateBehavior));
 
-        private static void SetTimer(DependencyObject obj, DispatcherTimer t) => obj.SetValue(TimerProperty, t);
-        private static DispatcherTimer GetTimer(DependencyObject obj) => (DispatcherTimer)obj.GetValue(TimerProperty);
+        private static void SetTimer(DependencyObject d, DispatcherTimer v) => d.SetValue(TimerProperty, v);
+        private static DispatcherTimer GetTimer(DependencyObject d) => (DispatcherTimer)d.GetValue(TimerProperty);
 
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not ListBox lb) return;
+            if (d is not ListBox list) return;
 
             if ((bool)e.NewValue)
             {
-                var timer = GetTimer(lb) ?? new DispatcherTimer();
-                timer.Tick += (_, __) => Rotate(lb);
-                timer.Interval = TimeSpan.FromSeconds(Math.Max(1, GetIntervalSeconds(lb)));
-                timer.Start();
-                SetTimer(lb, timer);
-
-                lb.Unloaded += Lb_Unloaded;
+                var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(GetIntervalSeconds(list)) };
+                t.Tick += (_, __) =>
+                {
+                    if (list.Items.Count == 0) return;
+                    list.SelectedIndex = (list.SelectedIndex + 1) % list.Items.Count;
+                };
+                SetTimer(list, t);
+                t.Start();
             }
             else
             {
-                Stop(lb);
+                var t = GetTimer(list);
+                t?.Stop();
+                SetTimer(list, null);
             }
         }
 
         private static void OnIntervalChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not ListBox lb) return;
-            var timer = GetTimer(lb);
-            if (timer != null && GetIsEnabled(lb))
-                timer.Interval = TimeSpan.FromSeconds(Math.Max(1, GetIntervalSeconds(lb)));
-        }
-
-        private static void Rotate(ListBox lb)
-        {
-            int n = lb.Items?.Count ?? 0;
-            if (n <= 1) return;
-            lb.SelectedIndex = (lb.SelectedIndex + 1) % n;
-        }
-
-        private static void Lb_Unloaded(object s, RoutedEventArgs e)
-        {
-            if (s is ListBox lb) Stop(lb);
-        }
-
-        private static void Stop(ListBox lb)
-        {
-            var timer = GetTimer(lb);
-            if (timer != null)
-            {
-                timer.Stop();
-                SetTimer(lb, null);
-            }
-            lb.Unloaded -= Lb_Unloaded;
+            var t = GetTimer(d);
+            if (t != null) t.Interval = TimeSpan.FromSeconds(GetIntervalSeconds(d));
         }
     }
 }

@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:beh="clr-namespace:MiyunaKimono.Behaviors"
         xmlns:svc="clr-namespace:MiyunaKimono.Services"
+        xmlns:views="clr-namespace:MiyunaKimono.Views"
+
         Title="Miyuna Kimono" Height="900" Width="1440"
         WindowStartupLocation="CenterScreen" Background="White">
     
@@ -11,28 +13,6 @@
     <Window.Resources>
 
         <!-- ปุ่มตัวหนังสือบนแถบนำทาง -->
-        <Style x:Key="TopTextButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="#111"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
         <!-- ปุ่มตัวหนังสือสำหรับ NAV (โทน/ระยะห่าง) -->
         <Style x:Key="NavTextButton" TargetType="Button">
@@ -60,22 +40,7 @@
         </Style>
 
         <!-- ปุ่มไอคอนโปร่งใสพื้นฐาน -->
-        <Style x:Key="IconGhostButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
 
         <!-- ปุ่มไอคอนด้านขวาบน (กำหนดขนาดคงที่ + ไม่มีกรอบโฟกัส) -->
         <Style x:Key="TopRightIconButton" BasedOn="{StaticResource IconGhostButton}" TargetType="Button">
@@ -209,20 +174,20 @@
 
                     <!-- Cart -->
                     <Grid Grid.Column="2" Margin="0,0,6,0">
-  <Button Style="{StaticResource TopRightIconButton}" ToolTip="Cart">
-    <Image Source="pack://application:,,,/Assets/ic_cart.png" Width="18" Height="18"/>
-  </Button>
+                        <Button Style="{StaticResource TopRightIconButton}" ToolTip="Cart" Click="OpenCart_Click">
+                        <Image Source="pack://application:,,,/Assets/ic_cart.png" Width="18" Height="18"/>
+                      </Button>
 
-  <!-- Badge -->
-  <Border Width="18" Height="18" CornerRadius="9"
-          Background="#f25f5f" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2,-2,2,0"
-          Visibility="{Binding Source={x:Static svc:CartService.Instance}, Path=HasItems,
-                             Converter={StaticResource BoolToVisibility}}">
-    <TextBlock Text="{Binding Source={x:Static svc:CartService.Instance}, Path=TotalQuantity}"
-               FontSize="10" Foreground="White" FontWeight="Bold"
-               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-  </Border>
-</Grid>
+                      <!-- Badge -->
+                      <Border Width="18" Height="18" CornerRadius="9"
+                              Background="#f25f5f" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2,-2,2,0"
+                              Visibility="{Binding Source={x:Static svc:CartService.Instance}, Path=HasItems,
+                                                 Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{Binding Source={x:Static svc:CartService.Instance}, Path=TotalQuantity}"
+                                   FontSize="10" Foreground="White" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                      </Border>
+                    </Grid>
 
                     <!-- User -->
                     <Button Style="{StaticResource TopRightIconButton}" ToolTip="Account">
@@ -541,6 +506,13 @@
                 
 
             </StackPanel>
+        </ScrollViewer>
+
+        <ScrollViewer x:Name="CartSection"
+              Grid.Row="2"
+              Visibility="Collapsed"
+              VerticalScrollBarVisibility="Auto">
+            <views:CartView x:Name="CartViewHost"/>
         </ScrollViewer>
 
         <!-- ===== 3.1) CONTENT : LIST (ALL / Furisode / ฯลฯ) ===== -->
