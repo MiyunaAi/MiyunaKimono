@@ -36,6 +36,8 @@ namespace MiyunaKimono.Services
             }
             catch { tx.Rollback(); throw; }
         }
+        public string LastAddressForOrder { get; set; } = "";
+
 
         public void Load(int userId)
         {

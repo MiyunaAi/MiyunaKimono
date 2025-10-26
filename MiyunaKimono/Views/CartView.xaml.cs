@@ -12,6 +12,8 @@ namespace MiyunaKimono.Views
     public partial class CartView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event Action ProceedToCheckoutRequested;
+
 
         public System.Collections.ObjectModel.ObservableCollection<CartLine> Lines
             => CartService.Instance.Lines;
@@ -96,21 +98,12 @@ namespace MiyunaKimono.Views
                 return;
             }
 
-            try
-            {
-                int userId = AuthService.CurrentUserIdSafe();
-                OrderService.Instance.CreateOrder(userId, addr, Lines.ToList());
-                CartPersistenceService.Instance.Save(userId, Lines.ToList());
-
-                MessageBox.Show("ทำรายการสั่งซื้อเรียบร้อย", "Success",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-                CartService.Instance.Clear();
-                BackRequested?.Invoke(); // กลับ Home
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("บันทึกคำสั่งซื้อไม่สำเร็จ: " + ex.Message);
-            }
+            // ✅ เก็บที่อยู่ไว้ชั่วคราวสำหรับหน้า Checkout
+            CartPersistenceService.Instance.LastAddressForOrder = addr;
+            CartPersistenceService.Instance.LastAddressForOrder = AddressBox.Text?.Trim();
+            // ✅ แจ้งไปหน้าหลักให้สลับไป CheckoutView
+            ProceedToCheckoutRequested?.Invoke();
         }
+
     }
 }

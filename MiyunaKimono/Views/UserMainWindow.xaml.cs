@@ -20,6 +20,9 @@ namespace MiyunaKimono.Views
 {
     public partial class UserMainWindow : Window, INotifyPropertyChanged
     {
+
+
+
         // วางในคลาส UserMainWindow (อยู่นอกเมธอดอื่น ๆ)
         private void TopPicksHost_Loaded(object sender, RoutedEventArgs e)
         {
@@ -56,13 +59,30 @@ namespace MiyunaKimono.Views
         public ICommand PrevHeroCommand { get; }
         public ICommand NextHeroCommand { get; }
 
+
+
         private void ShowHomeSection()
         {
             HomeSection.Visibility = Visibility.Visible;
             ListSection.Visibility = Visibility.Collapsed;
             CartSection.Visibility = Visibility.Collapsed;
+            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+
         }
 
+        private void ShowCheckoutSection()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+
+            CheckoutHost.Visibility = Visibility.Visible;
+
+            // สร้าง view ใหม่ทุกครั้ง (หรือจะ cache ไว้ก็ได้)
+            var v = new CheckoutView();
+            v.BackRequested += () => ShowHomeSection();   // ปุ่ม Back บนบาร์ “Payment” ให้กลับ Home
+            CheckoutHost.Content = v;
+        }
 
 
         // ไปหน้า Home (Hero + Top Picks)
@@ -145,6 +165,8 @@ namespace MiyunaKimono.Views
             HomeSection.Visibility = Visibility.Collapsed;
             ListSection.Visibility = Visibility.Collapsed;
             CartSection.Visibility = Visibility.Visible;
+            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+
         }
 
         public UserMainWindow()
@@ -194,6 +216,7 @@ namespace MiyunaKimono.Views
             Unloaded += (_, __) => _timer2.Stop();
             CartViewHost.BackRequested += () => ShowHomeSection();
 
+            CartViewHost.ProceedToCheckoutRequested += () => ShowCheckoutSection();
 
         }
 
@@ -263,6 +286,8 @@ namespace MiyunaKimono.Views
             HomeSection.Visibility = Visibility.Collapsed;
             ListSection.Visibility = Visibility.Visible;
             CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
+            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+
         }
 
 

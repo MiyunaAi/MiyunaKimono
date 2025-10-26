@@ -1,0 +1,212 @@
+﻿<UserControl x:Class="MiyunaKimono.Views.CheckoutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#FAFAFA">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+
+            <!-- แถบบาร์ขาวบนสุด -->
+            <Border Style="{StaticResource TopWhiteBar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Back -->
+                    <Button Style="{StaticResource IconButtonNoHover}" Width="140" Height="44"
+                            Click="Back_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 22,8 L 8,22 L 22,36"
+                                  Stroke="#333" StrokeThickness="3"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Margin="0,0,8,0"/>
+                            <TextBlock Text="Back" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Title -->
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <Run Text="Payment" FontSize="22" FontWeight="SemiBold"/>
+                    </TextBlock>
+                </Grid>
+            </Border>
+
+            <!-- กล่องใหญ่: ซ้ายรายละเอียด/ขวาสรุป -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="28"/>
+                    <ColumnDefinition Width="520"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ซ้าย: รายละเอียดสินค้า (read-only) -->
+                <Border Grid.Column="0" Style="{StaticResource CardWhite}" Padding="28">
+                    <Grid Grid.IsSharedSizeScope="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Product details" FontSize="22" FontWeight="SemiBold"/>
+
+                        <!-- หัวคอลัมน์ -->
+                        <Grid Grid.Row="1" Margin="0,16,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140" SharedSizeGroup="colImage"/>
+                                <ColumnDefinition Width="*"   SharedSizeGroup="colInfo"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="160" SharedSizeGroup="colQty"/>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="180" SharedSizeGroup="colPrice"/>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="180" SharedSizeGroup="colTotal"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"/>
+                            <TextBlock Grid.Column="1"/>
+                            <TextBlock Grid.Column="3" Text="QTY"   FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Grid.Column="5" Text="PRICE" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Grid.Column="7" Text="TOTAL" FontWeight="SemiBold" Foreground="#666"/>
+                        </Grid>
+
+                        <!-- รายการสินค้า (อ่านอย่างเดียว) -->
+                        <ListBox Grid.Row="2"
+                                 ItemsSource="{Binding Lines}"
+                                 BorderThickness="0"
+                                 MaxHeight="560"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 SelectionMode="Single">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#EEE" BorderThickness="0,0,0,1" Padding="0,18" Margin="0,6,0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="140" SharedSizeGroup="colImage"/>
+                                                <ColumnDefinition Width="*"   SharedSizeGroup="colInfo"/>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="160" SharedSizeGroup="colQty"/>
+                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="180" SharedSizeGroup="colPrice"/>
+                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="180" SharedSizeGroup="colTotal"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- รูป -->
+                                            <Border Grid.Column="0" Width="120" Height="90" Background="#EEE" CornerRadius="8" Margin="0,0,8,0">
+                                                <Image Source="{Binding Product.Image1Path}" Stretch="UniformToFill"/>
+                                            </Border>
+
+                                            <!-- รายละเอียด -->
+                                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                                <TextBlock Text="{Binding Product.ProductName}" FontWeight="SemiBold"/>
+                                                <TextBlock Foreground="#777" Margin="0,3,0,0">
+                                                    <Run Text="{Binding Product.Brand, TargetNullValue=—}"/><Run Text="  "/>
+                                                    <Run Text="{Binding Product.Category, TargetNullValue=—}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <!-- QTY (read-only) -->
+                                            <TextBlock Grid.Column="3" Text="{Binding Quantity}" 
+                                                       HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16"/>
+
+                                            <!-- PRICE (ราคาต่อชิ้นตามราคาเต็ม) -->
+                                            <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Product.Price, StringFormat={}{0:N0}}"/>
+                                                <TextBlock Text="  THB"/>
+                                            </StackPanel>
+
+                                            <!-- TOTAL -->
+                                            <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="  THB"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+
+                <!-- ขวา: สรุป + QR + อัปโหลดสลิป -->
+                <Border Grid.Column="2" Style="{StaticResource CardWhite}">
+                    <StackPanel>
+                        <!-- สรุป -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Item" FontSize="16"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ItemsCount}" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Item" FontSize="16"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount" FontSize="16"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding DiscountTotalText}" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="THB" FontSize="16"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Cost" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GrandTotalText}" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Grid.Row="2" Grid.Column="4" Text="THB" FontSize="18" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <!-- QR PromptPay -->
+                        <Image x:Name="QrImage" Width="280" Height="280" Margin="0,4,0,8" HorizontalAlignment="Center"/>
+
+                        <!-- รีเซตใหม่ 59s -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
+                            <TextBlock Text="รีเซตใหม่ " VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding QrRemainText}" FontWeight="SemiBold" Margin="4,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="s" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Button x:Name="BtnResetQr" Content="สร้าง QR ใหม่" Height="36" Width="140"
+                                Style="{StaticResource PrimaryButton}" Click="ResetQr_Click" Visibility="Collapsed"
+                                HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+                        <!-- Upload receipt -->
+                        <TextBlock Text="Upload Your receipt !" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="ReceiptPathBox" IsReadOnly="True" Height="32" Padding="8,4" 
+                                     BorderBrush="#D8D8D8" BorderThickness="1" Background="White"/>
+                            <Button Grid.Column="2" Content="Here!" Height="32" MinWidth="72" 
+                                    Style="{StaticResource PrimaryButton}" Click="UploadReceipt_Click"/>
+                        </Grid>
+
+                        <!-- Checkout -->
+                        <Button Content="Checkout" Height="48" FontSize="16" Margin="0,16,0,0"
+                                Style="{StaticResource PrimaryButton}" Click="Checkout_Click"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

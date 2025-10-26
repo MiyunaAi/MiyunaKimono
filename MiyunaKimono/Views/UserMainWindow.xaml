@@ -527,6 +527,11 @@
             <views:CartView x:Name="CartViewHost"/>
         </ScrollViewer>
 
+        <!-- ✅ ใส่เพิ่มอันนี้ -->
+        <ContentControl x:Name="CheckoutHost"
+                    Grid.Row="2"
+                    Visibility="Collapsed"/>
+
         <!-- ===== 3.1) CONTENT : LIST (ALL / Furisode / ฯลฯ) ===== -->
         <ScrollViewer x:Name="ListSection"
               Grid.Row="2"
