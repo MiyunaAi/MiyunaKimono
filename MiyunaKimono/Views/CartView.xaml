@@ -156,37 +156,63 @@
                                             </StackPanel>
 
                                             <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
-                                            <Border Grid.Column="3" CornerRadius="12" BorderBrush="#D8D8D8" BorderThickness="1"
-                Background="White" HorizontalAlignment="Left" Margin="0,0,0,0">
+                                            <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
+                                            <Border Grid.Column="3"
+                                                        CornerRadius="12"
+                                                        BorderBrush="#D8D8D8" BorderThickness="1"
+                                                        Background="White"
+                                                        HorizontalAlignment="Left">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="56"/>
                                                         <ColumnDefinition Width="70"/>
                                                         <ColumnDefinition Width="56"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <RepeatButton Grid.Column="0" Style="{StaticResource StepperMinusButton}"
-                                                          Content="—" Interval="60" Tag="{Binding}" Click="DecrementLine_Click"/>
-                                                    <TextBox Grid.Column="1" Style="{StaticResource StepperCenterBox}" Width="70"
-                                                             Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                             Tag="{Binding}"
-                                                             PreviewTextInput="Qty_PreviewTextInput"
-                                                             LostFocus="Qty_LostFocus"/>
-                                                    <RepeatButton Grid.Column="2" Style="{StaticResource StepperPlusButton}"
-                                                              Content="+" Interval="60" Tag="{Binding}" Click="IncrementLine_Click"/>
+
+                                                    <RepeatButton Grid.Column="0"
+                                                          Style="{StaticResource StepperMinusButton}"
+                                                          Content="—" Interval="60"
+                                                          Tag="{Binding}"
+                                                          Click="DecrementLine_Click"/>
+
+                                                    <!-- สำคัญ: TwoWay + UpdateSourceTrigger=PropertyChanged -->
+                                                    <TextBox Grid.Column="1"
+                                                         Style="{StaticResource StepperCenterBox}"
+                                                         Width="70"
+                                                         HorizontalContentAlignment="Center"
+                                                         Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Tag="{Binding}"
+                                                         PreviewTextInput="Qty_PreviewTextInput"
+                                                         LostFocus="Qty_LostFocus"/>
+
+                                                    <RepeatButton Grid.Column="2"
+                                                          Style="{StaticResource StepperPlusButton}"
+                                                          Content="+" Interval="60"
+                                                          Tag="{Binding}"
+                                                          Click="IncrementLine_Click"/>
                                                 </Grid>
                                             </Border>
 
                                             <!-- PRICE: ใช้ LinePrice -->
-                                            <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Left">
+                                            <!-- PRICE: ใช้ LinePrice (ราคาต่อชิ้นหลังลด) -->
+                                            <StackPanel Grid.Column="5"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Left">
                                                 <TextBlock Text="{Binding LinePrice, StringFormat={}{0:N0}}"/>
                                                 <TextBlock Text="  THB"/>
                                             </StackPanel>
 
+
                                             <!-- TOTAL: ใช้ LineTotal -->
-                                            <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Left">
-                                                <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}" FontWeight="SemiBold"/>
+                                            <!-- TOTAL: ใช้ LineTotal (ราคาต่อชิ้น * จำนวน) -->
+                                            <StackPanel Grid.Column="7"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
+                                                     FontWeight="SemiBold"/>
                                                 <TextBlock Text="  THB"/>
                                             </StackPanel>
+
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

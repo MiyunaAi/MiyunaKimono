@@ -1,70 +1,63 @@
-﻿// Services/CartService.cs
-using System;
+﻿// Services/CartService.cs (เฉพาะส่วนสำคัญ)
+using MiyunaKimono.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using MiyunaKimono.Models;
+using System.Linq;
 
 namespace MiyunaKimono.Services
 {
     public class CartService : INotifyPropertyChanged
     {
-        private static readonly Lazy<CartService> _lazy = new(() => new CartService());
-        public static CartService Instance => _lazy.Value;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void Raise(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+        public static CartService Instance { get; } = new();
 
         public ObservableCollection<CartLine> Lines { get; } = new();
 
-        private int _totalQuantity;
-        public int TotalQuantity
+        public bool HasItems => Lines.Count > 0;
+        public int TotalQuantity => Lines.Sum(l => l.Quantity);
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void Raise(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        public (bool ok, string msg) Add(Product product, int qty)
         {
-            get => _totalQuantity;
-            private set { _totalQuantity = value; Raise(nameof(TotalQuantity)); Raise(nameof(HasItems)); }
+            if (product == null) return (false, "ไม่พบสินค้า");
+            if (qty < 1) qty = 1;
+
+            var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
+            if (line == null)
+            {
+                line = new CartLine(product, qty);
+                // ฟังการเปลี่ยนของแต่ละบรรทัด เพื่ออัปเดต badge/ยอดรวม
+                line.PropertyChanged += (_, __) =>
+                {
+                    Raise(nameof(TotalQuantity));
+                    Raise(nameof(HasItems));
+                };
+                Lines.Add(line);
+            }
+            else
+            {
+                line.Quantity += qty; // เปลี่ยนค่าที่ property -> UI จะเด้งเอง
+            }
+
+            Raise(nameof(TotalQuantity));
+            Raise(nameof(HasItems));
+            return (true, "เพิ่มสินค้าลงตะกร้าแล้ว");
         }
-        public bool HasItems => TotalQuantity > 0;
 
-        private CartService() { }
-
-        public void Add(Product p, int qty)
+        public void SetQuantity(Product product, int qty)
         {
-            if (p == null || qty <= 0) return;
-            var line = Find(p);
-            if (line == null) Lines.Add(new CartLine { Product = p, Quantity = qty });
-            else line.Quantity += qty;
-            Recalc();
-        }
-
-        public void SetQuantity(Product p, int qty)
-        {
-            if (p == null) return;
-            var line = Find(p);
+            var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
             if (line == null) return;
-
-            if (qty <= 0) Lines.Remove(line);
-            else line.Quantity = qty;
-
-            Recalc();
+            line.Quantity = qty; // สำคัญ: แก้ผ่าน property เดิม
+            Raise(nameof(TotalQuantity));
         }
 
         public void Clear()
         {
             Lines.Clear();
-            Recalc();
-        }
-
-        private CartLine Find(Product p)
-        {
-            foreach (var l in Lines)
-                if (l.Product?.Id == p.Id) return l;
-            return null;
-        }
-
-        private void Recalc()
-        {
-            int q = 0;
-            foreach (var l in Lines) q += l.Quantity;
-            TotalQuantity = q;
+            Raise(nameof(TotalQuantity));
+            Raise(nameof(HasItems));
         }
     }
 }
