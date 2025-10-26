@@ -3,9 +3,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:svc="clr-namespace:MiyunaKimono.Services"
              Background="#fafafa">
+
+    <!-- >>> วางสไตล์ย่อส่วนไว้ตรงนี้ <<< -->
+    <UserControl.Resources>
+
+        <!-- สไตล์ Stepper แบบกระชับเฉพาะหน้านี้ -->
+        <Style x:Key="StepperMinusCompact"
+               TargetType="RepeatButton"
+               BasedOn="{StaticResource StepperMinusButton}">
+            <Setter Property="Width"  Value="44"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style x:Key="StepperPlusCompact"
+               TargetType="RepeatButton"
+               BasedOn="{StaticResource StepperPlusButton}">
+            <Setter Property="Width"  Value="44"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style x:Key="StepperCenterCompact"
+               TargetType="TextBox"
+               BasedOn="{StaticResource StepperCenterBox}">
+            <Setter Property="Width"     Value="48"/>
+            <Setter Property="Height"    Value="36"/>
+            <Setter Property="FontSize"  Value="14"/>
+            <Setter Property="Padding"   Value="0"/>
+            <Setter Property="Margin"    Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+    <!-- /จบส่วน Resources -->
+    
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24">
-
             <!-- แถบบาร์ขาวบนสุด -->
             <Border Style="{StaticResource TopWhiteBar}">
                 <Grid>
@@ -157,41 +191,35 @@
 
                                             <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
                                             <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
-                                            <Border Grid.Column="3"
-                                                        CornerRadius="12"
-                                                        BorderBrush="#D8D8D8" BorderThickness="1"
-                                                        Background="White"
-                                                        HorizontalAlignment="Left">
+                                            <Border Grid.Column="3" CornerRadius="10"
+        BorderBrush="#D8D8D8" BorderThickness="1"
+        Background="White" HorizontalAlignment="Left">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="56"/>
-                                                        <ColumnDefinition Width="70"/>
-                                                        <ColumnDefinition Width="56"/>
+                                                        <ColumnDefinition Width="44"/>
+                                                        <ColumnDefinition Width="48"/>
+                                                        <ColumnDefinition Width="44"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <RepeatButton Grid.Column="0"
-                                                          Style="{StaticResource StepperMinusButton}"
+                                                          Style="{StaticResource StepperMinusCompact}"
                                                           Content="—" Interval="60"
-                                                          Tag="{Binding}"
-                                                          Click="DecrementLine_Click"/>
+                                                          Tag="{Binding}" Click="DecrementLine_Click"/>
 
-                                                    <!-- สำคัญ: TwoWay + UpdateSourceTrigger=PropertyChanged -->
                                                     <TextBox Grid.Column="1"
-                                                         Style="{StaticResource StepperCenterBox}"
-                                                         Width="70"
-                                                         HorizontalContentAlignment="Center"
+                                                         Style="{StaticResource StepperCenterCompact}"
                                                          Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Tag="{Binding}"
                                                          PreviewTextInput="Qty_PreviewTextInput"
                                                          LostFocus="Qty_LostFocus"/>
 
                                                     <RepeatButton Grid.Column="2"
-                                                          Style="{StaticResource StepperPlusButton}"
+                                                          Style="{StaticResource StepperPlusCompact}"
                                                           Content="+" Interval="60"
-                                                          Tag="{Binding}"
-                                                          Click="IncrementLine_Click"/>
+                                                          Tag="{Binding}" Click="IncrementLine_Click"/>
                                                 </Grid>
                                             </Border>
+
 
                                             <!-- PRICE: ใช้ LinePrice -->
                                             <!-- PRICE: ใช้ LinePrice (ราคาต่อชิ้นหลังลด) -->
@@ -301,6 +329,7 @@
                 </Border>
 
             </Grid>
+            
         </StackPanel>
     </ScrollViewer>
 </UserControl>
