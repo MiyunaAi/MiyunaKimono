@@ -26,11 +26,18 @@
                         </StackPanel>
                     </Button>
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                        <TextBlock Text="Shopping cart" FontSize="20" FontWeight="SemiBold"/>
-                        <TextBlock Text="  "/>
-                        <TextBlock Text="{Binding ItemsCountText}" FontSize="16" Foreground="#444"/>
-                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0">
+                            <Run Text="Shopping cart" FontSize="22" FontWeight="SemiBold"/>
+                            <!-- เว้นระยะห่าง 8px ด้วย UI element แทนการเว้นช่องไฟหลายตัว -->
+                            <InlineUIContainer>
+                                <Border Width="8"/>
+                            </InlineUIContainer>
+                            <!-- ใช้พร็อพจาก CartView.xaml.cs: ItemsCountText เช่น '5 Item' -->
+                            <Run Text="{Binding ItemsCountText, Mode=OneWay}" FontSize="14" Foreground="#888"/>
+                    </TextBlock>
+
                 </Grid>
             </Border>
 
