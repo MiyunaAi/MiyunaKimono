@@ -49,9 +49,24 @@ namespace MiyunaKimono.Services
         {
             var line = Lines.FirstOrDefault(l => l.Product.Id == product.Id);
             if (line == null) return;
-            line.Quantity = qty; // สำคัญ: แก้ผ่าน property เดิม
+
+            // ถ้าจำนวน <= 0 ให้ลบรายการออกจากตะกร้า
+            if (qty <= 0)
+            {
+                Lines.Remove(line);
+                Raise(nameof(TotalQuantity));
+                Raise(nameof(HasItems));
+                return;
+            }
+
+            // ถ้ามี stock สูงสุด ให้ clamp ไว้ (ถ้าไม่ต้องการ ตัด 2 บรรทัดนี้ออกได้)
+            int max = line.Product.Quantity;
+            if (qty > max) qty = max;
+
+            line.Quantity = qty;                // ใช้ property -> UI อัพเดตเอง
             Raise(nameof(TotalQuantity));
         }
+
 
         public void Clear()
         {

@@ -91,7 +91,9 @@ namespace MiyunaKimono.Views
 
             if (user == "Ishihara" && pass == "wasd5247")
             {
-                new MiyunaKimono.Views.AdminWindow().Show();
+                var admin = new MiyunaKimono.Views.AdminWindow();
+                Application.Current.MainWindow = admin;   // ★ สำคัญ
+                admin.Show();
                 this.Close();
                 return;
             }
@@ -124,16 +126,26 @@ namespace MiyunaKimono.Views
 
             // ★ สำคัญ: ถ้ายังไม่มี CurrentUserId ใน AuthService ให้ใช้เมธอด GetUserId แทน
             // ===== ดึง userId และตั้งค่า context ผู้ใช้ปัจจุบัน =====
-            int userId = _auth.GetUserIdByUsername(user); // ใช้เมธอดใน AuthService ที่เราเพิ่งเพิ่ม
+            int userId = _auth.GetUserIdByUsername(user);
             if (userId > 0)
             {
-                // บอก AuthService ว่าผู้ใช้คนไหนกำลังล็อกอินอยู่
+                // เซ็ตผู้ใช้ปัจจุบัน
                 AuthService.SetCurrentUserId(userId);
 
-                // โหลด favorite และ cart ของผู้ใช้
+                // (1) ยกเลิก autosave เดิม (กันหลงจากผู้ใช้ก่อนหน้า)
+                CartPersistenceService.Instance.UnwireAutosave();
+
+                // (2) เคลียร์ cart ในหน่วยความจำก่อน
+                CartService.Instance.Clear();
+
+                // (3) โหลด cart ล่าสุดของผู้ใช้คนนี้
                 FavoritesService.Instance.InitForUser(userId);
                 CartPersistenceService.Instance.Load(userId);
+
+                // (4) ผูก autosave: ค่าที่แก้ใน cart จะเซฟทันที
+                CartPersistenceService.Instance.WireUpAutosave(userId);
             }
+
 
             MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             var main = new UserMainWindow();

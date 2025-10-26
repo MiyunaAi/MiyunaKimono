@@ -295,6 +295,29 @@ namespace MiyunaKimono.Views
 
             };
         }
+        private void Logout_Click(object s, RoutedEventArgs e)
+        {
+            var uid = MiyunaKimono.Services.AuthService.CurrentUserIdSafe();
+
+            // เซฟ cart รอบสุดท้ายถ้ามี uid
+            if (uid > 0)
+                CartPersistenceService.Instance.Save(uid, CartService.Instance.Lines.ToList());
+
+            // ถอด autosave และเคลียร์ cart
+            CartPersistenceService.Instance.UnwireAutosave();
+            CartService.Instance.Clear();
+
+            // ล้าง session
+            MiyunaKimono.Services.Session.CurrentUser = null;
+            MiyunaKimono.Services.AuthService.SetCurrentUserId(0);
+
+            // กลับหน้า Login โดยไม่ปิดทั้งแอป
+            var login = new LoginWindow { WindowStartupLocation = WindowStartupLocation.CenterScreen };
+            Application.Current.MainWindow = login;
+            login.Show();
+            this.Close();
+        }
+
 
         private async Task ShowAllProductsAsync()
         {

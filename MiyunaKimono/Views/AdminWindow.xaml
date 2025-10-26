@@ -120,7 +120,7 @@
                         </Button>
 
                         <!-- Save (เฉพาะหน้า Edit) -->
-                        <Button Content="Save"
+                        <Button Content="Save"  
                                 Style="{StaticResource BlueRoundedButton}"
                                 Visibility="{Binding ShowSaveBtn, Converter={StaticResource BoolToVisibility}}"
                                 Click="Save_Click"/>

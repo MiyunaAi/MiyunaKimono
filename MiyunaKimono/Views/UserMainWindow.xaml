@@ -194,6 +194,18 @@
                         <Image Source="pack://application:,,,/Assets/ic_user.png"
                                Stretch="Uniform" Width="18" Height="18"/>
                     </Button>
+
+                    <!-- ปุ่ม Log out ข้างไอคอนผู้ใช้ -->
+                    <Button x:Name="BtnLogout"
+                            Style="{StaticResource IconButtonNoHover}"
+                            Width="32" Height="32"
+                            Margin="8,0,0,0"
+                            ToolTip="Log out"
+                            Click="Logout_Click">
+                        <Image Source="pack://application:,,,/Assets/ic_logout.png"
+                            Width="20" Height="20"/>
+                    </Button>
+
                 </StackPanel>
             </Grid>
         </Border>

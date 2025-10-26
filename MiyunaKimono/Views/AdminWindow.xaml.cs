@@ -153,8 +153,23 @@ namespace MiyunaKimono.Views
 
         private void Logout_Click(object s, RoutedEventArgs e)
         {
-            new LoginWindow().Show();
-            Close();
+            // ล้าง session ตามต้องการ
+            MiyunaKimono.Services.Session.CurrentUser = null;
+            MiyunaKimono.Services.AuthService.SetCurrentUserId(0);
+            // (ถ้าต้องการ) ล้าง cart/favorite ของ user ปัจจุบัน
+            // CartPersistenceService.Instance.Clear();
+
+            var login = new LoginWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            // ชี้ MainWindow ไปที่หน้าล็อกอินก่อน
+            Application.Current.MainWindow = login;
+
+            login.Show();
+            this.Close();   // ตอนนี้ปิด AdminWindow ได้โดยไม่ปิดทั้งแอป
         }
+
     }
 }

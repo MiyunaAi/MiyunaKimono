@@ -106,7 +106,7 @@
                                 <!-- รายละเอียด -->
                                 <ColumnDefinition Width="40"/>
                                 <!-- GAP 1 -->
-                                <ColumnDefinition Width="250" SharedSizeGroup="colQty"/>
+                                <ColumnDefinition Width="210" SharedSizeGroup="colQty"/>
                                 <!-- QTY -->
                                 <ColumnDefinition Width="28"/>
                                 <!-- GAP 2 -->

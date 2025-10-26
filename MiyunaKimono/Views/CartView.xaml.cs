@@ -56,8 +56,12 @@ namespace MiyunaKimono.Views
         private void DecrementLine_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.Tag is CartLine line)
-                CartService.Instance.SetQuantity(line.Product, line.Quantity - 1);
+            {
+                int newQty = line.Quantity - 1;      // คำนวณก่อน
+                CartService.Instance.SetQuantity(line.Product, newQty); // ถ้า <=0 จะถูกลบใน service
+            }
         }
+
 
         private void IncrementLine_Click(object sender, RoutedEventArgs e)
         {

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace MiyunaKimono.Services
 {
@@ -56,6 +58,57 @@ namespace MiyunaKimono.Services
                 var p = productSvc.GetById(pid);
                 if (p != null) CartService.Instance.Add(p, Math.Max(1, qty));
             }
+
         }
+        private int _wiredUserId = 0;
+
+        // เรียกหลัง login สำเร็จ
+        public void WireUpAutosave(int userId)
+        {
+            _wiredUserId = userId;
+
+            // ครั้งแรกแนบ handler ให้ทุกบรรทัด
+            foreach (var l in CartService.Instance.Lines)
+                l.PropertyChanged += Line_PropertyChanged;
+
+            // เปลี่ยนแปลงจำนวนบรรทัด (เพิ่ม/ลบ)
+            CartService.Instance.Lines.CollectionChanged += Lines_CollectionChanged;
+        }
+
+        // เรียกตอน logout (หรือเปลี่ยนผู้ใช้) เพื่อถอด handler
+        public void UnwireAutosave()
+        {
+            CartService.Instance.Lines.CollectionChanged -= Lines_CollectionChanged;
+            foreach (var l in CartService.Instance.Lines)
+                l.PropertyChanged -= Line_PropertyChanged;
+
+            _wiredUserId = 0;
+        }
+
+        // === Handlers ===
+        private void Lines_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+                foreach (CartLine l in e.NewItems) l.PropertyChanged += Line_PropertyChanged;
+
+            if (e.OldItems != null)
+                foreach (CartLine l in e.OldItems) l.PropertyChanged -= Line_PropertyChanged;
+
+            // บันทึกทุกครั้งที่แถวเปลี่ยน
+            if (_wiredUserId > 0)
+                Save(_wiredUserId, CartService.Instance.Lines.ToList());
+        }
+
+        private void Line_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CartLine.Quantity))
+            {
+                if (_wiredUserId > 0)
+                    Save(_wiredUserId, CartService.Instance.Lines.ToList());
+            }
+        }
+
+
     }
 }
+    
