@@ -198,43 +198,82 @@
 
 
                 <!-- ขวา -->
+                <!-- ขวา -->
                 <Border Grid.Column="2" Style="{StaticResource CardWhite}">
                     <StackPanel>
-                        <Grid>
+                        <!-- สรุปยอด -->
+                        <Grid Margin="0,0,0,12">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
+
+                            <!-- เปลี่ยนเป็น Auto ทั้งหมด + ช่องว่าง -->
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="50"/>
+                                <!-- label -->
+                                <ColumnDefinition Width="12"/>
+                                <!-- spacer -->
+                                <ColumnDefinition Width="Auto"/>
+                                <!-- value -->
+                                <ColumnDefinition Width="8"/>
+                                <!-- spacer -->
+                                <ColumnDefinition Width="Auto"/>
+                                <!-- unit -->
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Item"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ItemsCount}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Item"/>
+                            <!-- Row 0 -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Item" FontSize="16"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ItemsCount}"
+               FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Item" FontSize="16" HorizontalAlignment="Left"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DiscountTotalText}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="2" Text="THB"/>
+                            <!-- Row 1 -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount" FontSize="16"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding DiscountTotalText}"
+               FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="THB" FontSize="16" HorizontalAlignment="Left"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Cost" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding GrandTotalText}" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Row="2" Grid.Column="2" Text="THB" FontWeight="SemiBold"/>
+                            <!-- Row 2 -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Cost" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GrandTotalText}"
+               FontSize="20" FontWeight="Bold" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="2" Grid.Column="4" Text="THB"
+               FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Left"/>
                         </Grid>
 
-                        <TextBlock Text="Address" FontSize="16" FontWeight="SemiBold" Margin="0,18,0,6"/>
-                        <TextBox x:Name="AddressBox" Height="180" TextWrapping="Wrap" AcceptsReturn="True"
-                                 Style="{StaticResource WatermarkTextBox}"
-                                 Tag="กรุณากรอกที่อยู่ แขวง ตำบล รหัสไปรษณีย์ของท่าน "/>
 
-                        <Button Content="Checkout" Height="44" Margin="0,16,0,0"
-                                Style="{StaticResource PrimaryButton}"
-                                Click="Checkout_Click"/>
+                        <!-- หัวข้อ Address -->
+                        <TextBlock Text="Address"
+                   FontSize="18" FontWeight="SemiBold"
+                   Margin="0,6,0,6"/>
+
+                        <!-- กล่องที่อยู่: ใช้ Border ครอบ TextBox เพื่อให้มีกรอบ -->
+                        <Border CornerRadius="12"
+                BorderBrush="#D8D8D8" BorderThickness="1"
+                Background="White" Padding="10"
+                Margin="0,0,0,12">
+                            <!-- ใช้ TextBox แบบโปร่งเพื่อให้กรอบมาจาก Border -->
+                            <TextBox x:Name="AddressBox"
+                     MinHeight="160"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Style="{StaticResource WatermarkTextBox}"
+                     Tag="กรุณากรอกที่อยู่ แขวง/ตำบล และรหัสไปรษณีย์" />
+                        </Border>
+
+                        <!-- ปุ่ม -->
+                        <Button Content="Checkout"
+                Height="48"
+                FontSize="16"
+                Style="{StaticResource PrimaryButton}"
+                Click="Checkout_Click"/>
                     </StackPanel>
                 </Border>
+
             </Grid>
         </StackPanel>
     </ScrollViewer>
