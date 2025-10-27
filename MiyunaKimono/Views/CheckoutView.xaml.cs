@@ -110,6 +110,10 @@ namespace MiyunaKimono.Views
 
         // แจ้งให้ parent (UserMainWindow) ไปหน้า Home
         public event Action BackRequested;
+
+        // ★ เพิ่มอีเวนต์แจ้งว่าออเดอร์สำเร็จแล้ว (ให้ UserMainWindow รีโหลดสินค้า)
+        public event Action OrderCompleted;
+
         private void Back_Click(object sender, RoutedEventArgs e) => BackRequested?.Invoke();
 
         private async void Checkout_Click(object sender, RoutedEventArgs e)
@@ -171,6 +175,9 @@ namespace MiyunaKimono.Views
 
                 MessageBox.Show("ทำรายการสั่งซื้อสำเร็จ โปรดตรวจสอบสถานะสินค้า", "Success",
                                 MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // ★ แจ้ง UserMainWindow ให้รีโหลดข้อมูลสินค้า/สต็อกใหม่
+                OrderCompleted?.Invoke();
 
                 BackRequested?.Invoke(); // กลับ Home
             }

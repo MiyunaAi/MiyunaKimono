@@ -116,16 +116,37 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
             // บันทึกรายการสินค้า
             foreach (var l in lines)
             {
+                // 1) บันทึก order_items (ของเดิม)
                 var cmd2 = new MySqlCommand(@"
-INSERT INTO order_items(order_id, product_name, qty, price, total)
-VALUES(@id,@name,@q,@p,@t)", conn, (MySqlTransaction)tx);
+        INSERT INTO order_items(order_id, product_name, qty, price, total)
+        VALUES(@id,@name,@q,@p,@t)", conn, (MySqlTransaction)tx);
                 cmd2.Parameters.AddWithValue("@id", id);
                 cmd2.Parameters.AddWithValue("@name", l.Product.ProductName);
                 cmd2.Parameters.AddWithValue("@q", l.Quantity);
-                cmd2.Parameters.AddWithValue("@p", l.Product.Price);  // ราคาเต็ม/หรือราคาหลังลด ปรับได้
-                cmd2.Parameters.AddWithValue("@t", l.LineTotal);      // รวมต่อบรรทัด
+                cmd2.Parameters.AddWithValue("@p", l.Product.Price);
+                cmd2.Parameters.AddWithValue("@t", l.LineTotal);
                 await cmd2.ExecuteNonQueryAsync();
+
+                // 2) ล็อกแถวสินค้า แล้วเช็คสต็อก
+                var lockCmd = new MySqlCommand(
+                    "SELECT quantity FROM products WHERE id=@pid FOR UPDATE",
+                    conn, (MySqlTransaction)tx);
+                lockCmd.Parameters.AddWithValue("@pid", l.Product.Id);
+                var currentQtyObj = await lockCmd.ExecuteScalarAsync();
+                var currentQty = currentQtyObj == null ? 0 : Convert.ToInt32(currentQtyObj);
+
+                if (currentQty < l.Quantity)
+                    throw new Exception($"สินค้า '{l.Product.ProductName}' คงเหลือไม่พอ (เหลือ {currentQty}, ต้องการ {l.Quantity})");
+
+                // 3) ตัดสต็อก
+                var upd = new MySqlCommand(
+                    "UPDATE products SET quantity = quantity - @q WHERE id=@pid",
+                    conn, (MySqlTransaction)tx);
+                upd.Parameters.AddWithValue("@q", l.Quantity);
+                upd.Parameters.AddWithValue("@pid", l.Product.Id);
+                await upd.ExecuteNonQueryAsync();
             }
+
 
             await tx.CommitAsync();
             return id;
