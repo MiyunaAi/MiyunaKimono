@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using MiyunaKimono.Services;
 using System;
+using System.Configuration; // ด้านบนไฟล์
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -61,16 +62,14 @@ namespace MiyunaKimono.Views
 
         private void MakeQr()
         {
-            // โทรศัพท์ PromptPay (เบอร์โทร 10 หลัก)
-            const string phone = "0800316386";
-            // ยอดรวม
+            // ✏️ ใส่เบอร์ PromptPay แบบ 10 หลักขึ้นต้น 0 (ไม่ต้องใส่ขีดหรือช่องว่าง)
+            const string PROMPTPAY_MOBILE = "0800316386";  // <-- ใส่เบอร์คุณตรงนี้
+
             var amount = GrandTotal;
 
-            // สร้าง payload EMVCo + PromptPay (โค้ดง่าย ๆ พอใช้งาน)
-            var payload = PromptPayQr.BuildMobilePayload(phone, amount);
+            // โค้ดด้านล่างไม่ต้องแก้ ถ้าใช้ BuildMobilePayload เวอร์ชันที่ผมให้ไป
+            var payload = PromptPayQr.BuildMobilePayload(PROMPTPAY_MOBILE, amount);
 
-            // สร้างภาพ QR ด้วย QRCoder (ติดตั้ง NuGet: QRCoder)
-            // PM> Install-Package QRCoder
             var generator = new QRCoder.QRCodeGenerator();
             var data = generator.CreateQrCode(payload, QRCoder.QRCodeGenerator.ECCLevel.M);
             var code = new QRCoder.PngByteQRCode(data);
@@ -84,11 +83,11 @@ namespace MiyunaKimono.Views
             bmp.EndInit();
             QrImage.Source = bmp;
 
-            // รีเซตเวลา
             _qrRemain = 59;
             BtnResetQr.Visibility = Visibility.Collapsed;
             PropertyChanged?.Invoke(this, new(nameof(QrRemainText)));
         }
+
 
         private void ResetQr_Click(object sender, RoutedEventArgs e) => MakeQr();
 
@@ -205,56 +204,97 @@ namespace MiyunaKimono.Views
     }
 
     // ===== PromptPay EMVCo payload แบบย่อ =====
+    // ===== PromptPay EMVCo payload แบบถูกสเปก =====
+    // ===== PromptPay EMVCo payload (Mobile) แบบถูกสเปก =====
     internal static class PromptPayQr
     {
-        // อ้างอิงหลักการ EMVCo; โค้ดนี้ทำ payload ได้พอใช้งานจริง (มือถือ + จำนวนเงิน)
-        public static string BuildMobilePayload(string mobile10, decimal amount)
+        // TLV helper (id + 2-digit length + value)
+        private static string TLV(string id, string value)
+            => id + value.Length.ToString("00") + value;
+
+        /// <summary>
+        /// สร้าง Payload สำหรับ PromptPay (มือถือ) — amount เป็นยอดชำระแบบมีทศนิยม 2 หลัก
+        /// mobileInput รับ "0xxxxxxxxx" หรือ "66xxxxxxxxx" หรือ "0066xxxxxxxxx" ก็ได้
+        /// </summary>
+        public static string BuildMobilePayload(string mobileInput, decimal amount)
         {
-            // ตัด 0 นำหน้า แล้วแปลงเป็น +66
-            var mobile = mobile10.Trim();
-            if (mobile.StartsWith("0")) mobile = "66" + mobile.Substring(1);
+            // 1) ทำเบอร์ให้เป็นรูปแบบ 0066 + เบอร์ไม่เอา 0 นำหน้า
+            var digits = new string(mobileInput.Where(char.IsDigit).ToArray());
+            if (digits.StartsWith("0066"))
+            {
+                digits = digits; // ok
+            }
+            else if (digits.StartsWith("66"))
+            {
+                digits = "00" + digits; // -> 0066...
+            }
+            else if (digits.StartsWith("0"))
+            {
+                digits = "0066" + digits.Substring(1);
+            }
+            else
+            {
+                // ถ้าใส่อย่างอื่นมา (เช่น 8xxxxxxxx) ให้ถือว่าเป็นเบอร์ไทยไม่ใส่ศูนย์ -> เติม 0066 เอง
+                digits = "0066" + digits;
+            }
 
-            // TLV helper
-            string TLV(string id, string value)
-                => id + value.Length.ToString("00") + value;
+            // 2) Merchant Account Info (PromptPay) ใช้ Tag 29
+            //   - Subtag 00 = AID "A000000677010111"
+            //   - Subtag 01 = mobile (0066xxxxxxxxx)
+            string merchantAcc =
+                TLV("00", "A000000677010111") +
+                TLV("01", digits);
+            string tag29 = TLV("29", merchantAcc);
 
-            // Merchant account (PromptPay mobile)
-            // AID = A000000677010111
-            var merchantInfo = TLV("00", "A000000677010111") + TLV("01", "11" + mobile);
-            var tag26 = TLV("26", merchantInfo);
+            // 3) จำนวนเงินต้องเป็น 2 ตำแหน่งทศนิยมเสมอ
+            string amt = amount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
 
-            var amt = amount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+            // 4) ประกอบ payload ตามสเปก
+            //    00 = Payload Format Indicator ("01")
+            //    01 = Point of Initiation Method ("12" = Dynamic QR)
+            //    29 = Merchant Account Info (PromptPay)
+            //    52 = MCC (0000)
+            //    53 = Currency (764 = THB)
+            //    54 = Amount
+            //    58 = Country (TH)
+            //    59 = Merchant Name (<=25 ตัวอักษรได้)
+            //    60 = City (<=15 ตัวอักษรได้)
+            //    63 = CRC (ความยาว 04) — ใส่ "6304" ไว้ก่อน แล้วค่อยคำนวณ CRC ต่อท้าย
+            string payloadNoCrc =
+                TLV("00", "01") +
+                TLV("01", "12") +
+                tag29 +
+                TLV("52", "0000") +
+                TLV("53", "764") +
+                TLV("54", amt) +
+                TLV("58", "TH") +
+                TLV("59", "Miyuna") +
+                TLV("60", "Bangkok") +
+                "6304";
 
-            var payload =
-                TLV("00", "01") +           // Payload Format Indicator
-                TLV("01", "12") +           // Point of initiation (static=11/dynamic=12) - ใช้ 12
-                tag26 +
-                TLV("52", "0000") +         // Merchant Category Code (ไม่ระบุ)
-                TLV("53", "764") +          // Currency = THB
-                TLV("54", amt) +            // Amount
-                TLV("58", "TH") +           // Country Code
-                TLV("59", "Miyuna") +       // Merchant Name (สั้น ๆ)
-                TLV("60", "Bangkok") +      // City
-                "6304";                     // CRC placeholder
-
-            // คำนวณ CRC-16/CCITT-FALSE
-            var crc = Crc16Ccitt(payload);
-            return payload + crc;
+            string crc = Crc16CcittFalse(payloadNoCrc);
+            return payloadNoCrc + crc;
         }
 
-        private static string Crc16Ccitt(string s)
+        // CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF)
+        private static string Crc16CcittFalse(string s)
         {
-            ushort poly = 0x1021, reg = 0xFFFF;
+            ushort poly = 0x1021;
+            ushort reg = 0xFFFF;
             var bytes = System.Text.Encoding.ASCII.GetBytes(s);
             foreach (var b in bytes)
             {
                 reg ^= (ushort)(b << 8);
                 for (int i = 0; i < 8; i++)
                 {
-                    reg = (reg & 0x8000) != 0 ? (ushort)((reg << 1) ^ poly) : (ushort)(reg << 1);
+                    reg = ((reg & 0x8000) != 0)
+                        ? (ushort)((reg << 1) ^ poly)
+                        : (ushort)(reg << 1);
                 }
             }
-            return reg.ToString("X4");
+            return reg.ToString("X4"); // UPPER HEX 4 หลัก
         }
     }
+
+
 }

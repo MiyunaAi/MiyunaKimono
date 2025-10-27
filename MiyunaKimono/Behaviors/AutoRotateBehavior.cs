@@ -1,61 +1,54 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
+using System.Windows;
 
 namespace MiyunaKimono.Behaviors
 {
     public static class AutoRotateBehavior
     {
+        public static bool GetIsEnabled(DependencyObject obj) => (bool)obj.GetValue(IsEnabledProperty);
+        public static void SetIsEnabled(DependencyObject obj, bool value) => obj.SetValue(IsEnabledProperty, value);
         public static readonly DependencyProperty IsEnabledProperty =
-            DependencyProperty.RegisterAttached(
-                "IsEnabled", typeof(bool), typeof(AutoRotateBehavior),
+            DependencyProperty.RegisterAttached("IsEnabled", typeof(bool), typeof(AutoRotateBehavior),
                 new PropertyMetadata(false, OnIsEnabledChanged));
 
-        public static void SetIsEnabled(DependencyObject d, bool v) => d.SetValue(IsEnabledProperty, v);
-        public static bool GetIsEnabled(DependencyObject d) => (bool)d.GetValue(IsEnabledProperty);
-
+        public static int GetIntervalSeconds(DependencyObject obj) => (int)obj.GetValue(IntervalSecondsProperty);
+        public static void SetIntervalSeconds(DependencyObject obj, int value) => obj.SetValue(IntervalSecondsProperty, value);
         public static readonly DependencyProperty IntervalSecondsProperty =
-            DependencyProperty.RegisterAttached(
-                "IntervalSeconds", typeof(int), typeof(AutoRotateBehavior),
-                new PropertyMetadata(4, OnIntervalChanged));
-
-        public static void SetIntervalSeconds(DependencyObject d, int v) => d.SetValue(IntervalSecondsProperty, v);
-        public static int GetIntervalSeconds(DependencyObject d) => (int)d.GetValue(IntervalSecondsProperty);
+            DependencyProperty.RegisterAttached("IntervalSeconds", typeof(int), typeof(AutoRotateBehavior),
+                new PropertyMetadata(4));
 
         private static readonly DependencyProperty TimerProperty =
             DependencyProperty.RegisterAttached("Timer", typeof(DispatcherTimer), typeof(AutoRotateBehavior));
 
-        private static void SetTimer(DependencyObject d, DispatcherTimer v) => d.SetValue(TimerProperty, v);
-        private static DispatcherTimer GetTimer(DependencyObject d) => (DispatcherTimer)d.GetValue(TimerProperty);
-
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not ListBox list) return;
+            if (d is not Selector sel) return;
+
+            // stop old
+            if (sel.GetValue(TimerProperty) is DispatcherTimer oldT)
+            {
+                oldT.Stop();
+                sel.ClearValue(TimerProperty);
+            }
 
             if ((bool)e.NewValue)
             {
-                var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(GetIntervalSeconds(list)) };
+                var t = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(Math.Max(1, GetIntervalSeconds(sel)))
+                };
                 t.Tick += (_, __) =>
                 {
-                    if (list.Items.Count == 0) return;
-                    list.SelectedIndex = (list.SelectedIndex + 1) % list.Items.Count;
+                    if (sel.Items.Count == 0) return;
+                    var next = (sel.SelectedIndex + 1) % sel.Items.Count;
+                    sel.SelectedIndex = next;
                 };
-                SetTimer(list, t);
+                sel.Unloaded += (_, __) => t.Stop();
                 t.Start();
+                sel.SetValue(TimerProperty, t);
             }
-            else
-            {
-                var t = GetTimer(list);
-                t?.Stop();
-                SetTimer(list, null);
-            }
-        }
-
-        private static void OnIntervalChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var t = GetTimer(d);
-            if (t != null) t.Interval = TimeSpan.FromSeconds(GetIntervalSeconds(d));
         }
     }
 }

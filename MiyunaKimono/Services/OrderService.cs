@@ -149,6 +149,17 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
 
             await tx.CommitAsync();
+
+            // ✅ อัปเดตแคชของสินค้าให้ลด QTY แบบ realtime (ยิง PropertyChanged)
+            foreach (var line in lines) // lines = parameter ที่ส่งเข้ามา
+            {
+                var tracked = ProductService.Instance.GetTrackedById(line.Product.Id);
+                if (tracked != null)
+                    tracked.Quantity = Math.Max(0, tracked.Quantity - line.Quantity);
+            }
+
+
+
             return id;
         }
     }

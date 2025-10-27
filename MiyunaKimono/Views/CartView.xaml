@@ -104,15 +104,15 @@
                                 <!-- รูป กว้างขึ้นนิด -->
                                 <ColumnDefinition Width="*"   SharedSizeGroup="colInfo"/>
                                 <!-- รายละเอียด -->
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="190"/>
                                 <!-- GAP 1 -->
                                 <ColumnDefinition Width="210" SharedSizeGroup="colQty"/>
                                 <!-- QTY -->
-                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="80"/>
                                 <!-- GAP 2 -->
                                 <ColumnDefinition Width="180" SharedSizeGroup="colPrice"/>
                                 <!-- PRICE -->
-                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="40"/>
                                 <!-- GAP 3 -->
                                 <ColumnDefinition Width="180" SharedSizeGroup="colTotal"/>
                                 <!-- TOTAL -->
@@ -121,7 +121,7 @@
                             <TextBlock Grid.Column="0"/>
                             <TextBlock Grid.Column="1"/>
 
-                            <TextBlock Grid.Column="3" Text="QTY" Width="80"   FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBlock Grid.Column="3" Text="QTY" Width="80"   FontWeight="SemiBold" Foreground="#666" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="5" Text="PRICE" Width="150" FontWeight="SemiBold" Foreground="#666"/>
                             <TextBlock Grid.Column="7" Text="TOTAL" Width="150" FontWeight="SemiBold" Foreground="#666"/>
                         </Grid>
@@ -158,19 +158,19 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="#EEE" BorderThickness="0,0,0,1"
-            Padding="0,18" Margin="0,6,0,6">
+                                        Padding="0,18" Margin="0,6,0,6">
                                         <!-- เพิ่มช่องว่างบน/ล่าง -->
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="140" SharedSizeGroup="colImage"/>
                                                 <ColumnDefinition Width="*"   SharedSizeGroup="colInfo"/>
-                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="120"/>
                                                 <!-- GAP 1 -->
                                                 <ColumnDefinition Width="160" SharedSizeGroup="colQty"/>
-                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="150"/>
                                                 <!-- GAP 2 -->
                                                 <ColumnDefinition Width="180" SharedSizeGroup="colPrice"/>
-                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="40"/>
                                                 <!-- GAP 3 -->
                                                 <ColumnDefinition Width="180" SharedSizeGroup="colTotal"/>
                                             </Grid.ColumnDefinitions>
@@ -184,16 +184,16 @@
                                             <StackPanel Grid.Column="1" Margin="14,0,0,0">
                                                 <TextBlock Text="{Binding Product.ProductName}" FontWeight="SemiBold"/>
                                                 <TextBlock Foreground="#777" Margin="0,3,0,0">
-            <Run Text="{Binding Product.Brand, TargetNullValue=—}"/><Run Text="  "/>
-            <Run Text="{Binding Product.Category, TargetNullValue=—}"/>
+                                                    <Run Text="{Binding Product.Brand, TargetNullValue=—}"/><Run Text="  "/>
+                                                    <Run Text="{Binding Product.Category, TargetNullValue=—}"/>
                                                 </TextBlock>
                                             </StackPanel>
 
                                             <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
                                             <!-- QTY (อยู่คอลัมน์ 3 เพราะคอลัมน์ 2 คือ GAP) -->
                                             <Border Grid.Column="3" CornerRadius="10"
-        BorderBrush="#D8D8D8" BorderThickness="1"
-        Background="White" HorizontalAlignment="Left">
+                                                    BorderBrush="#D8D8D8" BorderThickness="1"
+                                                    Background="White" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="44"/>

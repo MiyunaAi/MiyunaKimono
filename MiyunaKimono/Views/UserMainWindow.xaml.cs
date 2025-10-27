@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Collections.Generic;
+using System.Linq;
 
 
 // ป้องกันชื่อซ้อนกับคลาสอื่น
@@ -70,6 +71,8 @@ namespace MiyunaKimono.Views
 
         }
 
+
+
         private void ShowCheckoutSection()
         {
             HomeSection.Visibility = Visibility.Collapsed;
@@ -78,11 +81,18 @@ namespace MiyunaKimono.Views
 
             CheckoutHost.Visibility = Visibility.Visible;
 
-            // สร้าง view ใหม่ทุกครั้ง (หรือจะ cache ไว้ก็ได้)
             var v = new CheckoutView();
-            v.BackRequested += () => ShowHomeSection();   // ปุ่ม Back บนบาร์ “Payment” ให้กลับ Home
+            v.BackRequested += () => ShowHomeSection();
+
+            v.OrderCompleted += async () =>
+            {
+                await ReloadProductsAfterOrderAsync();
+                ShowHomeSection();
+            };
+
             CheckoutHost.Content = v;
         }
+
 
 
         // ไปหน้า Home (Hero + Top Picks)
@@ -220,6 +230,19 @@ namespace MiyunaKimono.Views
 
         }
 
+        private async Task ReloadProductsAfterOrderAsync()
+        {
+            var latest = await Task.Run(() => _productSvc.GetAll() ?? new List<Product>());
+            var map = latest.ToDictionary(p => p.Id);
+
+            foreach (var card in TopPicks)
+                if (map.TryGetValue(card.Id, out var p)) card.UpdateFrom(p);
+
+            foreach (var card in FilteredProducts)
+                if (map.TryGetValue(card.Id, out var p)) card.UpdateFrom(p);
+        }
+
+
         private void OpenCart_Click(object sender, RoutedEventArgs e)
         {
             ShowCartSection();
@@ -294,32 +317,15 @@ namespace MiyunaKimono.Views
 
         private static TopPickItem MapToTopPick(Product p)
         {
-            // ถ้า TopPickItem.Price เป็น double ให้ cast ให้ตรง
-            // สมมุติ TopPickItem.Price เป็น decimal ตามที่เราใช้ในการ์ด
-            var price = p.Price; // decimal
-                                 // คิด % off ถ้าคุณเก็บ discount เป็นจำนวนเงิน/เปอร์เซ็นต์ ปรับตามจริง
-                                 // ตัวอย่างนี้ถือว่า discount เป็นเปอร์เซ็นต์ 0..100
-            string offText = null;
-            if (p.Discount != 0m)
+            var item = new TopPickItem
             {
-                // ถ้า p.Discount เก็บเป็นเปอร์เซ็นต์ (decimal)
-                var discPercent = (int)Math.Round(p.Discount);
-                offText = discPercent > 0 ? $"{discPercent}% OFF" : null;
-            }
-
-            return new TopPickItem
-            {
-                Id = p.Id, // ★ เพิ่ม 
-                ProductName = p.ProductName,
-                Category = p.Category,
-                Price = price,           // <= ให้ชนิดตรงกับพร็อพใน TopPickItem ของคุณ
-                Quantity = p.Quantity,
-                Image1Path = p.Image1Path,
-                OffText = offText,
-                IsFavorite = FavoritesService.Instance.IsFavorite(p.Id) // ★ เพิ่ม
-
+                Id = p.Id,
+                IsFavorite = FavoritesService.Instance.IsFavorite(p.Id)
             };
+            item.Attach(p); // <-- สำคัญ! ผูกการ์ดกับ Product เดียวกัน + sync ค่าครั้งแรก
+            return item;
         }
+
         private void Logout_Click(object s, RoutedEventArgs e)
         {
             var uid = MiyunaKimono.Services.AuthService.CurrentUserIdSafe();
@@ -403,33 +409,25 @@ namespace MiyunaKimono.Views
 
         private void ViewDetails_Click(object sender, RoutedEventArgs e)
         {
-            // รับโมเดลจาก Tag ของปุ่ม
             var ctx = (sender as FrameworkElement)?.Tag;
 
             MiyunaKimono.Models.Product product = null;
 
-            if (ctx is MiyunaKimono.Models.Product p)
-            {
-                product = p;
-            }
-            else if (ctx is MiyunaKimono.Models.TopPickItem card)
-            {
-                // หากคุณเก็บแค่การ์ด ให้ดึงของจริงจากบริการ (ปรับตามที่คุณมี)
-                // ตัวอย่าง: หาจากชื่อ
-                product = _productSvc.GetByName(card.ProductName);
-            }
+            if (ctx is MiyunaKimono.Models.Product p1)
+                product = p1;
+            else if (ctx is MiyunaKimono.Models.TopPickItem card && card.Source != null)
+                product = card.Source;                 // ใช้ instance เดียวกันกับการ์ด
+            else if (ctx is MiyunaKimono.Models.TopPickItem card2)
+                product = _productSvc.GetById(card2.Id); // fallback
 
-            if (product == null)
-            {
-                MessageBox.Show("ไม่พบข้อมูลสินค้า");
-                return;
-            }
+            if (product == null) { MessageBox.Show("ไม่พบข้อมูลสินค้า"); return; }
 
             var w = new ProductDetailsWindow(product);
             w.Owner = this;
             w.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             w.ShowDialog();
         }
+
 
 
         // ข้อมูลสำหรับหน้า All Products
