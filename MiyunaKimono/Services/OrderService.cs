@@ -9,6 +9,8 @@ namespace MiyunaKimono.Services
 {
     public class OrderService
     {
+
+
         public static OrderService Instance { get; } = new();
 
         // ====== เวอร์ชันเดิม (ยังใช้ได้) ======
@@ -61,6 +63,87 @@ namespace MiyunaKimono.Services
             }
             catch { tx.Rollback(); throw; }
         }
+
+
+
+        // ===== ข้อมูลออเดอร์แบบย่อ สำหรับหน้า User Info =====
+        public sealed class OrderInfo
+        {
+            // ใช้ string เพื่อรองรับ order_id แบบ "ORD202510..." 
+            public string Id { get; set; }
+            public decimal Amount { get; set; }
+            public decimal Discount { get; set; }
+            public string Status { get; set; }
+            public DateTime CreatedAt { get; set; }
+        }
+
+        /// <summary>
+        /// คืนรายการออเดอร์ของผู้ใช้ เรียงล่าสุดก่อน
+        /// รองรับทั้งสคีมาเก่า (id, total_amount, discount_amount)
+        /// และสคีมาใหม่ (order_id, amount, discount, status, created_at)
+        /// </summary>
+        public async Task<List<OrderInfo>> GetOrdersByUserAsync(int userId)
+        {
+            var list = new List<OrderInfo>();
+            using var conn = Db.GetConn();
+
+            // พยายามอ่านจากสคีมาใหม่ก่อน
+            try
+            {
+                using var cmd = new MySqlCommand(@"
+            SELECT order_id, amount, discount, status, created_at
+            FROM orders
+            WHERE user_id = @uid
+            ORDER BY created_at DESC;", conn);
+                cmd.Parameters.AddWithValue("@uid", userId);
+
+                using var rd = await cmd.ExecuteReaderAsync();
+                while (await rd.ReadAsync())
+                {
+                    list.Add(new OrderInfo
+                    {
+                        Id = rd["order_id"]?.ToString(),
+                        Amount = rd["amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["amount"]),
+                        Discount = rd["discount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["discount"]),
+                        Status = rd["status"] as string,
+                        CreatedAt = rd["created_at"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(rd["created_at"])
+                    });
+                }
+            }
+            catch
+            {
+                // ถ้าโครงสร้างนี้ไม่มี ให้ลองสคีมาเก่า
+            }
+
+            // ถ้ายังว่าง ลองสคีมาเก่า
+            if (list.Count == 0)
+            {
+                using var cmd2 = new MySqlCommand(@"
+            SELECT id, total_amount, discount_amount, created_at
+            FROM orders
+            WHERE user_id = @uid
+            ORDER BY created_at DESC;", conn);
+                cmd2.Parameters.AddWithValue("@uid", userId);
+
+                using var rd2 = await cmd2.ExecuteReaderAsync();
+                while (await rd2.ReadAsync())
+                {
+                    var idNum = rd2["id"] == DBNull.Value ? 0 : Convert.ToInt32(rd2["id"]);
+                    list.Add(new OrderInfo
+                    {
+                        Id = idNum.ToString(),              // แปลงเป็น string ให้รูปแบบเดียวกัน
+                        Amount = rd2["total_amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd2["total_amount"]),
+                        Discount = rd2["discount_amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd2["discount_amount"]),
+                        Status = "—",                            // สคีมาเก่าอาจไม่มี status
+                        CreatedAt = rd2["created_at"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(rd2["created_at"])
+                    });
+                }
+            }
+
+            return list;
+        }
+
+
 
         // ====== เวอร์ชันเต็มที่คุณต้องการ (เก็บข้อมูลลูกค้า/สถานะ/สลิป/ไฟล์ ฯลฯ) ======
         public class NewOrderLine
@@ -162,5 +245,7 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
             return id;
         }
+
+
     }
 }

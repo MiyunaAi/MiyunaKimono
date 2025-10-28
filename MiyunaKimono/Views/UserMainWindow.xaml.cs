@@ -21,6 +21,7 @@ namespace MiyunaKimono.Views
 {
     public partial class UserMainWindow : Window, INotifyPropertyChanged
     {
+        private UserInfoView _userInfoView;   // cache instance
 
 
 
@@ -68,16 +69,42 @@ namespace MiyunaKimono.Views
             ListSection.Visibility = Visibility.Collapsed;
             CartSection.Visibility = Visibility.Collapsed;
             CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
 
         }
 
+        // แสดงหน้า User Info
+        private async Task ShowUserInfoSectionAsync()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+            CheckoutHost.Visibility = Visibility.Collapsed;
 
+            if (_userInfoView == null)
+            {
+                _userInfoView = new UserInfoView();
+                _userInfoView.BackRequested += () => ShowHomeSection();  // ปุ่ม back บนบาร์
+            }
+
+            // โหลด/รีเฟรชข้อมูล order ก่อนโชว์
+            await _userInfoView.ReloadAsync();
+
+            UserInfoHost.Content = _userInfoView;   // ContentControl ใน XAML
+            UserInfoHost.Visibility = Visibility.Visible;
+        }
+
+        private async void OpenUserInfo_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowUserInfoSectionAsync();
+        }
 
         private void ShowCheckoutSection()
         {
             HomeSection.Visibility = Visibility.Collapsed;
             ListSection.Visibility = Visibility.Collapsed;
             CartSection.Visibility = Visibility.Collapsed;
+            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;   // << เพิ่มบรรทัดนี้
 
             CheckoutHost.Visibility = Visibility.Visible;
 
@@ -176,6 +203,7 @@ namespace MiyunaKimono.Views
             ListSection.Visibility = Visibility.Collapsed;
             CartSection.Visibility = Visibility.Visible;
             CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;   // << เพิ่มบรรทัดนี้
 
         }
 
@@ -310,6 +338,7 @@ namespace MiyunaKimono.Views
             ListSection.Visibility = Visibility.Visible;
             CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
             CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
+            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
 
         }
 
@@ -590,7 +619,7 @@ namespace MiyunaKimono.Views
 
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute)); 
             _canExecute = canExecute;
         }
 

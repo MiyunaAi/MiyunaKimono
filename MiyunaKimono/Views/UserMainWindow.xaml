@@ -190,7 +190,7 @@
                     </Grid>
 
                     <!-- User -->
-                    <Button Style="{StaticResource TopRightIconButton}" ToolTip="Account">
+                    <Button Style="{StaticResource TopRightIconButton}" ToolTip="Account" Click="OpenUserInfo_Click">
                         <Image Source="pack://application:,,,/Assets/ic_user.png"
                                Stretch="Uniform" Width="18" Height="18"/>
                     </Button>
@@ -531,6 +531,15 @@
         <ContentControl x:Name="CheckoutHost"
                     Grid.Row="2"
                     Visibility="Collapsed"/>
+
+        <!-- ✅ Host สำหรับหน้า User info -->
+        <ContentControl x:Name="UserInfoHost"
+                Grid.Row="2"
+                Visibility="Collapsed"/>
+
+
+        
+        
 
         <!-- ===== 3.1) CONTENT : LIST (ALL / Furisode / ฯลฯ) ===== -->
         <ScrollViewer x:Name="ListSection"
