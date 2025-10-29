@@ -4,7 +4,7 @@
         xmlns:beh="clr-namespace:MiyunaKimono.Behaviors"
         xmlns:svc="clr-namespace:MiyunaKimono.Services"
         xmlns:views="clr-namespace:MiyunaKimono.Views"
-
+        xmlns:conv="clr-namespace:MiyunaKimono.Converters"
         Title="Miyuna Kimono" Height="900" Width="1440"
         WindowStartupLocation="CenterScreen" Background="White">
     
@@ -190,10 +190,23 @@
                     </Grid>
 
                     <!-- User -->
-                    <Button Style="{StaticResource TopRightIconButton}" ToolTip="Account" Click="OpenUserInfo_Click">
-                        <Image Source="pack://application:,,,/Assets/ic_user.png"
-                               Stretch="Uniform" Width="18" Height="18"/>
+                    <!-- ปุ่ม User มุมขวาบน -->
+                    <Button Style="{StaticResource TopRightIconButton}"
+                            ToolTip="Account"
+                            Click="OpenUserInfo_Click">
+                        <!-- ขนาดไอคอนรวมกรอบ -->
+                        <Grid Width="28" Height="28">
+                            <!-- วงกลมโปรไฟล์ -->
+                            <Ellipse Stroke="#EEEEEE" StrokeThickness="1">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="{Binding TopRightAvatar}" Stretch="UniformToFill"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+
+                        </Grid>
                     </Button>
+
+
 
                     <!-- ปุ่ม Log out ข้างไอคอนผู้ใช้ -->
                     <Button x:Name="BtnLogout"
@@ -536,10 +549,13 @@
         <ContentControl x:Name="UserInfoHost"
                 Grid.Row="2"
                 Visibility="Collapsed"/>
+        <!-- Host สำหรับหน้า Edit Profile -->
+        <ContentControl x:Name="EditProfileHost"
+                Grid.Row="2"
+                Visibility="Collapsed"/>
 
 
-        
-        
+
 
         <!-- ===== 3.1) CONTENT : LIST (ALL / Furisode / ฯลฯ) ===== -->
         <ScrollViewer x:Name="ListSection"

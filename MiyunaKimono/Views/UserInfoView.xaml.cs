@@ -9,6 +9,10 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using System.IO;                 // ★ เพิ่มอันนี้
+
+
 
 namespace MiyunaKimono.Views
 {
@@ -23,7 +27,7 @@ namespace MiyunaKimono.Views
         public string Username { get; private set; }
         public string Email { get; private set; }
         public string AvatarPath { get; private set; }  // ใส่ path รูปถ้ามี
-
+        public BitmapImage AvatarImg { get; private set; }
         // ====== ออเดอร์ (ทั้งหมด + ที่กรองแล้ว) ======
         public ObservableCollection<OrderRow> AllOrders { get; } = new();
         public ObservableCollection<OrderRow> FilteredOrders { get; } = new();
@@ -66,22 +70,61 @@ namespace MiyunaKimono.Views
             LoadProfileFromSession();
         }
 
-        private void LoadProfileFromSession()
+        public event Action EditProfileRequested; // ★ เพิ่มอีเวนต์นี้
+
+        private void EditProfile_Click(object sender, RoutedEventArgs e)
         {
-            // ดึงจาก Session (คุณมีอยู่แล้วในโปรเจกต์)
-            var u = Session.CurrentUser;
-            FullName = $"{u?.FirstName} {u?.LastName}".Trim();
-            Username = u?.Username ?? "—";
-            Email = u?.Email ?? "—";
-            // AvatarPath: ถ้าคุณมี path ก็เซ็ตได้ (ค่าเริ่มต้นใช้ Assets/ic_user.png แล้ว)
-            Raise(nameof(FullName)); Raise(nameof(Username)); Raise(nameof(Email)); Raise(nameof(AvatarPath));
+            EditProfileRequested?.Invoke(); // ★ แจ้งไปให้ parent สลับ view
         }
 
-        // เรียกตอนเปิดหน้า/รีเฟรชหลังจากสั่งซื้อสำเร็จ
+
+        private void LoadProfileFromSession()
+        {
+            var u = Session.CurrentUser;
+            FullName = $"{u?.First_Name} {u?.Last_Name}".Trim();
+            Username = u?.Username ?? "—";
+            Email = u?.Email ?? "—";
+
+            AvatarImg = LoadAvatar(u?.AvatarPath);
+            Raise(nameof(FullName));
+            Raise(nameof(Username));
+            Raise(nameof(Email));
+            Raise(nameof(AvatarImg)); // ★ แจ้ง UI ว่ารูปเปลี่ยน
+        }
+
+        private BitmapImage LoadAvatar(string path)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                {
+                    var bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.UriSource = new Uri(path, UriKind.Absolute);
+                    bmp.EndInit();
+                    return bmp;
+                }
+            }
+            catch { }
+            // fallback icon
+            var def = new BitmapImage();
+            def.BeginInit();
+            def.CacheOption = BitmapCacheOption.OnLoad;
+            def.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
+            def.EndInit();
+            return def;
+        }
+
+        // เรียกตอนเปิดหน้า/หรือหลังบันทึก
         public async Task ReloadAsync()
         {
             await LoadOrdersAsync();
             ApplyFilter();
+
+            // ★ รีโหลดรูปด้วย เผื่อมีการอัปเดต AvatarPath ใน Session
+            AvatarImg = LoadAvatar(Session.CurrentUser?.AvatarPath);
+            Raise(nameof(AvatarImg));
         }
 
         private async Task LoadOrdersAsync()

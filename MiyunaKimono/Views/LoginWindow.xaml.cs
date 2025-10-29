@@ -84,29 +84,33 @@ namespace MiyunaKimono.Views
                 PwdPlain.Text = PwdBox.Password;
         }
 
-        private void Login_Click(object sender, RoutedEventArgs e)
+        private async void Login_Click(object sender, RoutedEventArgs e)
         {
             var user = TxtUsername.Text.Trim();
             var pass = PwdBox.Password;
 
+            // บายพาสแอดมินเดิม
             if (user == "Ishihara" && pass == "wasd5247")
             {
                 var admin = new MiyunaKimono.Views.AdminWindow();
-                Application.Current.MainWindow = admin;   // ★ สำคัญ
+                Application.Current.MainWindow = admin;
                 admin.Show();
                 this.Close();
                 return;
             }
 
-
             if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
             {
-                MessageBox.Show("กรอก Username และ Password", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("กรอก Username และ Password", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             bool ok = false;
-            try { ok = _auth.Login(user, pass); }
+            try
+            {
+                ok = await _auth.LoginAsync(user, pass);   // ← เปลี่ยนมาใช้ await
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("เชื่อมฐานข้อมูลไม่สำเร็จ: " + ex.Message);
@@ -115,41 +119,33 @@ namespace MiyunaKimono.Views
 
             if (!ok)
             {
-                MessageBox.Show("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", "Login failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+                    "Login failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // บันทึก Remember Me
+            // Remember Me
             Properties.Settings.Default.RememberMe = ChkRemember.IsChecked == true;
             Properties.Settings.Default.SavedUsername = (ChkRemember.IsChecked == true) ? user : "";
             Properties.Settings.Default.Save();
 
-            // ★ สำคัญ: ถ้ายังไม่มี CurrentUserId ใน AuthService ให้ใช้เมธอด GetUserId แทน
-            // ===== ดึง userId และตั้งค่า context ผู้ใช้ปัจจุบัน =====
-            int userId = _auth.GetUserIdByUsername(user);
+            // ไม่จำเป็นต้อง GetUserId อีกถ้า LoginAsync เซ็ตไว้แล้ว
+            // (ถ้าจะเก็บไว้ใช้ ก็ได้ แต่ AuthService.LoginAsync ได้ SetCurrentUserId(user.Id) แล้ว)
+            int userId = AuthService.CurrentUserId;
             if (userId > 0)
             {
-                // เซ็ตผู้ใช้ปัจจุบัน
-                AuthService.SetCurrentUserId(userId);
-
-                // (1) ยกเลิก autosave เดิม (กันหลงจากผู้ใช้ก่อนหน้า)
                 CartPersistenceService.Instance.UnwireAutosave();
-
-                // (2) เคลียร์ cart ในหน่วยความจำก่อน
                 CartService.Instance.Clear();
-
-                // (3) โหลด cart ล่าสุดของผู้ใช้คนนี้
                 FavoritesService.Instance.InitForUser(userId);
                 CartPersistenceService.Instance.Load(userId);
-
-                // (4) ผูก autosave: ค่าที่แก้ใน cart จะเซฟทันที
                 CartPersistenceService.Instance.WireUpAutosave(userId);
             }
 
+            MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
 
-            MessageBox.Show("เข้าสู่ระบบสำเร็จ!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             var main = new UserMainWindow();
-            Application.Current.MainWindow = main;    // ✅ บอก WPF ว่านี่คือหน้าหลัก
+            Application.Current.MainWindow = main;
             main.Show();
             this.Close();
         }

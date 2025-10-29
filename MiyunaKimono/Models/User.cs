@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-// Models/User.cs
+﻿// Models/User.cs
 namespace MiyunaKimono.Models
 {
     public class User
@@ -16,5 +10,10 @@ namespace MiyunaKimono.Models
         public string Phone { get; set; } = "";
         public string Username { get; set; } = "";
         public string Password_Hash { get; set; } = "";
+
+        // ★ เพิ่มอันนี้
+        public string AvatarPath { get; set; } = "";
+
     }
+
 }

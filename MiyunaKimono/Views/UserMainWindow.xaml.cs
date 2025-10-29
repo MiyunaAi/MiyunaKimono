@@ -12,7 +12,8 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Windows.Media.Imaging;
+using System.IO;
 
 // ป้องกันชื่อซ้อนกับคลาสอื่น
 using TopPickItemModel = MiyunaKimono.Models.TopPickItem;
@@ -62,6 +63,40 @@ namespace MiyunaKimono.Views
         public ICommand NextHeroCommand { get; }
 
 
+        private EditProfileView _editProfileView; // ★ cache instance
+
+        private void HideAllSections()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+            CheckoutHost.Visibility = Visibility.Collapsed;
+            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
+            if (EditProfileHost != null) EditProfileHost.Visibility = Visibility.Collapsed;
+        }
+
+        // เรียกตอนกดปุ่ม Edit Profile
+        private void ShowEditProfileSection()
+        {
+            HideAllSections();
+
+            if (_editProfileView == null)
+            {
+                _editProfileView = new EditProfileView();
+                // ปุ่ม Back ในหน้า Edit ให้ย้อนกลับไป UserInfo
+                _editProfileView.BackRequested += async () => await ShowUserInfoSectionAsync();
+                // ถ้ากด Save สำเร็จ ให้รีโหลดข้อมูลใน UserInfo แล้วค่อยกลับ
+                _editProfileView.Saved += async () =>
+                {
+                    await ShowUserInfoSectionAsync(); // reload ในเมธอดนี้มี await _userInfoView.ReloadAsync()
+                };
+            }
+
+            EditProfileHost.Content = _editProfileView;
+            EditProfileHost.Visibility = Visibility.Visible;
+        }
+
+
 
         private void ShowHomeSection()
         {
@@ -85,6 +120,8 @@ namespace MiyunaKimono.Views
             {
                 _userInfoView = new UserInfoView();
                 _userInfoView.BackRequested += () => ShowHomeSection();  // ปุ่ม back บนบาร์
+                _userInfoView.EditProfileRequested += () => ShowEditProfileSection(); // ★ ตรงนี้สำคัญ
+
             }
 
             // โหลด/รีเฟรชข้อมูล order ก่อนโชว์
@@ -94,10 +131,8 @@ namespace MiyunaKimono.Views
             UserInfoHost.Visibility = Visibility.Visible;
         }
 
-        private async void OpenUserInfo_Click(object sender, RoutedEventArgs e)
-        {
-            await ShowUserInfoSectionAsync();
-        }
+        // ปุ่มรูปคนขวาบน
+        private void OpenUserInfo_Click(object sender, RoutedEventArgs e) => ShowUserInfo();
 
         private void ShowCheckoutSection()
         {
@@ -194,7 +229,7 @@ namespace MiyunaKimono.Views
 
 
         // ถ้ามีปุ่มเปิด Cart แบบฝังในหน้านี้
-
+        public BitmapImage TopRightAvatar { get; private set; }
 
 
         private void ShowCartSection()
@@ -211,6 +246,9 @@ namespace MiyunaKimono.Views
         {
             InitializeComponent();
             DataContext = this;
+
+            RefreshTopRightAvatar();
+            Session.ProfileChanged += () => RefreshTopRightAvatar();
 
             // ----- Commands -----
             PrevHeroCommand = new DelegateCommand(_ => PrevHero());
@@ -258,6 +296,45 @@ namespace MiyunaKimono.Views
 
         }
 
+        private void RefreshTopRightAvatar()
+        {
+            var path = Session.CurrentUser?.AvatarPath;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                {
+                    var bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.UriSource = new Uri(path, UriKind.Absolute);
+                    bmp.EndInit();
+                    TopRightAvatar = bmp;
+                }
+                else
+                {
+                    // default
+                    var bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
+                    bmp.EndInit();
+                    TopRightAvatar = bmp;
+                }
+            }
+            catch
+            {
+                // fallback ปลอดภัย
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
+                bmp.EndInit();
+                TopRightAvatar = bmp;
+            }
+
+            OnPropertyChanged(nameof(TopRightAvatar));
+        }
         private async Task ReloadProductsAfterOrderAsync()
         {
             var latest = await Task.Run(() => _productSvc.GetAll() ?? new List<Product>());
@@ -342,6 +419,50 @@ namespace MiyunaKimono.Views
 
         }
 
+        // UserMainWindow.xaml.cs
+
+        private async void ShowUserInfo()
+        {
+            HomeSection.Visibility = Visibility.Collapsed;
+            ListSection.Visibility = Visibility.Collapsed;
+            CartSection.Visibility = Visibility.Collapsed;
+            CheckoutHost.Visibility = Visibility.Collapsed;
+
+            var v = new UserInfoView();
+            // ถ้าหน้า UserInfo มีปุ่ม "Edit Profile" ให้ยิงอีเวนต์นี้ (ดูข้อ 2)
+            v.EditProfileRequested += ShowEditProfile;
+
+            v.BackRequested += () =>
+            {
+                // ถ้าต้องการกลับหน้า Home
+                HomeSection.Visibility = Visibility.Visible;
+                UserInfoHost.Visibility = Visibility.Collapsed;
+                UserInfoHost.Content = null;
+            };
+
+            UserInfoHost.Content = v;
+            UserInfoHost.Visibility = Visibility.Visible;
+
+            // ✅ โหลดรายการออเดอร์ + ตั้งค่าเริ่มต้น “All”
+            v.SelectedMonth = "All";
+            v.SelectedYear = "All";
+            await v.ReloadAsync();
+        }
+
+        private void ShowEditProfile()
+        {
+            var ep = new EditProfileView();
+
+            // กด Back หรือ Saved แล้วให้กลับไป UserInfo
+            ep.BackRequested += ShowUserInfo;
+            ep.Saved += ShowUserInfo;
+
+            UserInfoHost.Content = ep;
+            UserInfoHost.Visibility = Visibility.Visible;
+        }
+
+        // ปุ่มรูปคนขวาบน
+        
 
 
         private static TopPickItem MapToTopPick(Product p)

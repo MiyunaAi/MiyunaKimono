@@ -34,7 +34,10 @@
                     <Button Grid.Column="2" Content="Edit Profile"
                             Height="32" MinWidth="120"
                             Style="{StaticResource PrimaryButton}"
-                            IsEnabled="True" />
+                            Click="EditProfile_Click"
+                            
+                            
+                            />
                 </Grid>
             </Border>
 
@@ -48,11 +51,12 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Avatar วงกลม -->
-                    <Border Width="68" Height="68" CornerRadius="34"
-                            Background="#EEF2FF" HorizontalAlignment="Left">
-                        <Image Source="{Binding AvatarPath,Mode=OneWay, TargetNullValue='pack://application:,,,/Assets/ic_user.png'}" 
-                               Stretch="Uniform" Margin="8"/>
-                    </Border>
+                    <!-- ตัวอย่างส่วนรูปผู้ใช้ -->
+                    <Image Source="{Binding AvatarImg}" Width="56" Height="56" Stretch="UniformToFill">
+                        <Image.Clip>
+                            <EllipseGeometry Center="28,28" RadiusX="28" RadiusY="28"/>
+                        </Image.Clip>
+                    </Image>
 
                     <!-- ชื่อ, แฮชแท็ก, อีเมล -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -81,12 +85,14 @@
                 <!-- เดือน -->
                 <ComboBox Grid.Column="1" Width="140" Height="32"
                           ItemsSource="{Binding MonthOptions}"
-                          SelectedItem="{Binding SelectedMonth, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedMonth, Mode=TwoWay}"
+                          SelectedIndex="0"/>
 
                 <!-- ปี -->
                 <ComboBox Grid.Column="3" Width="120" Height="32"
                           ItemsSource="{Binding YearOptions}"
-                          SelectedItem="{Binding SelectedYear, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+                          SelectedIndex="0"/>
             </Grid>
 
             <!-- ===== ตารางออเดอร์ ===== -->

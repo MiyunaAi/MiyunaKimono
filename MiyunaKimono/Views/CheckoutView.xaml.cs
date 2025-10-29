@@ -136,7 +136,7 @@ namespace MiyunaKimono.Views
                 var addr = CartPersistenceService.Instance.LastAddressForOrder ?? "";
 
                 var u = Session.CurrentUser; // มี FirstName, LastName, Username, Email
-                var fullName = $"{u?.FirstName} {u?.LastName}".Trim();
+                var fullName = $"{u?.First_Name} {u?.Last_Name}".Trim();
                 var username = u?.Username ?? "";
                 var telOrEmail = u?.Email ?? ""; // ถ้าไม่มีเบอร์โทร ใช้อีเมลแทนชั่วคราว
 
@@ -193,7 +193,7 @@ namespace MiyunaKimono.Views
         public string FullName(int userId)
         {
             var u = Session.CurrentUser;
-            return $"{u?.FirstName} {u?.LastName}".Trim();
+            return $"{u?.First_Name} {u?.Last_Name}".Trim();
         }
 
         public string Username(int userId)
