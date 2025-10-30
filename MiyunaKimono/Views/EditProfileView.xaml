@@ -131,7 +131,7 @@
             <!-- Avatar + edit -->
             <StackPanel Margin="0,28" HorizontalAlignment="Center">
                 <Grid>
-                    <Border Width="160" Height="160" CornerRadius="80" Background="#EEF2FF">
+                    <Border Width="160" Height="160" CornerRadius="80" Background="#EEF2FF" ClipToBounds="True">
                         <Image Source="{Binding AvatarPreview}" Stretch="UniformToFill" />
                     </Border>
 
