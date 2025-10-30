@@ -167,9 +167,10 @@
                             Margin="0,0,6,0">
 
                     <!-- Heart -->
-                    <Button Style="{StaticResource TopRightIconButton}" Margin="0,0,6,0" ToolTip="Wishlist">
+                    <Button Style="{StaticResource TopRightIconButton}" Margin="0,0,6,0" ToolTip="Wishlist" Click="Wishlist_Click">
                         <Image Source="pack://application:,,,/Assets/ic_heart.png"
                                Stretch="Uniform" Width="18" Height="18"/>
+
                     </Button>
 
                     <!-- Cart -->

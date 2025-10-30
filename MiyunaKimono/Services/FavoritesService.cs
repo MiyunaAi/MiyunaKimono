@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
+using System.Linq; // ⬅️ เพิ่ม using นี้ (ถ้ายังไม่มี)
 
 namespace MiyunaKimono.Services
 {
@@ -46,6 +47,22 @@ namespace MiyunaKimono.Services
 
         public bool IsFavorite(int productId) => _ids.Contains(productId);
 
+
+        // --- 🔽 START: เพิ่มเมธอดนี้ 🔽 ---
+        /// <summary>
+        /// ดึงรายการ ID สินค้าทั้งหมดที่ผู้ใช้ปัจจุบันกดถูกใจ
+        /// </summary>
+        public List<int> GetFavoriteProductIds()
+        {
+            // คืนค่าเป็น List ใหม่ เพื่อป้องกันการแก้ไข HashSet จากภายนอก
+            return _ids.ToList();
+        }
+        // --- 🔼 END: เพิ่มเมธอดนี้ 🔼 ---
+
+        /// <summary>
+        /// ตั้งค่า Favorite และ sync ลง DB ทันที
+        /// </summary>
+        
         /// <summary>
         /// ตั้งค่า Favorite และ sync ลง DB ทันที
         /// </summary>

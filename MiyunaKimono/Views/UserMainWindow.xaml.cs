@@ -501,6 +501,36 @@ namespace MiyunaKimono.Views
             this.Close();
         }
 
+        private async Task ShowTopPicksPageAsync()
+        {
+            try
+            {
+                // 1. ดึงข้อมูลสินค้าแบบสุ่ม 24 รายการจาก ProductService
+                // (เรามี GetRandomAsync อยู่แล้ว แค่เปลี่ยนจำนวน)
+                var randomProducts = await _productSvc.GetRandomAsync(24);
+
+                // 2. เคลียร์รายการสินค้าที่แสดงผลอยู่ (ถ้ามี)
+                FilteredProducts.Clear();
+
+                // 3. แปลง Product -> TopPickItem (ที่การ์ดใน UI ใช้งาน)
+                foreach (var p in randomProducts)
+                {
+                    // ใช้เมธอด MapToTopPick ที่คุณมีอยู่แล้ว
+                    FilteredProducts.Add(MapToTopPick(p));
+                }
+
+                // 4. ตั้งค่าหัวข้อและจำนวน (ตามที่คุณต้องการ)
+                ListTitle = "Top picks for you";
+                ListCount = FilteredProducts.Count;
+
+                // 5. สั่งให้แสดงผล ListSection (หน้า All Product เดิม)
+                ShowList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load Top Picks: " + ex.Message, "Error");
+            }
+        }
 
         private async Task ShowAllProductsAsync()
         {
@@ -723,9 +753,62 @@ namespace MiyunaKimono.Views
         }
 
         // ปุ่ม "More >" ในส่วน Top Picks
-        private void MoreTop_Click(object sender, RoutedEventArgs e)
+        private async void MoreTop_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Coming soon.");
+            // เรียกใช้เมธอดใหม่ที่เราสร้าง
+            await ShowTopPicksPageAsync();
+        }
+
+        // 1. เมธอดสำหรับปุ่มไอคอนหัวใจ (ic_heart) ที่แถบ Top Bar
+        private async void Wishlist_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowFavoritesPageAsync();
+        }
+
+        // 2. เมธอดสำหรับเตรียมข้อมูลหน้า "You Like"
+        private async Task ShowFavoritesPageAsync()
+        {
+            try
+            {
+                // 1. ตรวจสอบให้แน่ใจว่าโหลดสินค้าทั้งหมดเก็บไว้ใน Cache แล้ว
+                await EnsureAllProductsAsync();
+
+                // 2. ดึง ID สินค้าที่ User กด Like ไว้
+                var favoriteIds = FavoritesService.Instance.GetFavoriteProductIds();
+
+                // 3. เคลียร์รายการสินค้าที่แสดงผลอยู่ (ถ้ามี)
+                FilteredProducts.Clear();
+
+                // 4. วนลูปดึงข้อมูล Product จริงจาก ID ที่ได้มา
+                foreach (var id in favoriteIds)
+                {
+                    // (ใช้ GetTrackedById เพื่อดึงจาก Cache ที่โหลดไว้แล้ว จะเร็วกว่า GetById)
+                    var product = _productSvc.GetTrackedById(id);
+
+                    if (product == null)
+                    {
+                        // ถ้าไม่เจอใน Cache (เผื่อไว้) ให้ลองดึงจาก DB โดยตรง
+                        product = _productSvc.GetById(id);
+                    }
+
+                    if (product != null)
+                    {
+                        // แปลง Product -> TopPickItem (การ์ด)
+                        FilteredProducts.Add(MapToTopPick(product));
+                    }
+                }
+
+                // 5. ตั้งค่าหัวข้อและจำนวนสินค้า (ตามที่คุณต้องการ)
+                ListTitle = "You Like";
+                ListCount = FilteredProducts.Count;
+
+                // 6. สั่งให้แสดง ListSection (หน้า All Product เดิม)
+                ShowList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load favorites: " + ex.Message, "Error");
+            }
         }
 
         // ====== INotifyPropertyChanged ======
