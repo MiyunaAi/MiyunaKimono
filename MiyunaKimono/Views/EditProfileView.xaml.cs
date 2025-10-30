@@ -47,11 +47,27 @@ namespace MiyunaKimono.Views
             InitializeComponent();
             DataContext = this;
             LoadFromSession();
+
+            // --- 🔽 START FIX 1.1 🔽 ---
+            // ให้หน้านี้คอยฟังการเปลี่ยนแปลงจาก Session ด้วย
+            Session.ProfileChanged += OnProfileChanged;
+            this.Unloaded += (s, e) => Session.ProfileChanged -= OnProfileChanged;
+            // --- 🔼 END FIX 1.1 🔼 ---
         }
+
+        // --- 🔽 START FIX 1.2 🔽 ---
+        // เพิ่มเมธอดนี้ เมื่อ Session แจ้งว่าข้อมูลเปลี่ยน ให้โหลดใหม่
+        private void OnProfileChanged()
+        {
+            Dispatcher.Invoke(LoadFromSession);
+        }
+        // --- 🔼 END FIX 1.2 🔼 ---
 
         private void LoadFromSession()
         {
-            var u = Session.CurrentUser;    
+            // ... (โค้ดในเมธอดนี้เหมือนเดิม) ...
+            // ...
+            var u = Session.CurrentUser;
 
             _origFirst = u?.First_Name ?? "";
             _origLast = u?.Last_Name ?? "";
@@ -70,7 +86,14 @@ namespace MiyunaKimono.Views
 
             _avatarBytes = null;
             Validate();
+            // ...
         }
+
+        // ... (โค้ด CreateBitmapFromPackUri, Validate, Back_Click, ChangeAvatar_Click... เหมือนเดิม) ...
+
+
+        // --- 🔽 START FIX 1.3 (สำคัญ) 🔽 ---
+        // แก้ไข Save_Click ให้ "ไม่ต้อง" ยิงอีเวนต์เอง
 
 
         // helper สร้าง BitmapImage จาก pack URI อย่างถูกต้อง
@@ -148,19 +171,16 @@ namespace MiyunaKimono.Views
             try
             {
                 int userId = AuthService.CurrentUserIdSafe();
-                string newPath = await UserService.Instance.UpdateProfileAsync(
+
+                // 1. เรียก Service (ตัว Service ที่แก้ไปรอบที่แล้ว จะอัปเดต Session
+                //    และยิง ProfileChanged เอง ซึ่งเพียงพอแล้ว)
+                await UserService.Instance.UpdateProfileAsync(
                     userId, FirstName, LastName, Email, Phone, _avatarBytes);
 
-                if (!string.IsNullOrWhiteSpace(newPath))
-                {
-                    AvatarPreview = ImageHelper.LoadBitmapNoCache(newPath); // พรีวิวใหม่ทันที
-                    Session.UpdateAvatarPath(newPath);                      // 🎯 ยิงซ้ำกันพลาด
-                }
-                else
-                {
-                    Session.RaiseProfileChanged();                          // อย่างน้อยชื่อ/เมล
-                }
+                // 2. (ลบโค้ด if/else ที่เรียก Session.UpdateAvatarPath/RaiseProfileChanged ซ้ำซ้อนทิ้ง)
+                //    อีเวนต์จาก UserService (FIX 1.1) จะอัปเดต AvatarPreview ให้อัตโนมัติ
 
+                // 3. แจ้งเตือนและนำทางกลับ
                 MessageBox.Show("Saved.", "Profile", MessageBoxButton.OK, MessageBoxImage.Information);
                 Saved?.Invoke();
                 BackRequested?.Invoke();
@@ -170,6 +190,7 @@ namespace MiyunaKimono.Views
                 MessageBox.Show("Save failed: " + ex.Message);
             }
         }
+        // --- 🔼 END FIX 1.3 🔼 ---
 
 
     }

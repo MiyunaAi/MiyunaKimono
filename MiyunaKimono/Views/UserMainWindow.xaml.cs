@@ -109,6 +109,9 @@ namespace MiyunaKimono.Views
         }
 
         // แสดงหน้า User Info
+        // ... (ในคลาส UserMainWindow) ...
+
+        // แสดงหน้า User Info
         private async Task ShowUserInfoSectionAsync()
         {
             HomeSection.Visibility = Visibility.Collapsed;
@@ -116,20 +119,38 @@ namespace MiyunaKimono.Views
             CartSection.Visibility = Visibility.Collapsed;
             CheckoutHost.Visibility = Visibility.Collapsed;
 
+            // --- 🔽 START FIX 2.1 🔽 ---
+            bool needsReload = false;
             if (_userInfoView == null)
             {
                 _userInfoView = new UserInfoView();
-                _userInfoView.BackRequested += () => ShowHomeSection();  // ปุ่ม back บนบาร์
-                _userInfoView.EditProfileRequested += () => ShowEditProfileSection(); // ★ ตรงนี้สำคัญ
-
+                _userInfoView.BackRequested += () => ShowHomeSection();
+                _userInfoView.EditProfileRequested += () => ShowEditProfileSection();
+                needsReload = true; // ถ้าเพิ่งสร้าง ต้องโหลดข้อมูล
             }
+            // --- 🔼 END FIX 2.1 🔼 ---
 
             // โหลด/รีเฟรชข้อมูล order ก่อนโชว์
-            await _userInfoView.ReloadAsync();
+            // (ปรับเงื่อนไข) โหลดถ้าเพิ่งสร้าง หรือถ้ากลับมาจากหน้า Edit
+            if (needsReload || EditProfileHost.Visibility == Visibility.Visible)
+            {
+                await _userInfoView.ReloadAsync();
+            }
 
-            UserInfoHost.Content = _userInfoView;   // ContentControl ใน XAML
+            UserInfoHost.Content = _userInfoView;
             UserInfoHost.Visibility = Visibility.Visible;
+
+            // --- 🔽 START FIX 2.2 🔽 ---
+            // ซ่อนหน้า Edit (ถ้าเรามาจากหน้านั้น)
+            if (EditProfileHost.Visibility == Visibility.Visible)
+            {
+                EditProfileHost.Content = null;
+                EditProfileHost.Visibility = Visibility.Collapsed;
+            }
+            // --- 🔼 END FIX 2.2 🔼 ---
         }
+
+        // ... (โค้ดส่วนอื่น ๆ) ...
 
         // ปุ่มรูปคนขวาบน
         private void OpenUserInfo_Click(object sender, RoutedEventArgs e) => ShowUserInfo();
