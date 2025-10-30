@@ -54,7 +54,7 @@ namespace MiyunaKimono.Views
 
         public event Action BackRequested;
         public event Action EditProfileRequested;
-
+        public event Action<string> OrderDetailsRequested;
         public UserInfoView()
         {
             InitializeComponent();
@@ -130,8 +130,13 @@ namespace MiyunaKimono.Views
         private void OpenDetails_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.Tag is OrderRow row)
-                MessageBox.Show($"Open order #{row.OrderId}", "Order",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+            {
+                //MessageBox.Show($"Open order #{row.OrderId}", "Order",
+                //    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // ยิงอีเวนต์ไปหา UserMainWindow พร้อมส่ง OrderId
+                OrderDetailsRequested?.Invoke(row.OrderId);
+            }
         }
     }
 

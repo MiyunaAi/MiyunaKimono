@@ -557,6 +557,9 @@
                 Grid.Row="2"
                 Visibility="Collapsed"/>
 
+        <ContentControl x:Name="OrderDetailsHost"
+                        Grid.Row="2"
+                        Visibility="Collapsed"/>    
 
 
 

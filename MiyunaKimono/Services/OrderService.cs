@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -244,6 +245,63 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
 
             return id;
+        }
+
+
+        public async Task<OrderDetailsModel> GetOrderDetailsAsync(string orderId)
+        {
+            var details = new OrderDetailsModel { OrderId = orderId };
+
+            using var conn = Db.GetConn();
+
+            // 1. ดึงข้อมูลหลักจากตาราง 'orders'
+            // (เราสมมติว่ามีคอลัมน์ tracking_number)
+            string sqlOrder = @"
+                SELECT customer_name, status, tracking_number, address, amount, receipt_content
+                FROM orders 
+                WHERE order_id = @id";
+
+            using (var cmd = new MySqlCommand(sqlOrder, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", orderId);
+                using var rd = await cmd.ExecuteReaderAsync();
+                if (!await rd.ReadAsync())
+                {
+                    return null; // ไม่พบ Order ID นี้
+                }
+
+                details.CustomerName = rd["customer_name"]?.ToString();
+                details.Status = rd["status"]?.ToString() ?? "Order"; // ค่าเริ่มต้น
+                details.TrackingNumber = rd.IsDBNull(rd.GetOrdinal("tracking_number")) ? null : rd.GetString("tracking_number");
+                details.Address = rd["address"]?.ToString();
+                details.TotalAmount = rd["amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["amount"]);
+                details.PaymentSlipBytes = rd["receipt_content"] as byte[];
+            }
+
+            // 2. ดึงรายการสินค้าจาก 'order_items'
+            // (เราใช้ตาราง order_items ที่คุณมีอยู่แล้ว)
+            string sqlItems = @"
+                SELECT product_name, qty, price, total 
+                FROM order_items 
+                WHERE order_id = @id";
+
+            using (var cmd = new MySqlCommand(sqlItems, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", orderId);
+                using var rd = await cmd.ExecuteReaderAsync();
+                while (await rd.ReadAsync())
+                {
+                    details.Items.Add(new OrderItemModel
+                    {
+                        ProductName = rd["product_name"]?.ToString(),
+                        Quantity = Convert.ToInt32(rd["qty"]),
+                        Price = Convert.ToDecimal(rd["price"]), // ราคาต่อหน่วย
+                        Total = Convert.ToDecimal(rd["total"])  // ราคารวม
+                    });
+                }
+            }
+
+            return details;
         }
 
 

@@ -23,19 +23,17 @@ namespace MiyunaKimono.Views
     public partial class UserMainWindow : Window, INotifyPropertyChanged
     {
         private UserInfoView _userInfoView;   // cache instance
+        private EditProfileView _editProfileView; // ★ cache instance
 
 
-
-        // วางในคลาส UserMainWindow (อยู่นอกเมธอดอื่น ๆ)
+        // (โค้ดเดิมของคุณ: TopPicksHost_Loaded, TopPicksHost_SizeChanged)
         private void TopPicksHost_Loaded(object sender, RoutedEventArgs e)
         {
-            // เรียกคำนวณจำนวนการ์ดที่พอดี 1 แถว
             ReflowTopPicks();
         }
 
         private void TopPicksHost_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // เรียกคำนวณใหม่เมื่อขนาดเปลี่ยน
             ReflowTopPicks();
         }
 
@@ -63,8 +61,7 @@ namespace MiyunaKimono.Views
         public ICommand NextHeroCommand { get; }
 
 
-        private EditProfileView _editProfileView; // ★ cache instance
-
+        // --- 🔽 1. แก้ไข HideAllSections (เพิ่ม OrderDetailsHost) 🔽 ---
         private void HideAllSections()
         {
             HomeSection.Visibility = Visibility.Collapsed;
@@ -73,6 +70,9 @@ namespace MiyunaKimono.Views
             CheckoutHost.Visibility = Visibility.Collapsed;
             if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
             if (EditProfileHost != null) EditProfileHost.Visibility = Visibility.Collapsed;
+
+            // --- เพิ่มบรรทัดนี้ ---
+            if (OrderDetailsHost != null) OrderDetailsHost.Visibility = Visibility.Collapsed;
         }
 
         // เรียกตอนกดปุ่ม Edit Profile
@@ -100,39 +100,33 @@ namespace MiyunaKimono.Views
 
         private void ShowHomeSection()
         {
+            HideAllSections(); // <-- เรียกอันนี้ก่อน
             HomeSection.Visibility = Visibility.Visible;
-            ListSection.Visibility = Visibility.Collapsed;
-            CartSection.Visibility = Visibility.Collapsed;
-            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
-            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
-
         }
 
-        // แสดงหน้า User Info
-        // ... (ในคลาส UserMainWindow) ...
-
-        // แสดงหน้า User Info
+        // --- 🔽 2. แก้ไข ShowUserInfoSectionAsync (เพิ่มการ "ดักฟัง" Event) 🔽 ---
         private async Task ShowUserInfoSectionAsync()
         {
-            HomeSection.Visibility = Visibility.Collapsed;
-            ListSection.Visibility = Visibility.Collapsed;
-            CartSection.Visibility = Visibility.Collapsed;
-            CheckoutHost.Visibility = Visibility.Collapsed;
+            HideAllSections(); // <-- ย้ายมาไว้บนสุด
 
-            // --- 🔽 START FIX 2.1 🔽 ---
             bool needsReload = false;
             if (_userInfoView == null)
             {
                 _userInfoView = new UserInfoView();
                 _userInfoView.BackRequested += () => ShowHomeSection();
                 _userInfoView.EditProfileRequested += () => ShowEditProfileSection();
+
+                // --- ‼️ บรรทัดนี้คือบรรทัดที่ขาดหายไป ‼️ ---
+                _userInfoView.OrderDetailsRequested += ShowOrderDetailsSection;
+                // -----------------------------------------
+
                 needsReload = true; // ถ้าเพิ่งสร้าง ต้องโหลดข้อมูล
             }
-            // --- 🔼 END FIX 2.1 🔼 ---
 
-            // โหลด/รีเฟรชข้อมูล order ก่อนโชว์
-            // (ปรับเงื่อนไข) โหลดถ้าเพิ่งสร้าง หรือถ้ากลับมาจากหน้า Edit
-            if (needsReload || EditProfileHost.Visibility == Visibility.Visible)
+            // (ปรับเงื่อนไข Reload ให้ทำงานเมื่อกลับมาจากหน้า Edit หรือ OrderDetails)
+            if (needsReload ||
+                (EditProfileHost != null && EditProfileHost.Visibility == Visibility.Visible) ||
+                (OrderDetailsHost != null && OrderDetailsHost.Content != null)) // <-- เพิ่มเงื่อนไขนี้
             {
                 await _userInfoView.ReloadAsync();
             }
@@ -140,28 +134,18 @@ namespace MiyunaKimono.Views
             UserInfoHost.Content = _userInfoView;
             UserInfoHost.Visibility = Visibility.Visible;
 
-            // --- 🔽 START FIX 2.2 🔽 ---
-            // ซ่อนหน้า Edit (ถ้าเรามาจากหน้านั้น)
-            if (EditProfileHost.Visibility == Visibility.Visible)
-            {
-                EditProfileHost.Content = null;
-                EditProfileHost.Visibility = Visibility.Collapsed;
-            }
-            // --- 🔼 END FIX 2.2 🔼 ---
+            // (ลบการซ่อนหน้าอื่น ๆ เพราะ HideAllSections() ทำไปแล้ว)
         }
 
-        // ... (โค้ดส่วนอื่น ๆ) ...
-
         // ปุ่มรูปคนขวาบน
-        private void OpenUserInfo_Click(object sender, RoutedEventArgs e) => ShowUserInfo();
+        private async void OpenUserInfo_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowUserInfoSectionAsync(); // <-- แก้ไขให้เรียกเมธอดที่อัปเดตแล้ว
+        }
 
         private void ShowCheckoutSection()
         {
-            HomeSection.Visibility = Visibility.Collapsed;
-            ListSection.Visibility = Visibility.Collapsed;
-            CartSection.Visibility = Visibility.Collapsed;
-            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;   // << เพิ่มบรรทัดนี้
-
+            HideAllSections(); // <-- เรียกอันนี้ก่อน
             CheckoutHost.Visibility = Visibility.Visible;
 
             var v = new CheckoutView();
@@ -268,12 +252,8 @@ namespace MiyunaKimono.Views
 
         private void ShowCartSection()
         {
-            HomeSection.Visibility = Visibility.Collapsed;
-            ListSection.Visibility = Visibility.Collapsed;
+            HideAllSections(); // <-- เรียกอันนี้ก่อน
             CartSection.Visibility = Visibility.Visible;
-            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
-            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;   // << เพิ่มบรรทัดนี้
-
         }
 
         public UserMainWindow()
@@ -403,68 +383,19 @@ namespace MiyunaKimono.Views
         private List<Product> _allDbProducts;
         private bool _loadedAll;
 
-        // เดิมในไฟล์มีเมธอดนี้อยู่ช่วงล่างของคลาส
+
         private void ShowHome()
         {
-            HomeSection.Visibility = Visibility.Visible;
-            ListSection.Visibility = Visibility.Collapsed;
-            CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
+            ShowHomeSection();
         }
 
         private void ShowList()
         {
-            HomeSection.Visibility = Visibility.Collapsed;
+            HideAllSections(); // <-- เรียกอันนี้ก่อน
             ListSection.Visibility = Visibility.Visible;
-            CartSection.Visibility = Visibility.Collapsed;   // <-- เพิ่มบรรทัดนี้
-            CheckoutHost.Visibility = Visibility.Collapsed;   // ซ่อนโซน Checkout
-            if (UserInfoHost != null) UserInfoHost.Visibility = Visibility.Collapsed;
-
         }
 
-        // UserMainWindow.xaml.cs
-
-        private async void ShowUserInfo()
-        {
-            HomeSection.Visibility = Visibility.Collapsed;
-            ListSection.Visibility = Visibility.Collapsed;
-            CartSection.Visibility = Visibility.Collapsed;
-            CheckoutHost.Visibility = Visibility.Collapsed;
-
-            var v = new UserInfoView();
-            // ถ้าหน้า UserInfo มีปุ่ม "Edit Profile" ให้ยิงอีเวนต์นี้ (ดูข้อ 2)
-            v.EditProfileRequested += ShowEditProfile;
-
-            v.BackRequested += () =>
-            {
-                // ถ้าต้องการกลับหน้า Home
-                HomeSection.Visibility = Visibility.Visible;
-                UserInfoHost.Visibility = Visibility.Collapsed;
-                UserInfoHost.Content = null;
-            };
-
-            UserInfoHost.Content = v;
-            UserInfoHost.Visibility = Visibility.Visible;
-
-            // ✅ โหลดรายการออเดอร์ + ตั้งค่าเริ่มต้น “All”
-            v.SelectedMonth = "All";
-            v.SelectedYear = "All";
-            await v.ReloadAsync();
-        }
-
-        private void ShowEditProfile()
-        {
-            var ep = new EditProfileView();
-
-            // กด Back หรือ Saved แล้วให้กลับไป UserInfo
-            ep.BackRequested += ShowUserInfo;
-            ep.Saved += ShowUserInfo;
-
-            UserInfoHost.Content = ep;
-            UserInfoHost.Visibility = Visibility.Visible;
-        }
-
-        // ปุ่มรูปคนขวาบน
-        
+        // (ลบ ShowUserInfo, ShowEditProfile ที่ซ้ำซ้อนออก)
 
 
         private static TopPickItem MapToTopPick(Product p)
@@ -570,7 +501,7 @@ namespace MiyunaKimono.Views
 
         private void Nav_Home_Click(object sender, RoutedEventArgs e)
         {
-            ShowHome();
+            ShowHomeSection();
         }
 
         private async void Nav_All_Click(object sender, RoutedEventArgs e)
@@ -645,9 +576,9 @@ namespace MiyunaKimono.Views
             }
         }
 
-        
 
-        
+
+
 
         private void Furisode_Click(object sender, RoutedEventArgs e)
         {
@@ -665,32 +596,32 @@ namespace MiyunaKimono.Views
         // ===== Hero #2 =====
         public ObservableCollection<string> HeroImages2 { get; } = new();
 
-                    private int _heroIndex2;
-                    public int HeroIndex2
-                    {
-                        get => _heroIndex2;
-                        set { _heroIndex2 = value; OnPropertyChanged(); OnPropertyChanged(nameof(CurrentHeroImage2)); }
-                    }
-                    public string CurrentHeroImage2 => HeroImages2.Count == 0 ? null : HeroImages2[HeroIndex2];
+        private int _heroIndex2;
+        public int HeroIndex2
+        {
+            get => _heroIndex2;
+            set { _heroIndex2 = value; OnPropertyChanged(); OnPropertyChanged(nameof(CurrentHeroImage2)); }
+        }
+        public string CurrentHeroImage2 => HeroImages2.Count == 0 ? null : HeroImages2[HeroIndex2];
 
-                    private readonly DispatcherTimer _timer2;
-                    public ICommand PrevHero2Command { get; }
-                    public ICommand NextHero2Command { get; }
+        private readonly DispatcherTimer _timer2;
+        public ICommand PrevHero2Command { get; }
+        public ICommand NextHero2Command { get; }
 
-                    private void NextHero2()
-                    {
-                        if (HeroImages2.Count == 0) return;
-                        HeroIndex2 = (HeroIndex2 + 1) % HeroImages2.Count;
-                    }
+        private void NextHero2()
+        {
+            if (HeroImages2.Count == 0) return;
+            HeroIndex2 = (HeroIndex2 + 1) % HeroImages2.Count;
+        }
 
-                    private void PrevHero2()
-                    {
-                        if (HeroImages2.Count == 0) return;
-                        HeroIndex2 = (HeroIndex2 - 1 + HeroImages2.Count) % HeroImages2.Count;
-                    }
+        private void PrevHero2()
+        {
+            if (HeroImages2.Count == 0) return;
+            HeroIndex2 = (HeroIndex2 - 1 + HeroImages2.Count) % HeroImages2.Count;
+        }
 
 
-        
+
 
         // ====== Top Picks ======
         private async Task SafeLoadTopPicksAsync()
@@ -744,6 +675,8 @@ namespace MiyunaKimono.Views
             NextHero();
             _timer.Start();
         }
+
+
 
         private void PrevHero_Click(object sender, RoutedEventArgs e)
         {
@@ -811,6 +744,39 @@ namespace MiyunaKimono.Views
             }
         }
 
+        // --- 🔽 4. เพิ่มเมธอดใหม่นี้ 🔽 ---
+        /// <summary>
+        /// แสดงหน้า Order Details เมื่อถูกเรียกจาก UserInfoView
+        /// </summary>
+        private async void ShowOrderDetailsSection(string orderId)
+        {
+            HideAllSections(); // ซ่อนทุกส่วน
+
+            try
+            {
+                // (ต้องมั่นใจว่าคุณได้สร้างไฟล์ 3 ไฟล์นี้แล้ว)
+                var detailsView = new OrderDetailsView(orderId);
+
+                // ตั้งค่าปุ่ม Back ให้กลับไปหน้า UserInfo
+                detailsView.BackRequested += async () => await ShowUserInfoSectionAsync();
+
+                // กำหนด Content และแสดงผล (ต้องมี ContentControl ชื่อ "OrderDetailsHost" ใน XAML)
+                OrderDetailsHost.Content = detailsView;
+                OrderDetailsHost.Visibility = Visibility.Visible;
+
+                // สั่งให้ View ใหม่โหลดข้อมูลของตัวเอง
+                await detailsView.LoadOrderDetailsAsync();
+            }
+            catch (Exception ex)
+            {
+                // (Error นี้จะเกิดถ้าคุณลืมสร้างไฟล์ 3 ไฟล์ในขั้นตอนก่อนหน้า)
+                MessageBox.Show("Error loading OrderDetailsView. Did you create the files?\n" + ex.Message, "Error");
+                ShowHomeSection(); // กลับหน้าหลักถ้ามีปัญหา
+            }
+        }
+        // --- 🔼 END: เพิ่มเมธอดใหม่นี้ 🔼 ---
+
+
         // ====== INotifyPropertyChanged ======
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)
@@ -825,7 +791,7 @@ namespace MiyunaKimono.Views
 
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute)); 
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
@@ -840,7 +806,7 @@ namespace MiyunaKimono.Views
         // ===== Hero #2 =====
 
 
-        
+
 
     }
 }
