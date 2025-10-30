@@ -65,7 +65,7 @@ namespace MiyunaKimono.Helpers
         private static BitmapImage DefaultIcon()
         {
             // โหลดไอคอนเริ่มต้นโดยใช้ Helper เดียวกัน
-            return CreateBitmapFromUri(new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute));
+            return CreateBitmapFromUri(new Uri("pack://application:,,,/Assets/ic_users.png", UriKind.Absolute));
         }
     }
 }

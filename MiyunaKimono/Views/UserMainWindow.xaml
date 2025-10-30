@@ -192,16 +192,19 @@
                     <!-- User -->
                     <!-- ปุ่ม User มุมขวาบน -->
                     <Button Style="{StaticResource TopRightIconButton}"
-        ToolTip="Account"
-        Click="OpenUserInfo_Click">
-                        <Border Width="28" Height="28"
-          Background="#EEE"
-          CornerRadius="14"
-          ClipToBounds="True">
+                            ToolTip="Account"
+                            Click="OpenUserInfo_Click">
+                        <Grid Width="28" Height="28">
+                            <Border Background="#EEE" CornerRadius="14"/>
+
                             <Image Source="{Binding TopRightAvatar,
-                RelativeSource={RelativeSource AncestorType=Window}}"
-       Stretch="UniformToFill"/>
-                        </Border>
+                                     RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Stretch="UniformToFill">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="14,14" RadiusX="14" RadiusY="14"/>
+                                </Image.Clip>
+                            </Image>
+                        </Grid>
                     </Button>
 
 

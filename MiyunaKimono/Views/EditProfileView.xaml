@@ -130,18 +130,22 @@
 
             <!-- Avatar + edit -->
             <StackPanel Margin="0,28" HorizontalAlignment="Center">
-                <Grid>
-                    <Border Width="160" Height="160" CornerRadius="80" Background="#EEF2FF" ClipToBounds="True">
-                        <Image Source="{Binding AvatarPreview}" Stretch="UniformToFill" />
+                <Grid Width="160" Height="160">
+                    <Border Background="#EEF2FF" CornerRadius="80">
+                        <Image Source="{Binding AvatarPreview}" Stretch="UniformToFill">
+                            <Image.Clip>
+                                <EllipseGeometry Center="80,80" RadiusX="80" RadiusY="80"/>
+                            </Image.Clip>
+                        </Image>
                     </Border>
 
                     <!-- ปุ่มดินสอ -->
-                    <Button Width="36" Height="36" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    <Button Width="44" Height="44" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                             Margin="0,0,8,8"
                             Click="ChangeAvatar_Click"
                             ToolTip="Change avatar"
                             Style="{StaticResource IconGhostButton}">
-                        <Image Source="pack://application:,,,/Assets/ic_edit.png" Width="20" Height="20"/>
+                        <Image Source="pack://application:,,,/Assets/ic_edit.png" Width="28" Height="28"/>
                     </Button>
                 </Grid>
             </StackPanel>

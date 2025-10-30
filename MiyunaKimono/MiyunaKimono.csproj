@@ -34,6 +34,7 @@
     <None Remove="Assets\ic_chev_left.png" />
     <None Remove="Assets\ic_chev_right.png" />
     <None Remove="Assets\ic_dashboard.png" />
+    <None Remove="Assets\ic_edit.png" />
     <None Remove="Assets\ic_heart.png" />
     <None Remove="Assets\ic_heart_fill.png" />
     <None Remove="Assets\ic_heart_line.png" />
@@ -44,6 +45,7 @@
     <None Remove="Assets\ic_search.png" />
     <None Remove="Assets\ic_trash.png" />
     <None Remove="Assets\ic_user.png" />
+    <None Remove="Assets\ic_users.png" />
     <None Remove="Assets\instagram.png" />
     <None Remove="Assets\logo_miyuna.png" />
     <None Remove="Assets\slide1.jpg" />
@@ -90,6 +92,7 @@
     <Resource Include="Assets\ic_chev_left.png" />
     <Resource Include="Assets\ic_chev_right.png" />
     <Resource Include="Assets\ic_dashboard.png" />
+    <Resource Include="Assets\ic_edit.png" />
     <Resource Include="Assets\ic_heart.png" />
     <Resource Include="Assets\ic_heart_fill.png" />
     <Resource Include="Assets\ic_heart_line.png" />
@@ -100,6 +103,7 @@
     <Resource Include="Assets\ic_search.png" />
     <Resource Include="Assets\ic_trash.png" />
     <Resource Include="Assets\ic_user.png" />
+    <Resource Include="Assets\ic_users.png" />
     <Resource Include="Assets\instagram.png" />
     <Resource Include="Assets\logo_miyuna.png" />
     <Resource Include="Assets\slide1.jpg" />
