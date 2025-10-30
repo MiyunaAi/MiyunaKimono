@@ -52,11 +52,17 @@
 
                     <!-- Avatar วงกลม -->
                     <!-- ตัวอย่างส่วนรูปผู้ใช้ -->
-                    <Image Source="{Binding AvatarImg}" Width="56" Height="56" Stretch="UniformToFill">
-                        <Image.Clip>
-                            <EllipseGeometry Center="28,28" RadiusX="28" RadiusY="28"/>
-                        </Image.Clip>
-                    </Image>
+                    <!-- Avatar วงกลม (ไม่ใช้ ImageBrush/Clip เพื่อกันแคช) -->
+                    <Grid Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Width="56" Height="56"
+          CornerRadius="28"
+          Background="#F3F4F6"
+          BorderBrush="#DDD" BorderThickness="1"
+          ClipToBounds="True">
+                            <Image Source="{Binding AvatarImg}" Stretch="UniformToFill"/>
+                        </Border>
+                    </Grid>
+
 
                     <!-- ชื่อ, แฮชแท็ก, อีเมล -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">

@@ -1,23 +1,21 @@
 ﻿// Services/Session.cs
 using MiyunaKimono.Models;
-using System.Windows.Media.Imaging;
-
-
+using System;
 
 namespace MiyunaKimono.Services
 {
-
-
     public static class Session
     {
-        // ใช้โมเดลของคุณตรง ๆ
         public static User CurrentUser { get; set; }
-        // แจ้งทั่วแอปว่าโปรไฟล์เปลี่ยน (เช่น เปลี่ยนรูป/ชื่อ)
-        public static event Action ProfileChanged;
 
+        public static event Action ProfileChanged;
         public static void RaiseProfileChanged() => ProfileChanged?.Invoke();
 
-   
+        // ใช้เวลาบันทึกรูปใหม่เสร็จ
+        public static void UpdateAvatarPath(string path)
+        {
+            if (CurrentUser != null) CurrentUser.AvatarPath = path;
+            RaiseProfileChanged();
+        }
     }
-
 }

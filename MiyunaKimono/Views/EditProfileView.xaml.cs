@@ -5,10 +5,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Windows;
+using System.Windows;   
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-
+using MiyunaKimono.Helpers;
 namespace MiyunaKimono.Views
 {
     public partial class EditProfileView : UserControl, INotifyPropertyChanged
@@ -51,10 +51,8 @@ namespace MiyunaKimono.Views
 
         private void LoadFromSession()
         {
-            // ★ ใช้ Models.User (จาก Services.Session)
-            var u = Session.CurrentUser;
+            var u = Session.CurrentUser;    
 
-            // map ให้ตรงกับโมเดลของคุณ
             _origFirst = u?.First_Name ?? "";
             _origLast = u?.Last_Name ?? "";
             _origEmail = u?.Email ?? "";
@@ -65,12 +63,15 @@ namespace MiyunaKimono.Views
             Email = _origEmail;
             Phone = _origPhone;
 
-            // โหลดภาพเริ่มต้น (ยังไม่รองรับ AvatarPath ในโมเดล → ใช้ default)
-            AvatarPreview = CreateBitmapFromPackUri("pack://application:,,,/Assets/ic_user.png");
-            _avatarBytes = null;
+            if (!string.IsNullOrWhiteSpace(u?.AvatarPath) && File.Exists(u.AvatarPath))
+                AvatarPreview = ImageHelper.LoadBitmapNoCache(u.AvatarPath);
+            else
+                AvatarPreview = CreateBitmapFromPackUri("pack://application:,,,/Assets/ic_user.png");
 
+            _avatarBytes = null;
             Validate();
         }
+
 
         // helper สร้าง BitmapImage จาก pack URI อย่างถูกต้อง
         private static BitmapImage CreateBitmapFromPackUri(string packUri)
@@ -117,7 +118,7 @@ namespace MiyunaKimono.Views
 
         private void ChangeAvatar_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
                 Title = "Select avatar",
                 Filter = "Image files|*.png;*.jpg;*.jpeg",
@@ -126,13 +127,17 @@ namespace MiyunaKimono.Views
             if (dlg.ShowDialog() == true)
             {
                 _avatarBytes = File.ReadAllBytes(dlg.FileName);
+
+                // พรีวิวจากบัฟเฟอร์ (ยังไม่แตะไฟล์จริง)
                 using var ms = new MemoryStream(_avatarBytes);
                 var bmp = new BitmapImage();
                 bmp.BeginInit();
                 bmp.CacheOption = BitmapCacheOption.OnLoad;
                 bmp.StreamSource = ms;
                 bmp.EndInit();
+                bmp.Freeze();
                 AvatarPreview = bmp;
+
                 Validate();
             }
         }
@@ -140,36 +145,23 @@ namespace MiyunaKimono.Views
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
             if (!CanSave) return;
-
             try
             {
                 int userId = AuthService.CurrentUserIdSafe();
-                // เมธอดนี้จะคืน path ใหม่ ถ้ามีบันทึกรูป
-                var newPath = await UserService.Instance.UpdateProfileAsync(
-                    userId,
-                    FirstName, LastName, Email, Phone,
-                    _avatarBytes  // null = ไม่เปลี่ยนรูป
-                );
+                string newPath = await UserService.Instance.UpdateProfileAsync(
+                    userId, FirstName, LastName, Email, Phone, _avatarBytes);
 
-                // อัปเดต Session ให้ UI อื่น ๆ เห็นทันที
-                if (Session.CurrentUser != null)
+                if (!string.IsNullOrWhiteSpace(newPath))
                 {
-                    Session.CurrentUser.First_Name = FirstName;
-                    Session.CurrentUser.Last_Name = LastName;
-                    Session.CurrentUser.Email = Email;
-                    Session.CurrentUser.Phone = Phone;
-                    if (!string.IsNullOrWhiteSpace(newPath))
-                    {
-                        Session.CurrentUser.AvatarPath = newPath;  // ★ เซ็ต path ใหม่
-                    }
+                    AvatarPreview = ImageHelper.LoadBitmapNoCache(newPath); // พรีวิวใหม่ทันที
+                    Session.UpdateAvatarPath(newPath);                      // 🎯 ยิงซ้ำกันพลาด
+                }
+                else
+                {
+                    Session.RaiseProfileChanged();                          // อย่างน้อยชื่อ/เมล
                 }
 
-                // แจ้งทั่วแอปว่ารูป/โปรไฟล์เปลี่ยนแล้ว → Top bar จะรีเฟรชเอง
-                Session.RaiseProfileChanged();
-
                 MessageBox.Show("Saved.", "Profile", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // ยิงอีเวนต์ให้ UserMainWindow กลับหน้า UserInfo (คุณมีโค้ดไว้แล้ว)
                 Saved?.Invoke();
                 BackRequested?.Invoke();
             }

@@ -192,19 +192,18 @@
                     <!-- User -->
                     <!-- ปุ่ม User มุมขวาบน -->
                     <Button Style="{StaticResource TopRightIconButton}"
-                            ToolTip="Account"
-                            Click="OpenUserInfo_Click">
-                        <!-- ขนาดไอคอนรวมกรอบ -->
-                        <Grid Width="28" Height="28">
-                            <!-- วงกลมโปรไฟล์ -->
-                            <Ellipse Stroke="#EEEEEE" StrokeThickness="1">
-                                <Ellipse.Fill>
-                                    <ImageBrush ImageSource="{Binding TopRightAvatar}" Stretch="UniformToFill"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-
-                        </Grid>
+        ToolTip="Account"
+        Click="OpenUserInfo_Click">
+                        <Border Width="28" Height="28"
+          Background="#EEE"
+          CornerRadius="14"
+          ClipToBounds="True">
+                            <Image Source="{Binding TopRightAvatar,
+                RelativeSource={RelativeSource AncestorType=Window}}"
+       Stretch="UniformToFill"/>
+                        </Border>
                     </Button>
+
 
 
 

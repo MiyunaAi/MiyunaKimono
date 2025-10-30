@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Imaging;
 using System.IO;
-
+using MiyunaKimono.Helpers;
 // ป้องกันชื่อซ้อนกับคลาสอื่น
 using TopPickItemModel = MiyunaKimono.Models.TopPickItem;
 
@@ -231,6 +231,19 @@ namespace MiyunaKimono.Views
         // ถ้ามีปุ่มเปิด Cart แบบฝังในหน้านี้
         public BitmapImage TopRightAvatar { get; private set; }
 
+        // method
+        private void RefreshTopRightAvatar()
+        {
+            var path = Session.CurrentUser?.AvatarPath;
+
+            // เคลียร์ก่อนกันค้างแคชของ Image control
+            TopRightAvatar = null;
+            OnPropertyChanged(nameof(TopRightAvatar));
+
+            TopRightAvatar = ImageHelper.LoadBitmapNoCache(path); // โหลดแบบไม่ติดแคช
+            OnPropertyChanged(nameof(TopRightAvatar));
+        }
+
 
         private void ShowCartSection()
         {
@@ -248,7 +261,8 @@ namespace MiyunaKimono.Views
             DataContext = this;
 
             RefreshTopRightAvatar();
-            Session.ProfileChanged += () => RefreshTopRightAvatar();
+            Session.ProfileChanged += () => Dispatcher.Invoke(RefreshTopRightAvatar); // 👈 ฟังอีเวนต์
+
 
             // ----- Commands -----
             PrevHeroCommand = new DelegateCommand(_ => PrevHero());
@@ -296,45 +310,12 @@ namespace MiyunaKimono.Views
 
         }
 
-        private void RefreshTopRightAvatar()
-        {
-            var path = Session.CurrentUser?.AvatarPath;
 
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
-                {
-                    var bmp = new BitmapImage();
-                    bmp.BeginInit();
-                    bmp.CacheOption = BitmapCacheOption.OnLoad;
-                    bmp.UriSource = new Uri(path, UriKind.Absolute);
-                    bmp.EndInit();
-                    TopRightAvatar = bmp;
-                }
-                else
-                {
-                    // default
-                    var bmp = new BitmapImage();
-                    bmp.BeginInit();
-                    bmp.CacheOption = BitmapCacheOption.OnLoad;
-                    bmp.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
-                    bmp.EndInit();
-                    TopRightAvatar = bmp;
-                }
-            }
-            catch
-            {
-                // fallback ปลอดภัย
-                var bmp = new BitmapImage();
-                bmp.BeginInit();
-                bmp.CacheOption = BitmapCacheOption.OnLoad;
-                bmp.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
-                bmp.EndInit();
-                TopRightAvatar = bmp;
-            }
 
-            OnPropertyChanged(nameof(TopRightAvatar));
-        }
+
+
+
+
         private async Task ReloadProductsAfterOrderAsync()
         {
             var latest = await Task.Run(() => _productSvc.GetAll() ?? new List<Product>());
@@ -732,7 +713,7 @@ namespace MiyunaKimono.Views
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    // ====== คำสั่งง่าย ๆ สำหรับผูกกับปุ่ม (DelegateCommand) ======
+    // ====== คำสั่งง่าย ๆ สำหรับผูกกับปุ่ม (DelegateCommand) ======    
     internal class DelegateCommand : ICommand
     {
         private readonly Action<object> _execute;

@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.IO;                 // ★ เพิ่มอันนี้
-
-
+using System.IO;
+using MiyunaKimono.Helpers;
 
 namespace MiyunaKimono.Views
 {
@@ -22,29 +21,22 @@ namespace MiyunaKimono.Views
         private void Raise([CallerMemberName] string n = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        // ====== โปรไฟล์ผู้ใช้ (ดึงจาก Session ที่คุณใช้อยู่แล้ว) ======
         public string FullName { get; private set; }
         public string Username { get; private set; }
         public string Email { get; private set; }
-        public string AvatarPath { get; private set; }  // ใส่ path รูปถ้ามี
         public BitmapImage AvatarImg { get; private set; }
-        // ====== ออเดอร์ (ทั้งหมด + ที่กรองแล้ว) ======
+
         public ObservableCollection<OrderRow> AllOrders { get; } = new();
         public ObservableCollection<OrderRow> FilteredOrders { get; } = new();
 
-        // ====== ตัวเลือกตัวกรอง เดือน/ปี ======
         public List<string> MonthOptions { get; } =
-                new List<string> { "All" }
-                .Concat(Enumerable.Range(1, 12)
-                    .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)))
-                .ToList();
+            new List<string> { "All" }
+            .Concat(Enumerable.Range(1, 12)
+            .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i))).ToList();
 
         public List<string> YearOptions { get; } =
             new List<string> { "All" }
-            .Concat(Enumerable.Range(DateTime.Now.Year - 6, 9)
-                .Select(y => y.ToString()))
-            .ToList();
-
+            .Concat(Enumerable.Range(DateTime.Now.Year - 6, 9).Select(y => y.ToString())).ToList();
 
         private string _selectedMonth = "All";
         public string SelectedMonth
@@ -60,77 +52,55 @@ namespace MiyunaKimono.Views
             set { _selectedYear = value; Raise(); ApplyFilter(); }
         }
 
-        // ====== อีเวนต์ส่งกลับไปหน้าหลัก ======
         public event Action BackRequested;
+        public event Action EditProfileRequested;
 
         public UserInfoView()
         {
             InitializeComponent();
             DataContext = this;
+            Session.ProfileChanged += OnProfileChanged;
+            Unloaded += (_, __) => Session.ProfileChanged -= OnProfileChanged;
             LoadProfileFromSession();
         }
 
-        public event Action EditProfileRequested; // ★ เพิ่มอีเวนต์นี้
+        private void OnProfileChanged() => Dispatcher.Invoke(LoadProfileFromSession);
 
         private void EditProfile_Click(object sender, RoutedEventArgs e)
         {
-            EditProfileRequested?.Invoke(); // ★ แจ้งไปให้ parent สลับ view
+            EditProfileRequested?.Invoke();
         }
-
 
         private void LoadProfileFromSession()
         {
             var u = Session.CurrentUser;
+
             FullName = $"{u?.First_Name} {u?.Last_Name}".Trim();
             Username = u?.Username ?? "—";
             Email = u?.Email ?? "—";
 
-            AvatarImg = LoadAvatar(u?.AvatarPath);
+            // เคลียร์ก่อนกันภาพค้าง
+            AvatarImg = null;
+            Raise(nameof(AvatarImg));
+
+            AvatarImg = ImageHelper.LoadBitmapNoCache(u?.AvatarPath); // โหลดรูปจริงแบบ no-cache
             Raise(nameof(FullName));
             Raise(nameof(Username));
             Raise(nameof(Email));
-            Raise(nameof(AvatarImg)); // ★ แจ้ง UI ว่ารูปเปลี่ยน
+            Raise(nameof(AvatarImg));
         }
 
-        private BitmapImage LoadAvatar(string path)
-        {
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
-                {
-                    var bmp = new BitmapImage();
-                    bmp.BeginInit();
-                    bmp.CacheOption = BitmapCacheOption.OnLoad;
-                    bmp.UriSource = new Uri(path, UriKind.Absolute);
-                    bmp.EndInit();
-                    return bmp;
-                }
-            }
-            catch { }
-            // fallback icon
-            var def = new BitmapImage();
-            def.BeginInit();
-            def.CacheOption = BitmapCacheOption.OnLoad;
-            def.UriSource = new Uri("pack://application:,,,/Assets/ic_user.png", UriKind.Absolute);
-            def.EndInit();
-            return def;
-        }
 
-        // เรียกตอนเปิดหน้า/หรือหลังบันทึก
         public async Task ReloadAsync()
         {
+            LoadProfileFromSession();
             await LoadOrdersAsync();
             ApplyFilter();
-
-            // ★ รีโหลดรูปด้วย เผื่อมีการอัปเดต AvatarPath ใน Session
-            AvatarImg = LoadAvatar(Session.CurrentUser?.AvatarPath);
-            Raise(nameof(AvatarImg));
         }
 
         private async Task LoadOrdersAsync()
         {
             AllOrders.Clear();
-
             var userId = AuthService.CurrentUserIdSafe();
             var orders = await OrderService.Instance.GetOrdersByUserAsync(userId);
 
@@ -138,20 +108,17 @@ namespace MiyunaKimono.Views
                 AllOrders.Add(new OrderRow(o));
         }
 
-
         private void ApplyFilter()
         {
             FilteredOrders.Clear();
             IEnumerable<OrderRow> q = AllOrders;
 
-            // ปี
             if (SelectedYear != "All" && int.TryParse(SelectedYear, out var y))
                 q = q.Where(r => r.CreatedAt.Year == y);
 
-            // เดือน
             if (SelectedMonth != "All")
             {
-                int m = MonthOptions.FindIndex(s => s == SelectedMonth); // 1..12
+                int m = MonthOptions.FindIndex(s => s == SelectedMonth);
                 if (m >= 1) q = q.Where(r => r.CreatedAt.Month == m);
             }
 
@@ -163,17 +130,13 @@ namespace MiyunaKimono.Views
         private void OpenDetails_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.Tag is OrderRow row)
-            {
-                // ตรงนี้คุณจะเปิดหน้ารายละเอียดออเดอร์จริงก็ได้
-                MessageBox.Show($"Open order #{row.OrderId}", "Order", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+                MessageBox.Show($"Open order #{row.OrderId}", "Order",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
-    // ====== Row ที่ใช้โชว์บน UI ======
     public class OrderRow
     {
-        // ในสคีมาใหม่ order_id เป็น string
         public string OrderId { get; }
         public string DisplayId => $"#{OrderId}";
         public string AmountText { get; }
@@ -189,5 +152,4 @@ namespace MiyunaKimono.Views
             CreatedAt = o.CreatedAt;
         }
     }
-
 }
