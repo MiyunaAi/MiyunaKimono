@@ -153,8 +153,7 @@
             <!-- Form 2 คอลัมน์ -->
             <!-- Form 2 คอลัมน์ -->
             <!-- Form 2 คอลัมน์ (แก้ไม่ให้ซ้อน) -->
-            <Grid Margin="0,8,0,40">
-                <!-- 2 คอลัมน์สำหรับ ซ้าย/ขวา -->
+            <Grid Margin="0,8,0,40" MaxWidth="700" HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="40"/>
