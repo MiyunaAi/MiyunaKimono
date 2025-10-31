@@ -139,9 +139,9 @@ namespace MiyunaKimono.Views
 
         private void Orders_Click(object s, RoutedEventArgs e)
         {
-            CurrentHeader = "Orders";
-            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
-            ContentHost.Content = new PlaceholderView { Title = "Orders" };
+            CurrentHeader = "All Orders"; // ⬅️ เปลี่ยน Title
+            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false; // ⬅️ ซ่อนปุ่ม (ตามโจทย์)
+            ContentHost.Content = new AllOrdersView(); // ⬅️ โหลด View ใหม่
         }
 
         private void Report_Click(object s, RoutedEventArgs e)

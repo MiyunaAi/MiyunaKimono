@@ -14,6 +14,41 @@ namespace MiyunaKimono.Services
 
         public static OrderService Instance { get; } = new();
 
+        public sealed class AdminOrderInfo
+        {
+            public string Id { get; set; }
+            public string CustomerName { get; set; } // จากคอลัมน์ username หรือ customer_name
+            public decimal Amount { get; set; }
+            public string Status { get; set; }
+            public DateTime CreatedAt { get; set; }
+        }
+
+        public async Task<List<AdminOrderInfo>> GetAllOrdersAsync()
+        {
+            var list = new List<AdminOrderInfo>();
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand(@"
+                SELECT order_id, username, amount, status, created_at
+                FROM orders
+                ORDER BY created_at DESC;", conn); // ⬅️ เรียงล่าสุดมาก่อน
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new AdminOrderInfo
+                {
+                    Id = rd["order_id"]?.ToString(),
+                    CustomerName = rd["username"] as string, // ⬅️ ใช้ username
+                    Amount = rd["amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["amount"]),
+                    Status = rd["status"] as string,
+                    CreatedAt = rd["created_at"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(rd["created_at"])
+                });
+            }
+            return list;
+        }
+
+
+
         // ====== เวอร์ชันเดิม (ยังใช้ได้) ======
         public void CreateOrder(int userId, string address, IList<CartLine> lines)
         {
