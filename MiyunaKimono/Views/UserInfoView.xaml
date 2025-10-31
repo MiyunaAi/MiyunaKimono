@@ -90,16 +90,16 @@
                 <TextBlock Text="My Order" FontSize="16" FontWeight="SemiBold"
                            VerticalAlignment="Center"/>
 
-                <!-- เดือน -->
-                <ComboBox Grid.Column="1" Width="140" Height="32"
+                <ComboBox Grid.Column="1" Width="140"
+                          Style="{StaticResource ModernComboBox}"
                           ItemsSource="{Binding MonthOptions}"
                           SelectedItem="{Binding SelectedMonth, Mode=TwoWay}"
-                          SelectedIndex="0"/>
+                         SelectedIndex="0"/>
 
-                <!-- ปี -->
-                <ComboBox Grid.Column="3" Width="120" Height="32"
+                <ComboBox Grid.Column="3" Width="120"
+                          Style="{StaticResource ModernComboBox}"
                           ItemsSource="{Binding YearOptions}"
-                          SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+              SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
                           SelectedIndex="0"/>
             </Grid>
 

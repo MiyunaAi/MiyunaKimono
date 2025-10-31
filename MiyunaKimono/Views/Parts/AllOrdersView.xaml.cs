@@ -14,6 +14,8 @@ namespace MiyunaKimono.Views.Parts
 {
     public partial class AllOrdersView : UserControl, INotifyPropertyChanged
     {
+        public event Action<string> ViewDetailsRequested;
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void Raise([CallerMemberName] string n = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
@@ -141,10 +143,10 @@ namespace MiyunaKimono.Views.Parts
 
         private void Details_Click(object sender, RoutedEventArgs e)
         {
-            // (ยังไม่ทำอะไรตามโจทย์)
             if ((sender as FrameworkElement)?.Tag is string orderId)
             {
-                MessageBox.Show($"TODO: Open details for Order #{orderId}", "Coming Soon");
+                //MessageBox.Show($"TODO: Open details for Order #{orderId}", "Coming Soon");
+                ViewDetailsRequested?.Invoke(orderId); // ⬅️ ยิง Event
             }
         }
     }

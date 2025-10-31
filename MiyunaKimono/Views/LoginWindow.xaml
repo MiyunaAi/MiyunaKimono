@@ -181,7 +181,8 @@
                 <Button Grid.Column="1"
           Style="{StaticResource PinkPrimaryButton}"
           Content="log in"
-          Click="Login_Click"/>
+          Click="Login_Click"
+          IsDefault="True"/>
             </Grid>
 
             <!-- ข้อความ Register here -->

@@ -23,7 +23,7 @@ namespace MiyunaKimono.Models
         public string Address { get; set; }
         public decimal TotalAmount { get; set; } // ยอดสุทธิ
         public byte[] PaymentSlipBytes { get; set; } // สลิปที่ลูกค้าอัปโหลด
-
+        public string Tel { get; set; }
         public List<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
     }
 

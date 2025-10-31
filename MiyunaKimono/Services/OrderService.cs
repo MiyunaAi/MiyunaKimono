@@ -292,7 +292,7 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
             // 1. ดึงข้อมูลหลักจากตาราง 'orders'
             // (เราสมมติว่ามีคอลัมน์ tracking_number)
             string sqlOrder = @"
-                SELECT customer_name, status, tracking_number, address, amount, receipt_content
+                SELECT customer_name, status, tracking_number, address, amount, receipt_content, tel 
                 FROM orders 
                 WHERE order_id = @id";
 
@@ -311,6 +311,7 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
                 details.Address = rd["address"]?.ToString();
                 details.TotalAmount = rd["amount"] == DBNull.Value ? 0m : Convert.ToDecimal(rd["amount"]);
                 details.PaymentSlipBytes = rd["receipt_content"] as byte[];
+                details.Tel = rd["tel"]?.ToString();
             }
 
             // 2. ดึงรายการสินค้าจาก 'order_items'
@@ -338,7 +339,27 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
             return details;
         }
+        // --- 🔽 2. เพิ่มเมธอดใหม่สำหรับปุ่ม SAVE 🔽 ---
+        public async Task<bool> UpdateAdminOrderAsync(string orderId, string status, string trackingNumber, string address)
+        {
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand(@"
+                UPDATE orders 
+                SET 
+                    status = @status,
+                    tracking_number = @track,
+                    address = @addr,
+                    updated_at = NOW()
+                WHERE order_id = @id", conn);
 
+            cmd.Parameters.AddWithValue("@id", orderId);
+            cmd.Parameters.AddWithValue("@status", (object)status ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@track", (object)trackingNumber ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@addr", (object)address ?? DBNull.Value);
+
+            int rows = await cmd.ExecuteNonQueryAsync();
+            return rows > 0;
+        }   
 
     }
 }

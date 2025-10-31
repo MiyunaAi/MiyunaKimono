@@ -45,6 +45,8 @@ namespace MiyunaKimono.Views
         // views
         private AddProductView _addView;
         private EditProductView _editView;
+        private AllOrdersView _allOrdersView;
+        private AdminOrderDetailsView _adminOrderDetailsView;
 
         // ===== Navigation =====
         public void ShowProduct()
@@ -96,8 +98,57 @@ namespace MiyunaKimono.Views
             _addView = null;
         }
 
+        public void ShowOrders()
+        {
+            CurrentHeader = "All Orders";
+            ShowBackBtn = false;
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            if (_allOrdersView == null)
+            {
+                _allOrdersView = new AllOrdersView();
+                _allOrdersView.ViewDetailsRequested += async (orderId) => await ShowAdminOrderDetailsAsync(orderId);
+            }
+
+            ContentHost.Content = _allOrdersView;
+            _addView = null; _editView = null; _adminOrderDetailsView = null;
+        }
+
+        // --- 🔽 3. เพิ่มเมธอด ShowAdminOrderDetailsAsync 🔽 ---
+        public async Task ShowAdminOrderDetailsAsync(string orderId)
+        {
+            _adminOrderDetailsView = new AdminOrderDetailsView(orderId);
+            _adminOrderDetailsView.RequestBack += () => ShowOrders();
+            _adminOrderDetailsView.Saved += () => ShowOrders();
+
+            CurrentHeader = $"Order #{orderId}";
+            ShowBackBtn = false; // (ปุ่ม Back อยู่ใน UserControl เอง)
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false; // (ปุ่ม Save อยู่ใน UserControl เอง)
+            ShowDeleteBtn = false;
+
+            await _adminOrderDetailsView.LoadAsync();
+            ContentHost.Content = _adminOrderDetailsView;
+            _addView = null; _editView = null; _allOrdersView = null;
+        }
+
         // ===== Top bar handlers =====
-        private void Back_Click(object sender, RoutedEventArgs e) => ShowProduct();
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            // (เช็คว่าควรกลับไปหน้าไหน)
+            if (_editView != null || _addView != null)
+            {
+                ShowProduct();
+            }
+            else
+            {
+                ShowProduct(); // ค่าเริ่มต้น
+            }
+        }
 
         private void AddProduct_Click(object s, RoutedEventArgs e) => ShowAddProduct();
 
@@ -110,9 +161,16 @@ namespace MiyunaKimono.Views
 
         private async void Save_Click(object s, RoutedEventArgs e)
         {
-            if (_editView == null) return;
-            var ok = await _editView.SaveAsync();
-            if (ok) ShowProduct();
+            if (_editView != null)
+            {
+                var ok = await _editView.SaveAsync();
+                if (ok) ShowProduct();
+            }
+            else if (_adminOrderDetailsView != null) // ⬅️ เพิ่มเช็คนี้
+            {
+                var ok = await _adminOrderDetailsView.SaveAsync();
+                if (ok) ShowOrders(); // ⬅️ กลับไปหน้า All Orders
+            }
         }
 
         private async void Delete_Click(object s, RoutedEventArgs e)
@@ -139,9 +197,7 @@ namespace MiyunaKimono.Views
 
         private void Orders_Click(object s, RoutedEventArgs e)
         {
-            CurrentHeader = "All Orders"; // ⬅️ เปลี่ยน Title
-            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false; // ⬅️ ซ่อนปุ่ม (ตามโจทย์)
-            ContentHost.Content = new AllOrdersView(); // ⬅️ โหลด View ใหม่
+            ShowOrders(); // ⬅️ เรียกเมธอดใหม่
         }
 
         private void Report_Click(object s, RoutedEventArgs e)
