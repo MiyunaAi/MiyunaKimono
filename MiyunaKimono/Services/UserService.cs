@@ -16,6 +16,15 @@ public sealed class UserService
 {
     public static UserService Instance { get; } = new();
 
+    public async Task<int> GetTotalCustomerCountAsync()
+    {
+        using var conn = Db.GetConn();
+        // (เราจะนับเฉพาะ role 'user', ไม่นับ 'admin')
+        using var cmd = new MySqlCommand("SELECT COUNT(*) FROM users WHERE role = 'user'", conn);
+        var result = await cmd.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
+    }
+
     public async Task<string> UpdateProfileAsync(
     int userId, string first, string last, string email, string phone, byte[] avatarBytes)
     {

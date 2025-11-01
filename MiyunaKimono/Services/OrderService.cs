@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace MiyunaKimono.Services
 {
+
+    public class DashboardStats
+    {
+        public decimal TotalSales { get; set; }
+        public int TotalOrders { get; set; }
+    }
+
+    // Model สำหรับตาราง Top Selling
+    public class TopSellingProduct
+    {
+        public string ProductCode { get; set; }
+        public string ProductName { get; set; }
+        public string Category { get; set; }
+        public decimal Price { get; set; }
+        public int TotalOrders { get; set; } // จำนวนออเดอร์ที่มีสินค้านี้
+        public decimal TotalSale { get; set; } // ยอดขายรวมของสินค้านี้
+    }
+
     public class ProductReportItem
     {
         // (เราต้องดึง Product ID มาด้วยเพื่อ Join)
@@ -25,6 +43,89 @@ namespace MiyunaKimono.Services
 
 
         public static OrderService Instance { get; } = new();
+
+
+        public async Task<DashboardStats> GetDashboardStatsAsync()
+        {
+            var stats = new DashboardStats();
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand(@"
+                SELECT 
+                    SUM(amount) AS TotalSales, 
+                    COUNT(*) AS TotalOrders 
+                FROM orders", conn);
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            if (await rd.ReadAsync())
+            {
+                stats.TotalSales = rd["TotalSales"] == DBNull.Value ? 0m : rd.GetDecimal("TotalSales");
+                stats.TotalOrders = rd["TotalOrders"] == DBNull.Value ? 0 : rd.GetInt32("TotalOrders");
+            }
+            return stats;
+        }
+
+        public async Task<List<TopSellingProduct>> GetTopSellingProductsAsync(int limit = 10)
+        {
+            var list = new List<TopSellingProduct>();
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand(@"
+                SELECT 
+                    p.product_code, 
+                    p.product_name, 
+                    p.category, 
+                    p.price, 
+                    COUNT(DISTINCT oi.order_id) AS TotalOrders, 
+                    SUM(oi.total) AS TotalSale
+                FROM order_items oi
+                JOIN products p ON oi.product_name = p.product_name 
+                GROUP BY p.id, p.product_code, p.product_name, p.category, p.price
+                ORDER BY TotalSale DESC
+                LIMIT @limit", conn);
+
+            cmd.Parameters.AddWithValue("@limit", limit);
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new TopSellingProduct
+                {
+                    ProductCode = rd["product_code"]?.ToString(),
+                    ProductName = rd["product_name"]?.ToString(),
+                    Category = rd["category"]?.ToString(),
+                    Price = rd.GetDecimal("price"),
+                    TotalOrders = rd.GetInt32("TotalOrders"),
+                    TotalSale = rd.GetDecimal("TotalSale")
+                });
+            }
+            return list;
+        }
+
+        public async Task<List<AdminOrderInfo>> GetMostExpensiveTransactionsAsync(int limit = 10)
+        {
+            var list = new List<AdminOrderInfo>();
+            using var conn = Db.GetConn();
+            using var cmd = new MySqlCommand(@"
+                SELECT order_id, customer_name, amount, status, created_at 
+                FROM orders
+                ORDER BY amount DESC
+                LIMIT @limit", conn); // ⬅️ เรียงตาม Amount (แพงที่สุด)
+
+            cmd.Parameters.AddWithValue("@limit", limit);
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new AdminOrderInfo
+                {
+                    Id = rd["order_id"]?.ToString(),
+                    CustomerName = rd["customer_name"] as string,
+                    Amount = rd.GetDecimal("amount"),
+                    Status = rd["status"] as string,
+                    CreatedAt = rd.GetDateTime("created_at")
+                });
+            }
+            return list;
+        }
 
         public sealed class AdminOrderInfo
         {

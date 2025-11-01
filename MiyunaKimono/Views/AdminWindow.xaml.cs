@@ -48,7 +48,7 @@ namespace MiyunaKimono.Views
         private AllOrdersView _allOrdersView;
         private AdminOrderDetailsView _adminOrderDetailsView;
         private ReportView _reportView;
-
+        private DashboardView _dashboardView;
         // ===== Navigation =====
         public void ShowProduct()
         {
@@ -153,7 +153,27 @@ namespace MiyunaKimono.Views
 
             ContentHost.Content = _reportView;
             _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null;
-        }   
+        }
+
+        public void ShowDashboard()
+        {
+            CurrentHeader = "Dashboard";
+            ShowBackBtn = false;
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            if (_dashboardView == null)
+            {
+                _dashboardView = new DashboardView();
+                // เชื่อมปุ่ม Details จากตาราง "Recent Transactions"
+                _dashboardView.ViewDetailsRequested += async (orderId) => await ShowAdminOrderDetailsAsync(orderId);
+            }
+
+            ContentHost.Content = _dashboardView;
+            _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null; _reportView = null;
+        }
 
         // ===== Top bar handlers =====
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -209,9 +229,7 @@ namespace MiyunaKimono.Views
 
         private void Dashboard_Click(object s, RoutedEventArgs e)
         {
-            CurrentHeader = "Dashboard";
-            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
-            ContentHost.Content = new PlaceholderView { Title = "Dashboard" };
+            ShowDashboard(); // ⬅️ เรียกเมธอดใหม่
         }
 
         private void Orders_Click(object s, RoutedEventArgs e)
