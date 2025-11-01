@@ -17,61 +17,24 @@
             <Setter Property="MinHeight" Value="120"/>
         </Style>
 
-        <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="Background" Value="White"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F9FAFB"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#F9FAFB"/>
-                    <Setter Property="Foreground" Value="#111827"/>
-                </Trigger>
-            </Style.Triggers>
+        <Style x:Key="DashboardHeader_Left" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AdminDataGridHeaderStyle}"/>
+
+        <Style x:Key="DashboardCell_Left" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource AdminDataGridCellStyle}">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="12,0"/>
         </Style>
-        <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}">
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="Padding" Value="12,16"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Foreground" Value="#111827"/>
-                </Trigger>
-            </Style.Triggers>
+
+        <Style x:Key="DashboardHeader_Right" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AdminDataGridHeaderStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="12,14,24,14"/>
         </Style>
-        <Style x:Key="AdminDataGridHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="Background" Value="#F9FAFB"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="12,14"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Cursor" Value="Hand"/>
+
+        <Style x:Key="DashboardCell_Right" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource AdminDataGridCellStyle}">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="TextBlock.TextAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="12,0,24,0"/>
         </Style>
-        <Style x:Key="AdminDataGridStyle" TargetType="{x:Type DataGrid}">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="RowHeaderWidth" Value="0"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="ColumnHeaderHeight" Value="44"/>
-            <Setter Property="RowHeight" Value="56"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectionUnit" Value="FullRow"/>
-        </Style>
+
     </UserControl.Resources>
 
     <Grid>
@@ -130,19 +93,24 @@
 
                 <DataGrid ItemsSource="{Binding TopSellingItems}"
                           Style="{StaticResource AdminDataGridStyle}"
-                          ColumnHeaderStyle="{StaticResource AdminDataGridHeaderStyle}"
+                          ColumnHeaderStyle="{StaticResource DashboardHeader_Left}"
                           RowStyle="{StaticResource AdminDataGridRowStyle}"
-                          CellStyle="{StaticResource AdminDataGridCellStyle}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto">
-
+                          CellStyle="{StaticResource DashboardCell_Left}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="No." Binding="{Binding Index}" Width="50"/>
                         <DataGridTextColumn Header="Product code" Binding="{Binding ProductCode}" Width="*"/>
                         <DataGridTextColumn Header="Product name" Binding="{Binding ProductName}" Width="2*"/>
                         <DataGridTextColumn Header="category" Binding="{Binding Category}" Width="*"/>
-                        <DataGridTextColumn Header="Price" Binding="{Binding PriceText}" Width="*"/>
-                        <DataGridTextColumn Header="Total Order" Binding="{Binding TotalOrdersText}" Width="*"/>
-                        <DataGridTextColumn Header="Total Sale" Binding="{Binding TotalSaleText}" Width="*"/>
+
+                        <DataGridTextColumn Header="Price" Binding="{Binding PriceText}" Width="*"
+                                            HeaderStyle="{StaticResource DashboardHeader_Right}"
+                                            CellStyle="{StaticResource DashboardCell_Right}"/>
+                        <DataGridTextColumn Header="Total Order" Binding="{Binding TotalOrdersText}" Width="*"
+                                            HeaderStyle="{StaticResource DashboardHeader_Right}"
+                                            CellStyle="{StaticResource DashboardCell_Right}"/>
+                        <DataGridTextColumn Header="Total Sale" Binding="{Binding TotalSaleText}" Width="*"
+                                            HeaderStyle="{StaticResource DashboardHeader_Right}"
+                                            CellStyle="{StaticResource DashboardCell_Right}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
@@ -157,17 +125,20 @@
 
                 <DataGrid ItemsSource="{Binding RecentTransactions}"
                           Style="{StaticResource AdminDataGridStyle}"
-                          ColumnHeaderStyle="{StaticResource AdminDataGridHeaderStyle}"
+                          ColumnHeaderStyle="{StaticResource DashboardHeader_Left}"
                           RowStyle="{StaticResource AdminDataGridRowStyle}"
-                          CellStyle="{StaticResource AdminDataGridCellStyle}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto">
-
+                          CellStyle="{StaticResource DashboardCell_Left}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Date" Binding="{Binding DateText}" Width="*"/>
                         <DataGridTextColumn Header="Order ID" Binding="{Binding DisplayId}" Width="*"/>
                         <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="2*"/>
-                        <DataGridTextColumn Header="Amount" Binding="{Binding AmountText}" Width="*"/>
+
+                        <DataGridTextColumn Header="Amount" Binding="{Binding AmountText}" Width="*"
+                                            HeaderStyle="{StaticResource DashboardHeader_Right}"
+                                            CellStyle="{StaticResource DashboardCell_Right}"/>
+
                         <DataGridTextColumn Header="Order Status" Binding="{Binding Status}" Width="*"/>
+
                         <DataGridTemplateColumn Header="Action" Width="120">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

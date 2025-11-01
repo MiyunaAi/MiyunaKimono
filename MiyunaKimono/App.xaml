@@ -40,7 +40,8 @@
         <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}">
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="Transparent"/>
