@@ -1,108 +1,94 @@
 ﻿<UserControl x:Class="MiyunaKimono.Views.Parts.ProductView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="clr-namespace:MiyunaKimono"
-             mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="800">
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Background="Transparent"
+             d:DesignHeight="600" d:DesignWidth="1000">
 
-
-    <Grid>
-        <DataGrid x:Name="GridProducts"
-              AutoGenerateColumns="False"
-              AlternationCount="1000000"
-              HeadersVisibility="Column"
-              CanUserAddRows="False" CanUserDeleteRows="False"
-              IsReadOnly="True" RowHeaderWidth="0" GridLinesVisibility="None"
-              ColumnHeaderHeight="38" RowHeight="56" SelectionMode="Single" SelectionUnit="FullRow">
-
-            <DataGrid.Resources>
-                <!-- สี selection และสีตัวอักษรตอนถูกเลือก -->
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#EAF2FF"/>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#222222"/>
-                <!-- กัน brush บางธีม -->
-                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
-
-                <!-- แถว -->
-                <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                    <Setter Property="Foreground" Value="#222"/>
+    <UserControl.Resources>
+        <Style x:Key="AdminDataGridHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,14"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="Transparent"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#EAF2FF"/>
-                            <Setter Property="Foreground" Value="#222"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F5F9FF"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="ColumnHeaderHeight" Value="44"/>
+            <Setter Property="RowHeight" Value="56"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+    </UserControl.Resources>
 
-                <!-- เซลล์ (เผื่อคอนเทนต์ภายในใช้สีของตัวเอง) -->
-                <Style TargetType="{x:Type DataGridCell}">
-                    <Setter Property="Foreground" Value="#222"/>
-                    <Setter Property="TextElement.Foreground" Value="#222"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#EAF2FF"/>
-                            <Setter Property="Foreground" Value="#222"/>
-                            <Setter Property="TextElement.Foreground" Value="#222"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.Resources>
+    <DataGrid x:Name="GridProducts" 
+              Style="{StaticResource AdminDataGridStyle}"
+              ColumnHeaderStyle="{StaticResource AdminDataGridHeaderStyle}"
+              RowStyle="{StaticResource AdminDataGridRowStyle}"
+              CellStyle="{StaticResource AdminDataGridCellStyle}">
 
-
-            <DataGrid.Columns>
-
-                <!-- ลำดับ -->
-                <DataGridTemplateColumn Header="" Width="50">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock HorizontalAlignment="Center"
-                         Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow},
-                                        Path=AlternationIndex,
-                                        Converter={StaticResource IntIndexTo1Based}}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                <!-- Thumbnail (รูปแรก) -->
-                <DataGridTemplateColumn Header="" Width="70">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Border Width="46" Height="46" CornerRadius="6" Background="#EEE"
-                      HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="{Binding ThumbPath}" Stretch="UniformToFill"/>
-                            </Border>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                <DataGridTextColumn Header="Product code" Binding="{Binding ProductCode}" Width="160"/>
-                <DataGridTextColumn Header="Product name" Binding="{Binding ProductName}" Width="*"/>
-                <DataGridTextColumn Header="category" Binding="{Binding Category}" Width="220"/>
-                <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:N0} THB}" Width="150"/>
-                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="120"/>
-
-                <DataGridTemplateColumn Header="" Width="120">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="Edit"
-                    Style="{StaticResource EditButton}"
-                    HorizontalAlignment="Center"
-                    Click="Edit_Click"
-                    CommandParameter="{Binding}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                
-
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="Product Code" Binding="{Binding ProductCode}" Width="*"/>
+            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="2*"/>
+            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*"/>
+            <DataGridTextColumn Header="Price" Binding="{Binding PriceText}" Width="*"/>
+            <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="*"/>
+            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
+            <DataGridTemplateColumn Header="Action" Width="120">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Button Content="Edit"
+                                Style="{StaticResource EditButton}"
+                                HorizontalAlignment="Center"
+                                Click="Edit_Click"
+                                Tag="{Binding Id}" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+        </DataGrid.Columns>
+    </DataGrid>
 </UserControl>

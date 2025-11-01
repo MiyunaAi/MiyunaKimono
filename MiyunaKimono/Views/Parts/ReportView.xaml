@@ -7,6 +7,64 @@
              Background="Transparent"
              d:DesignHeight="600" d:DesignWidth="1000">
 
+    <UserControl.Resources>
+        <Style x:Key="AdminDataGridHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,14"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="ColumnHeaderHeight" Value="44"/>
+            <Setter Property="RowHeight" Value="56"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -22,21 +80,17 @@
                 <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
-
             <TextBlock Text="Reports Product" 
                          VerticalAlignment="Center"
                          FontSize="20" FontWeight="SemiBold"/>
-
             <ComboBox Grid.Column="1" 
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSort}"/>
-
             <ComboBox Grid.Column="3" 
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding MonthOptions}"
                       SelectedItem="{Binding SelectedMonth}"/>
-
             <ComboBox Grid.Column="5" 
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding YearOptions}"
@@ -45,27 +99,22 @@
 
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding FilteredItems}"
-                  AutoGenerateColumns="False"
-                  HeadersVisibility="Column"
-                  CanUserAddRows="False" CanUserDeleteRows="False"
-                  IsReadOnly="True" RowHeaderWidth="0" 
-                  GridLinesVisibility="None"  
-                  ColumnHeaderHeight="38" RowHeight="56" 
-                  SelectionMode="Single" SelectionUnit="FullRow">
+                  Style="{StaticResource AdminDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource AdminDataGridHeaderStyle}"
+                  RowStyle="{StaticResource AdminDataGridRowStyle}"
+                  CellStyle="{StaticResource AdminDataGridCellStyle}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Product Code" Binding="{Binding ProductCode}" Width="*"/>
                 <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
-
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*"/>
-
                 <DataGridTextColumn Header="Quantity" Binding="{Binding QuantityText}" Width="100"/>
                 <DataGridTextColumn Header="Price" Binding="{Binding PriceText}" Width="150"/>
                 <DataGridTextColumn Header="Total" Binding="{Binding TotalText}" Width="150"/>
                 <DataGridTextColumn Header="Month" Binding="{Binding Month}" Width="120"/>
                 <DataGridTextColumn Header="Year" Binding="{Binding Year}" Width="100"/>
-            </DataGrid.Columns>
 
+            </DataGrid.Columns>
         </DataGrid>
 
     </Grid>

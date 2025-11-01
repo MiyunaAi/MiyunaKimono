@@ -13,7 +13,6 @@
             <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Padding" Value="12,8"/>
         </Style>
-
         <Style x:Key="WatermarkTextBox" TargetType="TextBox">
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -44,88 +43,62 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ModernComboBoxToggleButton" TargetType="ToggleButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="30"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Border Background="{TemplateBinding Background}" Padding="8">
-                            <Path Data="M 0 0 L 4 4 L 8 0"
-                                  Stroke="#666"
-                                  StrokeThickness="1.5"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ModernComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="White"/>
+        <Style x:Key="AdminDataGridHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,14"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="12,0,0,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <Border x:Name="MainBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="10"/>
-
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              Margin="{TemplateBinding Padding}"
-                                              IsHitTestVisible="False"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
-
-                            <ToggleButton x:Name="ToggleButton"
-                                        Style="{StaticResource ModernComboBoxToggleButton}"
-                                        HorizontalAlignment="Right"
-                                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        Focusable="False"/>
-
-                            <Popup x:Name="PART_Popup"
-                                   AllowsTransparency="True"
-                                   IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
-                                   Placement="Bottom"
-                                   PopupAnimation="Slide">
-                                <Border BorderBrush="#DDD" BorderThickness="1" Background="White"
-                                        Margin="0,2,0,0" CornerRadius="4"
-                                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                                        MinWidth="{Binding ActualWidth, ElementName=MainBorder}">
-                                    <ScrollViewer CanContentScroll="True">
-                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#AAAAAA"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#007ACC"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
+        <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#111827"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="AdminDataGridStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="ColumnHeaderHeight" Value="44"/>
+            <Setter Property="RowHeight" Value="56"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid>
@@ -144,7 +117,6 @@
                 <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
-
             <Border Grid.Column="0" Style="{StaticResource SearchBoxBorder}" VerticalAlignment="Center" Height="40">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -163,17 +135,14 @@
                              VerticalContentAlignment="Center"/>
                 </Grid>
             </Border>
-
             <ComboBox Grid.Column="2"
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding StatusOptions}"
                       SelectedItem="{Binding SelectedStatus}"/>
-
             <ComboBox Grid.Column="4"
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding MonthOptions}"
                       SelectedItem="{Binding SelectedMonth}"/>
-
             <ComboBox Grid.Column="6"
                       Style="{StaticResource ModernComboBox}"
                       ItemsSource="{Binding YearOptions}"
@@ -182,45 +151,10 @@
 
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding FilteredOrders}"
-                  AutoGenerateColumns="False"
-                  HeadersVisibility="Column"
-                  CanUserAddRows="False" CanUserDeleteRows="False"
-                  IsReadOnly="True" RowHeaderWidth="0" 
-                  GridLinesVisibility="None"  
-                  ColumnHeaderHeight="38" RowHeight="56" 
-                  SelectionMode="Single" SelectionUnit="FullRow">
-
-            <DataGrid.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#EAF2FF"/>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#222222"/>
-                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
-                <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                    <Setter Property="Foreground" Value="#222"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#EAF2FF"/>
-                            <Setter Property="Foreground" Value="#222"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F5F9FF"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-                <Style TargetType="{x:Type DataGridCell}">
-                    <Setter Property="Foreground" Value="#222"/>
-                    <Setter Property="TextElement.Foreground" Value="#222"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#EAF2FF"/>
-                            <Setter Property="Foreground" Value="#222"/>
-                            <Setter Property="TextElement.Foreground" Value="#222"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.Resources>
+                  Style="{StaticResource AdminDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource AdminDataGridHeaderStyle}"
+                  RowStyle="{StaticResource AdminDataGridRowStyle}"
+                  CellStyle="{StaticResource AdminDataGridCellStyle}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Order Id" Binding="{Binding DisplayId}" Width="*"/>
