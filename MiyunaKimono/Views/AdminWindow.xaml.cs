@@ -12,10 +12,11 @@ namespace MiyunaKimono.Views
         {
             InitializeComponent();
             DataContext = this;
-            ShowProduct(); // เริ่มที่ All Product
+            // ✅ เปลี่ยนจาก ShowProduct() เป็น ShowDashboard()
+            ShowDashboard(); // เริ่มที่ Dashboard
         }
 
-   
+
 
         // ===== INotifyPropertyChanged =====
         public event PropertyChangedEventHandler PropertyChanged;
