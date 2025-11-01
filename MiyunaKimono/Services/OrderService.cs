@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 
 namespace MiyunaKimono.Services
 {
+    public class ProductReportItem
+    {
+        // (เราต้องดึง Product ID มาด้วยเพื่อ Join)
+        public int ProductId { get; set; }
+        public string ProductCode { get; set; }
+        public string ProductName { get; set; }
+        public string Category { get; set; }
+        public int Quantity { get; set; } // Qty ที่ขายได้
+        public decimal Price { get; set; } // ราคาต่อหน่วย
+        public decimal Total { get; set; } // ยอดรวม
+        public DateTime CreatedAt { get; set; }
+    }
     public class OrderService
     {
 
@@ -22,6 +34,47 @@ namespace MiyunaKimono.Services
             public string Status { get; set; }
             public DateTime CreatedAt { get; set; }
         }
+
+        public async Task<List<ProductReportItem>> GetProductReportAsync()
+        {
+            var list = new List<ProductReportItem>();
+            using var conn = Db.GetConn();
+
+            // 1. เราต้อง Join 3 ตาราง: orders (สำหรับวันที่), order_items (สำหรับ Qty, Total), และ products (สำหรับ Code)
+            // 2. เราใช้ p.product_name, p.price แทน o_item.product_name, o_item.price เพื่อให้ข้อมูลตรงกับตารางหลัก
+            using var cmd = new MySqlCommand(@"
+                SELECT 
+                    p.id, 
+                    p.product_code, 
+                    p.product_name,
+                    p.category,
+                    o_item.qty, 
+                    p.price, 
+                    o_item.total, 
+                    o.created_at
+                FROM order_items AS o_item
+                INNER JOIN orders AS o ON o_item.order_id = o.order_id
+                INNER JOIN products AS p ON o_item.product_name = p.product_name", conn);
+            // (หมายเหตุ: การ Join ด้วย product_name อาจไม่ดีเท่า Join ด้วย product_id แต่ทำตามสคีมาปัจจุบัน)
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new ProductReportItem
+                {
+                    ProductId = rd.GetInt32("id"),
+                    ProductCode = rd["product_code"]?.ToString(),
+                    ProductName = rd["product_name"]?.ToString(),
+                    Category = rd["category"]?.ToString(),
+                    Quantity = rd.GetInt32("qty"),
+                    Price = rd.GetDecimal("price"),
+                    Total = rd.GetDecimal("total"),
+                    CreatedAt = rd.GetDateTime("created_at")
+                });
+            }
+            return list;
+        }
+
 
         public async Task<List<AdminOrderInfo>> GetAllOrdersAsync()
         {
@@ -360,6 +413,8 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
             int rows = await cmd.ExecuteNonQueryAsync();
             return rows > 0;
         }   
+
+
 
     }
 }

@@ -36,7 +36,7 @@ namespace MiyunaKimono.Views
 
         public List<string> YearOptions { get; } =
             new List<string> { "All" }
-            .Concat(Enumerable.Range(DateTime.Now.Year - 6, 9).Select(y => y.ToString())).ToList();
+            .Concat(Enumerable.Range(new ThaiBuddhistCalendar().GetYear(DateTime.Now) - 6, 9).Select(y => y.ToString())).ToList();
 
         private string _selectedMonth = "All";
         public string SelectedMonth

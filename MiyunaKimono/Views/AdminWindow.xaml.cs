@@ -47,6 +47,7 @@ namespace MiyunaKimono.Views
         private EditProductView _editView;
         private AllOrdersView _allOrdersView;
         private AdminOrderDetailsView _adminOrderDetailsView;
+        private ReportView _reportView;
 
         // ===== Navigation =====
         public void ShowProduct()
@@ -136,6 +137,24 @@ namespace MiyunaKimono.Views
             _addView = null; _editView = null; _allOrdersView = null;
         }
 
+        public void ShowReport()
+        {
+            CurrentHeader = "Reports Product";
+            ShowBackBtn = false;
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            if (_reportView == null)
+            {
+                _reportView = new ReportView();
+            }
+
+            ContentHost.Content = _reportView;
+            _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null;
+        }   
+
         // ===== Top bar handlers =====
         private void Back_Click(object sender, RoutedEventArgs e)
         {
@@ -202,9 +221,7 @@ namespace MiyunaKimono.Views
 
         private void Report_Click(object s, RoutedEventArgs e)
         {
-            CurrentHeader = "Report";
-            ShowBackBtn = ShowAddBtn = ShowPublishBtn = ShowSaveBtn = ShowDeleteBtn = false;
-            ContentHost.Content = new PlaceholderView { Title = "Report" };
+            ShowReport(); // ⬅️ เรียกเมธอดใหม่
         }
 
         private void Logout_Click(object s, RoutedEventArgs e)

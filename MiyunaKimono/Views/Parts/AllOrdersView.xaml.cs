@@ -73,9 +73,10 @@ namespace MiyunaKimono.Views.Parts
             MonthOptions.AddRange(Enumerable.Range(1, 12)
                 .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)));
 
-            // สร้าง Dropdown ปี (All Years, 2025, 2024, ...)
+            // สร้าง Dropdown ปี (All Years, 2568, 2567, ...)
             YearOptions = new List<string> { "All Years" };
-            YearOptions.AddRange(Enumerable.Range(DateTime.Now.Year - 5, 6)
+            int currentBEYear = new ThaiBuddhistCalendar().GetYear(DateTime.Now);
+            YearOptions.AddRange(Enumerable.Range(currentBEYear - 5, 6)
                 .Select(y => y.ToString()).Reverse());
 
             // โหลดข้อมูลเมื่อ View ถูกโหลด
