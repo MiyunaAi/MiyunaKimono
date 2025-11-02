@@ -14,17 +14,17 @@
         </Grid.RowDefinitions>
 
         <!-- แถวบน: Back + Code + Cart badge -->
-        <Grid Grid.Row="0" Margin="8,0,24,0">
+        <Grid Grid.Row="0" Margin="0,0,24,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="140"/>
             </Grid.ColumnDefinitions>
 
             <!-- Back -->
-            <Button Style="{StaticResource IconButtonNoHover}"
-        Width="140" Height="44" Click="Back_Click">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Style="{StaticResource IconButtonNoHover}" Grid.Column="0"
+        Width="140" Height="44" Click="Back_Click" Margin="-40,0,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <Path Data="M 22,8 L 8,22 L 22,36"
               Stroke="#333" StrokeThickness="3"
               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -35,7 +35,12 @@
 
             <!-- Product Code (กลาง) -->
             <TextBlock Grid.Column="1" Text="{Binding Product.ProductCode}" 
-                       FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                       FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                <TextBlock.RenderTransform>
+                    <TranslateTransform X="80" />
+                </TextBlock.RenderTransform>
+            </TextBlock>
 
             <!-- Cart with badge (ขวา) -->
             <Grid Grid.Column="2" HorizontalAlignment="Right">

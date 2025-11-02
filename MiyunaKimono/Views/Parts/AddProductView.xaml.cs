@@ -96,8 +96,11 @@ namespace MiyunaKimono.Views.Parts
                 {
                     if (Images.Count >= 3) break;
 
-                    var uploads = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "uploads");
-                    Directory.CreateDirectory(uploads);
+                    var root = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "MiyunaKimono", "products");
+                    Directory.CreateDirectory(root);
+                    var uploads = root;
 
                     // กันชื่อซ้ำ -> เติม timestamp
                     var name = Path.GetFileNameWithoutExtension(f);
