@@ -436,24 +436,42 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
             return id;
         }
 
+        // ในไฟล์ Services/OrderService.cs
+        // (แทนที่เมธอดเดิมทั้งหมด)
         public async Task<MonthlyReportData> GetMonthlyReportDataAsync(int gregorianYear, int month)
         {
             var data = new MonthlyReportData();
-
+            // (อย่าลืมเพิ่ม CharacterSet=utf8; ใน Services/Db.cs นะครับ)
             using var conn = Db.GetConn();
 
-            // 1. ดึงข้อมูลตาราง Orders
-            var sqlOrders = @"
-        SELECT created_at, customer_name, status, amount 
-        FROM orders 
-        WHERE (YEAR(created_at) = @year OR @year = 0) 
-            AND (MONTH(created_at) = @month OR @month = 0) 
-        ORDER BY created_at ASC";
+            // --- 1. สร้าง WHERE clause แบบไดนามิก ---
+            var whereConditions = new List<string>();
+            if (gregorianYear > 0)
+            {
+                whereConditions.Add("YEAR(o.created_at) = @year");
+            }
+            if (month > 0)
+            {
+                whereConditions.Add("MONTH(o.created_at) = @month");
+            }
+            string whereClause = "";
+            if (whereConditions.Count > 0)
+            {
+                whereClause = "WHERE " + string.Join(" AND ", whereConditions);
+            }
+
+            // --- 2. ดึงข้อมูลตาราง Orders (เหมือนเดิม) ---
+            var sqlOrders = $@"
+SELECT created_at, customer_name, status, amount 
+FROM orders o
+{whereClause}
+ORDER BY created_at ASC";
 
             using (var cmd = new MySqlCommand(sqlOrders, conn))
             {
-                cmd.Parameters.AddWithValue("@year", gregorianYear);
-                cmd.Parameters.AddWithValue("@month", month);
+                if (gregorianYear > 0) cmd.Parameters.AddWithValue("@year", gregorianYear);
+                if (month > 0) cmd.Parameters.AddWithValue("@month", month);
+
                 using var rd = await cmd.ExecuteReaderAsync();
                 while (await rd.ReadAsync())
                 {
@@ -465,43 +483,64 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
                         Total = rd.GetDecimal("amount")
                     });
                 }
-            } // ปิด Reader ที่นี่
+            } // ปิด Reader
 
-            // 2. ดึงข้อมูลตาราง Product Sales
-            var sqlProducts = @"
-        SELECT 
-            p.product_name, 
-            p.brand, 
-            p.category, 
-            SUM(oi.qty) AS ItemsOff, 
-            SUM(oi.total) AS TotalSale
-        FROM order_items oi
-        JOIN orders o ON oi.order_id = o.order_id
-        JOIN products p ON oi.product_name = p.product_name 
-        WHERE (YEAR(o.created_at) = @year OR @year = 0) 
-            AND (MONTH(o.created_at) = @month OR @month = 0)
-        GROUP BY p.product_name, p.brand, p.category
-        ORDER BY TotalSale DESC";
+            // --- 3. (แก้ไข) โหลด Product ทั้งหมดมาพักไว้ใน C# ---
+            // (นี่คือตรรกะ "แบบใบเสร็จ" คือแยกส่วนดึง Product ออกมา)
+            var allProducts = ProductService.Instance.GetAll();
+            var productLookup = new Dictionary<string, Product>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in allProducts)
+            {
+                if (p.ProductName != null && !productLookup.ContainsKey(p.ProductName))
+                {
+                    productLookup[p.ProductName] = p;
+                }
+            }
+
+            // --- 4. (แก้ไข) ดึงข้อมูล Product Sales โดยไม่ JOIN products ---
+            var sqlProducts = $@"
+SELECT 
+    oi.product_name,
+    SUM(oi.qty) AS ItemsOff, 
+    SUM(oi.total) AS TotalSale
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+{whereClause}
+GROUP BY oi.product_name
+ORDER BY TotalSale DESC";
 
             using (var cmd = new MySqlCommand(sqlProducts, conn))
             {
-                cmd.Parameters.AddWithValue("@year", gregorianYear);
-                cmd.Parameters.AddWithValue("@month", month);
+                if (gregorianYear > 0) cmd.Parameters.AddWithValue("@year", gregorianYear);
+                if (month > 0) cmd.Parameters.AddWithValue("@month", month);
+
                 using var rd = await cmd.ExecuteReaderAsync();
                 while (await rd.ReadAsync())
                 {
+                    var productName = rd["product_name"] as string;
+
+                    // --- 5. (แก้ไข) ใช้ C# ในการ Join ข้อมูล Brand/Category ---
+                    string brand = "N/A";
+                    string category = "N/A";
+
+                    if (!string.IsNullOrEmpty(productName) && productLookup.TryGetValue(productName, out var productInfo))
+                    {
+                        brand = productInfo.Brand ?? "N/A";
+                        category = productInfo.Category ?? "N/A";
+                    }
+
                     data.Products.Add(new MonthlyProductReportItem
                     {
-                        ProductName = rd["product_name"] as string,
-                        Brand = rd["brand"] as string,
-                        Category = rd["category"] as string,
+                        ProductName = productName,
+                        Brand = brand,
+                        Category = category,
                         ItemsOff = rd.GetInt32("ItemsOff"),
                         TotalSale = rd.GetDecimal("TotalSale")
                     });
                 }
-            } // ปิด Reader ที่นี่
+            } // ปิด Reader
 
-            // 3. คำนวณยอดรวมทั้งหมด
+            // 6. คำนวณยอดรวมทั้งหมด (เหมือนเดิม)
             data.GrandTotalSale = data.Products.Sum(p => p.TotalSale);
 
             return data;

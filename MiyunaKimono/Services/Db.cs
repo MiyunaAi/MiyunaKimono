@@ -14,7 +14,7 @@ namespace MiyunaKimono.Services
         public static MySqlConnection GetOpenConnection() => GetConn();
         // แก้ค่าให้ตรงกับ XAMPP ของคุณ
         private const string ConnStr =
-            "Server=localhost;Port=3306;Database=miyuna_kimono;Uid=root;Pwd=;SslMode=None;";
+            "Server=localhost;Port=3306;Database=miyuna_kimono;Uid=root;Pwd=;SslMode=None;CharacterSet=tis620;";
 
         public static MySqlConnection GetConn()
         {
