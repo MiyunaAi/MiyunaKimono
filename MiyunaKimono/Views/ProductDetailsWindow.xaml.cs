@@ -7,13 +7,17 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows.Input;
 
 namespace MiyunaKimono.Views
 {
     public partial class ProductDetailsWindow : Window, INotifyPropertyChanged
     {
-        public Product Product { get; }
+        public bool WantsToOpenCart { get; private set; } = false;
 
+        public Product Product { get; }
+        public ICommand PrevHeroCommand { get; }
+        public ICommand NextHeroCommand { get; }
         // Carousel
         public ObservableCollection<string> ImageList { get; } = new();
         private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(4) };
@@ -89,6 +93,9 @@ namespace MiyunaKimono.Views
             Product = product ?? throw new ArgumentNullException(nameof(product));
             DataContext = this;
 
+            PrevHeroCommand = new DelegateCommand(_ => PrevHero());
+            NextHeroCommand = new DelegateCommand(_ => NextHero());
+
             // รูป 3 รูป (วน)
             if (!string.IsNullOrWhiteSpace(Product.Image1Path)) ImageList.Add(Product.Image1Path);
             if (!string.IsNullOrWhiteSpace(Product.Image2Path)) ImageList.Add(Product.Image2Path);
@@ -105,6 +112,20 @@ namespace MiyunaKimono.Views
             {
                 e.Handled = !char.IsDigit(e.Text, 0);
             };
+        }
+
+        private void NextHero()
+        {
+            _timer.Stop(); // หยุด timer ชั่วคราว (ถ้าผู้ใช้กดเอง)
+            if (ImageList.Count > 0) ImageIndex = (ImageIndex + 1) % ImageList.Count;
+            _timer.Start(); // เริ่มนับเวลาใหม่
+        }
+
+        private void PrevHero()
+        {
+            _timer.Stop(); // หยุด timer ชั่วคราว
+            if (ImageList.Count > 0) ImageIndex = (ImageIndex - 1 + ImageList.Count) % ImageList.Count;
+            _timer.Start(); // เริ่มนับเวลาใหม่
         }
 
         private void UpdateDots()
@@ -143,6 +164,14 @@ namespace MiyunaKimono.Views
             this.Close();
         }
 
+        private void OpenCart_Click(object sender, RoutedEventArgs e)
+        {
+            // ตั้งค่าสถานะว่า "ต้องการเปิดตะกร้า"
+            WantsToOpenCart = true;
+            // ปิดหน้าต่างนี้ (ShowDialog() จะทำงานต่อ)
+            this.Close();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -152,5 +181,27 @@ namespace MiyunaKimono.Views
             _timer.Stop();
             base.OnClosed(e);
         }
+
+        internal class DelegateCommand : ICommand
+        {
+            private readonly Action<object> _execute;
+            private readonly Func<object, bool> _canExecute;
+
+            public DelegateCommand(Action<object> execute, Func<object, bool> canExecute = null)
+            {
+                _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+                _canExecute = canExecute;
+            }
+
+            public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
+            public void Execute(object parameter) => _execute(parameter);
+            public event EventHandler CanExecuteChanged
+            {
+                add => CommandManager.RequerySuggested += value;
+                remove => CommandManager.RequerySuggested -= value;
+            }
+        }
     }
+
+
 }

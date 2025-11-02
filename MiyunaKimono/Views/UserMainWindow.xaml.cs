@@ -539,6 +539,11 @@ namespace MiyunaKimono.Views
             w.Owner = this;
             w.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             w.ShowDialog();
+
+            if (w.WantsToOpenCart)
+            {
+                ShowCartSection(); // ⬅️ เปิดตะกร้าตามที่หน้า Details ร้องขอ
+            }
         }
 
 
