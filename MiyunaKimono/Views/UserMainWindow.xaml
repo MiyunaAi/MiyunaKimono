@@ -277,7 +277,7 @@
 
                 <!-- 3.1 HERO CAROUSEL -->
                 <!-- เอา Converter ออก ใช้ความสูงคงที่แทน -->
-                <Grid Margin="0,8,0,24" Height="700">
+                <Grid Margin="0,8,0,24" Height="500">
                     <ListBox
                         Style="{StaticResource HeroCarousel}"
                         ItemsSource="{Binding HeroImages}"
@@ -523,7 +523,7 @@
                 </ItemsControl>
 
                 <!-- 3.x HERO CAROUSEL #2 (ชุดรูปที่สอง) -->
-                <Grid Margin="0,24,0,24" Height="700">
+                <Grid Margin="0,24,0,24" Height="500">
                     <ListBox
     Style="{StaticResource HeroCarousel2}"
     ItemsSource="{Binding HeroImages2}"
