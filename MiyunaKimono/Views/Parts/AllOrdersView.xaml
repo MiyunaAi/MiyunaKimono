@@ -115,8 +115,11 @@
                 <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
+
             <Border Grid.Column="0" Style="{StaticResource SearchBoxBorder}" VerticalAlignment="Center" Height="40">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -125,28 +128,36 @@
                     </Grid.ColumnDefinitions>
                     <Image Source="pack://application:,,,/Assets/ic_search.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <TextBox Grid.Column="1"
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Tag="Search by User or Order ID"
-                             Style="{StaticResource WatermarkTextBox}"
-                             FontSize="14"
-                             Padding="4,0"
-                             BorderThickness="0"
-                             Background="Transparent"
-                             VerticalContentAlignment="Center"/>
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Tag="Search by User or Order ID"
+                         Style="{StaticResource WatermarkTextBox}"
+                         FontSize="14"
+                         Padding="4,0"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         VerticalContentAlignment="Center"/>
                 </Grid>
             </Border>
+
             <ComboBox Grid.Column="2"
-                      Style="{StaticResource ModernComboBox}"
-                      ItemsSource="{Binding StatusOptions}"
-                      SelectedItem="{Binding SelectedStatus}"/>
+                  Style="{StaticResource ModernComboBox}"
+                  ItemsSource="{Binding StatusOptions}"
+                  SelectedItem="{Binding SelectedStatus}"/>
+
             <ComboBox Grid.Column="4"
-                      Style="{StaticResource ModernComboBox}"
-                      ItemsSource="{Binding MonthOptions}"
-                      SelectedItem="{Binding SelectedMonth}"/>
+                  Style="{StaticResource ModernComboBox}"
+                  ItemsSource="{Binding SortOptions}"
+                  SelectedItem="{Binding SelectedSort}"/>
+
             <ComboBox Grid.Column="6"
-                      Style="{StaticResource ModernComboBox}"
-                      ItemsSource="{Binding YearOptions}"
-                      SelectedItem="{Binding SelectedYear}"/>
+                  Style="{StaticResource ModernComboBox}"
+                  ItemsSource="{Binding MonthOptions}"
+                  SelectedItem="{Binding SelectedMonth}"/>
+
+            <ComboBox Grid.Column="8"
+                  Style="{StaticResource ModernComboBox}"
+                  ItemsSource="{Binding YearOptions}"
+                  SelectedItem="{Binding SelectedYear}"/>
         </Grid>
 
         <DataGrid Grid.Row="1"

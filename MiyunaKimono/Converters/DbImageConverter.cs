@@ -34,6 +34,7 @@ namespace MiyunaKimono.Converters
                 var bi = new BitmapImage();
                 bi.BeginInit();
                 bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache; // ⬅️ เพิ่มบรรทัดนี้
                 bi.UriSource = new Uri(full, UriKind.Absolute);
                 bi.EndInit();
                 bi.Freeze();

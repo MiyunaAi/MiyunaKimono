@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using MiyunaKimono.Views.Parts;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using MiyunaKimono.Views.Parts;
+using System.Windows.Controls;
 
 namespace MiyunaKimono.Views
 {
@@ -14,6 +15,8 @@ namespace MiyunaKimono.Views
             DataContext = this;
             // ✅ เปลี่ยนจาก ShowProduct() เป็น ShowDashboard()
             ShowDashboard(); // เริ่มที่ Dashboard
+
+
         }
 
 
@@ -50,6 +53,7 @@ namespace MiyunaKimono.Views
         private AdminOrderDetailsView _adminOrderDetailsView;
         private ReportView _reportView;
         private DashboardView _dashboardView;
+        private TopSellingView _topSellingView;
         // ===== Navigation =====
         public void ShowProduct()
         {
@@ -156,6 +160,26 @@ namespace MiyunaKimono.Views
             _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null;
         }
 
+        public void ShowTopSelling()
+        {
+            CurrentHeader = "Top Selling Products";
+            // ซ่อนปุ่มบน Top Bar หลัก เพราะหน้าใหม่มีปุ่ม Back ของตัวเอง
+            ShowBackBtn = false;
+            ShowAddBtn = false;
+            ShowPublishBtn = false;
+            ShowSaveBtn = false;
+            ShowDeleteBtn = false;
+
+            if (_topSellingView == null)
+            {
+                _topSellingView = new TopSellingView();
+                _topSellingView.RequestBack += () => ShowDashboard(); // กด Back ให้กลับไป Dashboard
+            }
+
+            ContentHost.Content = _topSellingView;
+            _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null; _reportView = null; _dashboardView = null;
+        }
+
         public void ShowDashboard()
         {
             CurrentHeader = "Dashboard";
@@ -170,10 +194,14 @@ namespace MiyunaKimono.Views
                 _dashboardView = new DashboardView();
                 // เชื่อมปุ่ม Details จากตาราง "Recent Transactions"
                 _dashboardView.ViewDetailsRequested += async (orderId) => await ShowAdminOrderDetailsAsync(orderId);
+                _dashboardView.ViewAllTopSellingRequested += () => ShowTopSelling();
+                _dashboardView.ViewAllTransactionsRequested += () => ShowOrders();
+                // 🔼🔼🔼 จบส่วนที่เพิ่ม 🔼🔼🔼
             }
 
             ContentHost.Content = _dashboardView;
             _addView = null; _editView = null; _allOrdersView = null; _adminOrderDetailsView = null; _reportView = null;
+            _topSellingView = null;
         }
 
         // ===== Top bar handlers =====
@@ -263,5 +291,21 @@ namespace MiyunaKimono.Views
             this.Close();   // ตอนนี้ปิด AdminWindow ได้โดยไม่ปิดทั้งแอป
         }
 
+        // (วางไว้ล่างสุดของไฟล์, ก่อนปีกกาปิด } ของคลาส)
+        // (วางไว้ล่างสุดของไฟล์, ก่อนปีกกาปิด } ของคลาส)
+        private void AdminProductSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // ตรวจสอบว่า Content ที่แสดงอยู่คือ ProductView ใช่หรือไม่
+            if (ContentHost.Content is ProductView productView)
+            {
+                // ส่งข้อความใน Search Box ไปให้ ProductView ทำการกรอง
+                productView.FilterProducts(AdminProductSearchBox.Text);
+            }
+        }
+
+
+
     }
+
+
 }

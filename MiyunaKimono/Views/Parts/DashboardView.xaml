@@ -106,7 +106,7 @@
             <DockPanel LastChildFill="True">
                 <Grid DockPanel.Dock="Top" Margin="20,16,20,16">
                     <TextBlock Text="TOP SELLING PRODUCT" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    <Button Content="View All" Style="{StaticResource TopTextButton}" HorizontalAlignment="Right" IsEnabled="False"/>
+                    <Button Content="View All" Style="{StaticResource TopTextButton}" HorizontalAlignment="Right" Click="ViewAll_Click"/>
                 </Grid>
 
                 <DataGrid ItemsSource="{Binding TopSellingItems}"
@@ -144,7 +144,7 @@
             <DockPanel LastChildFill="True">
                 <Grid DockPanel.Dock="Top" Margin="20,16,20,16">
                     <TextBlock Text="MOST RECENT TRANSACTIONS" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    <Button Content="View All" Style="{StaticResource TopTextButton}" HorizontalAlignment="Right" IsEnabled="False"/>
+                    <Button Content="View All" Style="{StaticResource TopTextButton}" HorizontalAlignment="Right" Click="ViewAllTransactions_Click"/>
                 </Grid>
 
                 <DataGrid ItemsSource="{Binding RecentTransactions}"

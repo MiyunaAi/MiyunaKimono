@@ -30,6 +30,10 @@ namespace MiyunaKimono.Views.Parts
         public List<string> StatusOptions { get; } = new List<string> {
             "All status", "Ordering", "Packing", "Shipping", "Delivering", "Completed", "Cancelled"
         };
+        public List<string> SortOptions { get; } = new List<string> {
+        "Mostly", "Lowly", "Date", "Name"
+        };
+
         public List<string> MonthOptions { get; }
         public List<string> YearOptions { get; }
 
@@ -39,6 +43,13 @@ namespace MiyunaKimono.Views.Parts
         {
             get => _searchText;
             set { _searchText = value; Raise(); ApplyFilter(); }
+        }
+
+        private string _selectedSort = "Mostly"; // 
+        public string SelectedSort
+        {
+            get => _selectedSort;
+            set { _selectedSort = value; Raise(); ApplyFilter(); } // 
         }
 
         private string _selectedStatus = "All status";
@@ -89,7 +100,10 @@ namespace MiyunaKimono.Views.Parts
             {
                 var ordersFromDb = await OrderService.Instance.GetAllOrdersAsync();
 
-                _allOrders = ordersFromDb.Select(o => new AdminOrderRow(o)).ToList();
+                _allOrders = ordersFromDb
+                         
+                         .Select(o => new AdminOrderRow(o))
+                         .ToList();
 
                 ApplyFilter();
             }
@@ -133,6 +147,23 @@ namespace MiyunaKimono.Views.Parts
                     query = query.Where(o => o.CreatedAt.Month == monthIndex);
                 }
             }
+            switch (SelectedSort)
+            {
+                case "Mostly":
+                    query = query.OrderByDescending(o => o.Amount);
+                    break;
+                case "Lowly":
+                    query = query.OrderBy(o => o.Amount);
+                    break;
+                case "Name":
+                    query = query.OrderBy(o => o.CustomerName);
+                    break;
+                case "Date":
+                default:
+                    query = query.OrderByDescending(o => o.CreatedAt);
+                    break;
+            }
+
 
             // อัปเดต Collection ที่แสดงผล
             FilteredOrders.Clear();
@@ -160,6 +191,7 @@ namespace MiyunaKimono.Views.Parts
         public string OrderId => _source.Id;
         public string DisplayId => $"#{_source.Id}";
         public string CustomerName => _source.CustomerName ?? "N/A";
+        public decimal Amount => _source.Amount;
         public string AmountText => $"{_source.Amount:N0} THB";
         public string Status => string.IsNullOrWhiteSpace(_source.Status) ? "Ordering" : _source.Status;
         public DateTime CreatedAt => _source.CreatedAt;
