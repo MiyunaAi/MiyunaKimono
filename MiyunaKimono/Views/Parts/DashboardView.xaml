@@ -96,7 +96,7 @@
                                   SelectedItem="{Binding SelectedYear}"/>
                     </Grid>
 
-                    <Button Content="Report" Style="{StaticResource BlueRoundedButton}" Height="36" Margin="0,10,0,0" IsEnabled="True" Padding="24,0"/>
+                    <Button Content="Report" Style="{StaticResource BlueRoundedButton}" Height="36" Margin="0,10,0,0" IsEnabled="True" Padding="24,0" Click="Report_Click"/>
 
                 </StackPanel>
             </Border>

@@ -48,6 +48,7 @@
     <None Remove="Assets\ic_users.png" />
     <None Remove="Assets\instagram.png" />
     <None Remove="Assets\logo_miyuna.png" />
+    <None Remove="Assets\logo_miyunaa.png" />
     <None Remove="Assets\slide1.jpg" />
     <None Remove="Assets\slide2.jpg" />
     <None Remove="Assets\slide3.jpg" />
@@ -106,6 +107,7 @@
     <Resource Include="Assets\ic_users.png" />
     <Resource Include="Assets\instagram.png" />
     <Resource Include="Assets\logo_miyuna.png" />
+    <Resource Include="Assets\logo_miyunaa.png" />
     <Resource Include="Assets\slide1.jpg" />
     <Resource Include="Assets\slide2.jpg" />
     <Resource Include="Assets\slide3.jpg" />

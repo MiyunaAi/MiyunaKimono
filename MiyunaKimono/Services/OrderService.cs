@@ -436,7 +436,76 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
             return id;
         }
 
+        public async Task<MonthlyReportData> GetMonthlyReportDataAsync(int gregorianYear, int month)
+        {
+            var data = new MonthlyReportData();
 
+            using var conn = Db.GetConn();
+
+            // 1. ดึงข้อมูลตาราง Orders
+            var sqlOrders = @"
+        SELECT created_at, customer_name, status, amount 
+        FROM orders 
+        WHERE (YEAR(created_at) = @year OR @year = 0) 
+            AND (MONTH(created_at) = @month OR @month = 0) 
+        ORDER BY created_at ASC";
+
+            using (var cmd = new MySqlCommand(sqlOrders, conn))
+            {
+                cmd.Parameters.AddWithValue("@year", gregorianYear);
+                cmd.Parameters.AddWithValue("@month", month);
+                using var rd = await cmd.ExecuteReaderAsync();
+                while (await rd.ReadAsync())
+                {
+                    data.Orders.Add(new MonthlyOrderReportItem
+                    {
+                        Date = rd.GetDateTime("created_at"),
+                        CustomerName = rd["customer_name"] as string,
+                        Status = rd["status"] as string ?? "Ordering",
+                        Total = rd.GetDecimal("amount")
+                    });
+                }
+            } // ปิด Reader ที่นี่
+
+            // 2. ดึงข้อมูลตาราง Product Sales
+            var sqlProducts = @"
+        SELECT 
+            p.product_name, 
+            p.brand, 
+            p.category, 
+            SUM(oi.qty) AS ItemsOff, 
+            SUM(oi.total) AS TotalSale
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
+        JOIN products p ON oi.product_name = p.product_name 
+        WHERE (YEAR(o.created_at) = @year OR @year = 0) 
+            AND (MONTH(o.created_at) = @month OR @month = 0)
+        GROUP BY p.product_name, p.brand, p.category
+        ORDER BY TotalSale DESC";
+
+            using (var cmd = new MySqlCommand(sqlProducts, conn))
+            {
+                cmd.Parameters.AddWithValue("@year", gregorianYear);
+                cmd.Parameters.AddWithValue("@month", month);
+                using var rd = await cmd.ExecuteReaderAsync();
+                while (await rd.ReadAsync())
+                {
+                    data.Products.Add(new MonthlyProductReportItem
+                    {
+                        ProductName = rd["product_name"] as string,
+                        Brand = rd["brand"] as string,
+                        Category = rd["category"] as string,
+                        ItemsOff = rd.GetInt32("ItemsOff"),
+                        TotalSale = rd.GetDecimal("TotalSale")
+                    });
+                }
+            } // ปิด Reader ที่นี่
+
+            // 3. คำนวณยอดรวมทั้งหมด
+            data.GrandTotalSale = data.Products.Sum(p => p.TotalSale);
+
+            return data;
+        }
         public async Task<OrderDetailsModel> GetOrderDetailsAsync(string orderId)
         {
             var details = new OrderDetailsModel { OrderId = orderId };
@@ -518,4 +587,41 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
 
     }
+
+    // (วางโค้ดนี้ต่อจากปีกกาปิด } ของคลาส OrderService)
+
+    /// <summary>
+    /// Model สำหรับ 1 แถวในตาราง Order ของ Report
+    /// </summary>
+    public class MonthlyOrderReportItem
+    {
+        public DateTime Date { get; set; }
+        public string CustomerName { get; set; }
+        public string Status { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    /// <summary>
+    /// Model สำหรับ 1 แถวในตาราง Product Sales ของ Report
+    /// </summary>
+    public class MonthlyProductReportItem
+    {
+        public string ProductName { get; set; }
+        public string Brand { get; set; }
+        public string Category { get; set; }
+        public int ItemsOff { get; set; } // จำนวนที่ขายได้
+        public decimal TotalSale { get; set; } // ยอดขายรวม
+    }
+
+    /// <summary>
+    /// Model หลักสำหรับเก็บข้อมูลทั้งหมดที่จะส่งไปสร้าง PDF
+    /// </summary>
+    public class MonthlyReportData
+    {
+        public List<MonthlyOrderReportItem> Orders { get; set; } = new List<MonthlyOrderReportItem>();
+        public List<MonthlyProductReportItem> Products { get; set; } = new List<MonthlyProductReportItem>();
+        public decimal GrandTotalSale { get; set; }
+    }
+
+
 }

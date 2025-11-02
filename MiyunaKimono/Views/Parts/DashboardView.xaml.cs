@@ -9,11 +9,68 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Diagnostics;
+using System.Windows.Input;
+using MiyunaKimono.Models;
+
 
 namespace MiyunaKimono.Views.Parts
 {
     public partial class DashboardView : UserControl, INotifyPropertyChanged
     {
+
+        private async void Report_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. ดึงค่าเดือนและปีที่เลือก
+            string monthName = SelectedMonth ?? "All Month";
+            string yearName = SelectedYear ?? "All Years";
+
+            // 2. แปลงค่าเป็น Int
+            // เดือน: "All Month" (index 0) = 0, "January" (index 1) = 1, ...
+            int monthInt = MonthOptions.FindIndex(m => m == monthName);
+            if (monthInt < 0) monthInt = 0; // กันพลาด
+
+            // ปี: "All Years" (TryParse ล้มเหลว) = 0
+            // ถ้าสำเร็จ (เช่น "2568") ให้แปลงเป็น ค.ศ. (2025)
+            int.TryParse(yearName, out int buddhistYear);
+
+            int gregorianYear = 0;
+            if (buddhistYear > 0)
+            {
+                gregorianYear = buddhistYear - 543;
+            }
+
+            // 3. แสดงเมาส์โหลด
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                // 4. เรียก Service ดึงข้อมูล
+                MonthlyReportData data = await OrderService.Instance.GetMonthlyReportDataAsync(gregorianYear, monthInt);
+
+                if (data.Orders.Count == 0 && data.Products.Count == 0)
+                {
+                    MessageBox.Show($"ไม่พบข้อมูลสำหรับ {monthName} {yearName}", "Report", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // 5. สร้าง PDF
+                string pdfPath = MonthlyReportPdfMaker.Create(data, monthName, yearName);
+
+                // 6. เปิดไฟล์ PDF ที่สร้างเสร็จ
+                Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("ไม่สามารถสร้าง Report ได้: " + ex.Message, "Error");
+            }
+            finally
+            {
+                // 7. คืนค่าเมาส์ปกติ
+                Mouse.OverrideCursor = null;
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void Raise([CallerMemberName] string n = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
@@ -64,7 +121,7 @@ namespace MiyunaKimono.Views.Parts
                 .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)));
 
             YearOptions = new List<string> { "All Year" };
-            int currentBEYear = new ThaiBuddhistCalendar().GetYear(DateTime.Now);
+            int currentBEYear = 2568; // ⬅️ ให้เริ่มที่ปี 2568 (2025) ตามข้อมูลตัวอย่างของคุณ
             YearOptions.AddRange(Enumerable.Range(currentBEYear - 5, 6)
                 .Select(y => y.ToString()).Reverse());
 
@@ -152,4 +209,6 @@ namespace MiyunaKimono.Views.Parts
             _source = source;
         }
     }
+
+
 }
