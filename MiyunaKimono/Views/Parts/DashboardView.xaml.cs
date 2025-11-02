@@ -77,7 +77,8 @@ namespace MiyunaKimono.Views.Parts
 
         // Event สำหรับปุ่ม Details
         public event Action<string> ViewDetailsRequested;
-
+        public event Action ViewAllTransactionsRequested;
+        public event Action ViewAllTopSellingRequested;
         // --- Properties สำหรับ 4 การ์ดบน ---
         private decimal _totalSales;
         public decimal TotalSales
@@ -170,6 +171,16 @@ namespace MiyunaKimono.Views.Parts
             {
                 ViewDetailsRequested?.Invoke(orderId); // ⬅️ ยิง Event
             }
+        }
+
+        private void ViewAll_Click(object sender, RoutedEventArgs e)
+        {
+            ViewAllTopSellingRequested?.Invoke();
+        }
+
+        private void ViewAllTransactions_Click(object sender, RoutedEventArgs e)
+        {
+            ViewAllTransactionsRequested?.Invoke();
         }
     }
 

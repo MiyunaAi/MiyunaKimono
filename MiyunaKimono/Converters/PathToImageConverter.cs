@@ -24,6 +24,7 @@ namespace MiyunaKimono.Converters
                 var bi = new BitmapImage();
                 bi.BeginInit();
                 bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                 bi.UriSource = uri;
                 bi.EndInit();
                 bi.Freeze();

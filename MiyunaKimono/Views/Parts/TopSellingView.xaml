@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="MiyunaKimono.Views.Parts.TopSellingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Background="#FAFAFA"
+             d:DesignHeight="700" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <Style x:Key="AdminDataGridHeaderStyle" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AdminDataGridHeaderStyle}"/>
+        <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource AdminDataGridRowStyle}"/>
+        <Style x:Key="AdminDataGridCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource AdminDataGridCellStyle}"/>
+        <Style x:Key="AdminDataGridStyle" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource AdminDataGridStyle}"/>
+        <Style x:Key="DashboardHeader_Left" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AdminDataGridHeaderStyle}">
+            <Setter Property="Padding" Value="12,14"/>
+        </Style>
+        <Style x:Key="DashboardCell_Left" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource AdminDataGridCellStyle}">
+            <Setter Property="Padding" Value="12,16"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource TopWhiteBar}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Style="{StaticResource IconButtonNoHover}" Width="40" Height="40"
+                        Click="Back_Click" ToolTip="Back to Dashboard">
+                    <Viewbox Width="18" Height="18">
+                        <Path Data="M 22,8 L 8,22 L 22,36"
+                              Stroke="#333" StrokeThickness="3"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Viewbox>
+                </Button>
+
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"
+                           Text="Top Selling Products"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardWhite}" Padding="0">
+            <DataGrid ItemsSource="{Binding TopSellingItems}"
+                      Style="{StaticResource AdminDataGridStyle}"
+                      RowStyle="{StaticResource AdminDataGridRowStyle}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="No." Binding="{Binding Index}" Width="50"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Product code" Binding="{Binding ProductCode}" Width="*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Product name" Binding="{Binding ProductName}" Width="2*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Price" Binding="{Binding PriceText}" Width="*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Total Order" Binding="{Binding TotalOrdersText}" Width="*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                    <DataGridTextColumn Header="Total Sale" Binding="{Binding TotalSaleText}" Width="*"
+                                        HeaderStyle="{StaticResource DashboardHeader_Left}"
+                                        CellStyle="{StaticResource DashboardCell_Left}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+    </Grid>
+</UserControl>

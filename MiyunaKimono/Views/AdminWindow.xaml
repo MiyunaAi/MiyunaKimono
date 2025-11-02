@@ -61,23 +61,26 @@
 
         <!-- ===== Content ===== -->
         <Grid Grid.Column="1" Margin="24,16,24,24">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Top Bar -->
-            <Border Style="{StaticResource TopWhiteBar}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource TopWhiteBar}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <!-- Back -->
                         <ColumnDefinition Width="8"/>
-                        <ColumnDefinition/>
-                        <!-- Title -->
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Back icon (เฉพาะ Add/Edit) -->
                     <Button Grid.Column="0"
                             Style="{StaticResource IconButtonNoHover}"
                             Visibility="{Binding ShowBackBtn, Converter={StaticResource BoolToVisibility}}"
@@ -86,31 +89,52 @@
                         <Image Source="pack://application:,,,/Assets/ic_back.png" Width="22" Height="22"/>
                     </Button>
 
-                    <!-- ชื่อหน้า -->
                     <TextBlock Grid.Column="2"
                                Text="{Binding CurrentHeader}"
                                VerticalAlignment="Center"
-                               FontSize="18" FontWeight="SemiBold"/>
+                               FontSize="18" FontWeight="SemiBold"
+                               Margin="0,0,16,0"/>
 
-                    <!-- ปุ่มด้านขวา -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                    <Border Grid.Column="3"
+                            Style="{StaticResource SearchBoxBorder}"
+                            VerticalAlignment="Center" Height="40"
+                            MaxWidth="400"
+                            Margin="0,0,24,0"
+                            Visibility="{Binding ShowAddBtn, Converter={StaticResource BoolToVisibility}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Image Source="pack://application:,,,/Assets/ic_search.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Column="1"
+                                     x:Name="AdminProductSearchBox"
+                                     Tag="Search by Name or Code"
+                                     Style="{StaticResource WatermarkTextBox}"
+                                     FontSize="14"
+                                     Padding="4,0"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="AdminProductSearchBox_TextChanged"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal"
                                 HorizontalAlignment="Right" VerticalAlignment="Center">
 
-                        <!-- Add new Product (เฉพาะหน้า All Product) -->
                         <Button Content="Add new Product"
                                 Margin="0,0,0,0"
                                 Style="{StaticResource BlueRoundedButton}"
                                 Visibility="{Binding ShowAddBtn, Converter={StaticResource BoolToVisibility}}"
                                 Click="AddProduct_Click"/>
 
-                        <!-- Publish (เฉพาะหน้า Add New Product) -->
                         <Button Content="Publish"
                                 Margin="0,0,0,0"
                                 Style="{StaticResource BlueRoundedButton}"
                                 Visibility="{Binding ShowPublishBtn, Converter={StaticResource BoolToVisibility}}"
                                 Click="Publish_Click"/>
 
-                        <!-- ถังขยะ PNG (เฉพาะหน้า Edit) -->
                         <Button Margin="0,0,14,0"
                                 Style="{StaticResource IconButtonNoHover}"
                                 Visibility="{Binding ShowDeleteBtn, Converter={StaticResource BoolToVisibility}}"
@@ -119,7 +143,6 @@
                             <Image Source="pack://application:,,,/Assets/ic_trash.png" Width="40" Height="40"/>
                         </Button>
 
-                        <!-- Save (เฉพาะหน้า Edit) -->
                         <Button Content="Save"  
                                 Style="{StaticResource BlueRoundedButton}"
                                 Visibility="{Binding ShowSaveBtn, Converter={StaticResource BoolToVisibility}}"
@@ -128,10 +151,10 @@
                 </Grid>
             </Border>
 
-            <!-- เนื้อหา -->
             <Border Grid.Row="1" Style="{StaticResource CardWhite}">
                 <ContentControl x:Name="ContentHost"/>
             </Border>
+
         </Grid>
     </Grid>
 </Window>

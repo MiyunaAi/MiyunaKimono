@@ -21,6 +21,8 @@
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
+        
+        
         <Style x:Key="AdminDataGridRowStyle" TargetType="{x:Type DataGridRow}">
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -923,7 +925,7 @@
             </Setter>
         </Style>
 
-        
+        <conv:DbImageConverter x:Key="DbImage"/>
         
     </Application.Resources>
 </Application>
