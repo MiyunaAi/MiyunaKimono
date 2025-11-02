@@ -438,10 +438,13 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
 
         // ในไฟล์ Services/OrderService.cs
         // (แทนที่เมธอดเดิมทั้งหมด)
+        // ในไฟล์ Services/OrderService.cs
+        // (แทนที่เมธอดเดิมทั้งหมด)
+        // (วางโค้ดนี้แทนที่เมธอด GetMonthlyReportDataAsync เดิมทั้งหมด)
+        // ใน Services/OrderService.cs
         public async Task<MonthlyReportData> GetMonthlyReportDataAsync(int gregorianYear, int month)
         {
             var data = new MonthlyReportData();
-            // (อย่าลืมเพิ่ม CharacterSet=utf8; ใน Services/Db.cs นะครับ)
             using var conn = Db.GetConn();
 
             // --- 1. สร้าง WHERE clause แบบไดนามิก ---
@@ -460,12 +463,12 @@ VALUES(@id,@uid,@cname,@uname,@addr,@tel,@amt,@disc,'Ordering',NOW(),@fn,@file);
                 whereClause = "WHERE " + string.Join(" AND ", whereConditions);
             }
 
-            // --- 2. ดึงข้อมูลตาราง Orders (เหมือนเดิม) ---
+            // --- 2. ดึงข้อมูลตาราง Orders ---
             var sqlOrders = $@"
-SELECT created_at, customer_name, status, amount 
-FROM orders o
-{whereClause}
-ORDER BY created_at ASC";
+        SELECT created_at, customer_name, status, amount 
+        FROM orders o
+        {whereClause}
+        ORDER BY created_at ASC";
 
             using (var cmd = new MySqlCommand(sqlOrders, conn))
             {
@@ -485,29 +488,30 @@ ORDER BY created_at ASC";
                 }
             } // ปิด Reader
 
-            // --- 3. (แก้ไข) โหลด Product ทั้งหมดมาพักไว้ใน C# ---
-            // (นี่คือตรรกะ "แบบใบเสร็จ" คือแยกส่วนดึง Product ออกมา)
+            // --- 3. โหลด Product ทั้งหมดมาพักไว้ใน C# และ TRIM ---
             var allProducts = ProductService.Instance.GetAll();
             var productLookup = new Dictionary<string, Product>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in allProducts)
             {
-                if (p.ProductName != null && !productLookup.ContainsKey(p.ProductName))
+                var trimmedName = p.ProductName?.Trim();
+                if (!string.IsNullOrEmpty(trimmedName) && !productLookup.ContainsKey(trimmedName))
                 {
-                    productLookup[p.ProductName] = p;
+                    productLookup[trimmedName] = p;
                 }
             }
 
-            // --- 4. (แก้ไข) ดึงข้อมูล Product Sales โดยไม่ JOIN products ---
+            // --- 4. ดึงข้อมูล Product Sales โดย TRIM และกรอง NULL ใน SQL ---
             var sqlProducts = $@"
-SELECT 
-    oi.product_name,
-    SUM(oi.qty) AS ItemsOff, 
-    SUM(oi.total) AS TotalSale
-FROM order_items oi
-JOIN orders o ON oi.order_id = o.order_id
-{whereClause}
-GROUP BY oi.product_name
-ORDER BY TotalSale DESC";
+        SELECT 
+            TRIM(oi.product_name) AS product_name, 
+            SUM(oi.qty) AS ItemsOff, 
+            SUM(oi.total) AS TotalSale
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
+        {whereClause}
+        {(whereClause.Length > 0 ? "AND" : "WHERE")} oi.product_name IS NOT NULL 
+        GROUP BY TRIM(oi.product_name)
+        ORDER BY TotalSale DESC";
 
             using (var cmd = new MySqlCommand(sqlProducts, conn))
             {
@@ -519,11 +523,16 @@ ORDER BY TotalSale DESC";
                 {
                     var productName = rd["product_name"] as string;
 
-                    // --- 5. (แก้ไข) ใช้ C# ในการ Join ข้อมูล Brand/Category ---
+                    if (string.IsNullOrEmpty(productName))
+                    {
+                        continue; // ข้ามแถวที่เป็น NULL
+                    }
+
+                    // --- 5. ใช้ C# ในการ Join ---
                     string brand = "N/A";
                     string category = "N/A";
 
-                    if (!string.IsNullOrEmpty(productName) && productLookup.TryGetValue(productName, out var productInfo))
+                    if (productLookup.TryGetValue(productName, out var productInfo))
                     {
                         brand = productInfo.Brand ?? "N/A";
                         category = productInfo.Category ?? "N/A";
@@ -540,7 +549,7 @@ ORDER BY TotalSale DESC";
                 }
             } // ปิด Reader
 
-            // 6. คำนวณยอดรวมทั้งหมด (เหมือนเดิม)
+            // 6. คำนวณยอดรวมทั้งหมด
             data.GrandTotalSale = data.Products.Sum(p => p.TotalSale);
 
             return data;

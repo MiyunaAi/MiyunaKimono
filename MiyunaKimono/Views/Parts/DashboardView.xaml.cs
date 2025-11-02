@@ -118,7 +118,7 @@ namespace MiyunaKimono.Views.Parts
             // (เหมือนหน้า Report)
             MonthOptions = new List<string> { "All Month" };
             MonthOptions.AddRange(Enumerable.Range(1, 12)
-                .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)));
+                .Select(i => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(i)));
 
             YearOptions = new List<string> { "All Year" };
             int currentBEYear = 2568; // ⬅️ ให้เริ่มที่ปี 2568 (2025) ตามข้อมูลตัวอย่างของคุณ

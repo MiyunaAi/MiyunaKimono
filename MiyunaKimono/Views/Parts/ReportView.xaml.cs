@@ -59,7 +59,7 @@ namespace MiyunaKimono.Views.Parts
             // สร้าง Dropdown เดือน (All Month, January, ...)
             MonthOptions = new List<string> { "All Month" };
             MonthOptions.AddRange(Enumerable.Range(1, 12)
-                .Select(i => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)));
+                .Select(i => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(i)));
 
             // สร้าง Dropdown ปี (All Year, 2568, 2567, ...)
             YearOptions = new List<string> { "All Year" };

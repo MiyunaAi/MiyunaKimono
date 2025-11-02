@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Services/Db.cs
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace MiyunaKimono.Services
         public static MySqlConnection GetOpenConnection() => GetConn();
         // แก้ค่าให้ตรงกับ XAMPP ของคุณ
         private const string ConnStr =
-            "Server=localhost;Port=3306;Database=miyuna_kimono;Uid=root;Pwd=;SslMode=None;CharacterSet=tis620;";
+            "Server=localhost;Port=3306;Database=miyuna_kimono;Uid=root;Pwd=;SslMode=None;CharacterSet=utf8;";
 
         public static MySqlConnection GetConn()
         {
@@ -24,4 +25,3 @@ namespace MiyunaKimono.Services
         }
     }
 }
-

@@ -13,6 +13,8 @@ namespace MiyunaKimono.Services
 {
     public static class MonthlyReportPdfMaker
     {
+        // ใน Services/MonthlyReportPdfMaker.cs
+        // (แทนที่เมธอด Create เดิม)
         public static string Create(MonthlyReportData data, string selectedMonthName, string selectedYear)
         {
             var doc = new Document();
@@ -24,24 +26,12 @@ namespace MiyunaKimono.Services
             section.PageSetup.TopMargin = "1.5cm";
             section.PageSetup.BottomMargin = "1.5cm";
 
-            // ใช้ฟอนต์ที่รองรับภาษาไทย (ถ้ามีในเครื่อง) ถ้าไม่มีจะใช้ฟอนต์ Default
-            var defaultFont = new Font("Tahoma", 10);
-            try
-            {
-                defaultFont = new Font("Leelawadee UI", 10);
-            }
-            catch
-            {
-                try { defaultFont = new Font("Tahoma", 10); } catch { }
-            }
+            // ‼️‼️ ลบการตั้งค่า Font ที่เป็นปัญหาทิ้งทั้งหมด ‼️‼️
+            // (ลบ doc.Styles[StyleNames.Normal].Font = defaultFont; ออก)
+            // (ลบการ try...catch new Font(...) ออก)
+            // ‼️‼️
 
-            // ✅✅✅ นี่คือจุดที่แก้ไข ✅✅✅
-            // ❌ ลบบรรทัดเดิม: doc.DefaultPageSetup.HeaderDistance = "1cm";
-            // ✅ เปลี่ยนเป็นบรรทัดนี้แทน:
             section.PageSetup.HeaderDistance = "1cm";
-
-            doc.Styles[StyleNames.Normal].Font = defaultFont;
-
 
             // === 1. Header (โลโก้ซ้าย, ไตเติ้ลขวา) ===
             var headerTable = section.AddTable();
@@ -58,12 +48,28 @@ namespace MiyunaKimono.Services
             // --- เซลล์ซ้าย (โลโก้) ---
             var leftCell = headerRow.Cells[0];
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "logo_miyunaa.png");
+
+            // (เราจะปล่อยให้โค้ดส่วนนี้ทำงาน แม้ File.Exists จะเป็น false ก็ตาม)
             if (File.Exists(logoPath))
             {
-                var logo = leftCell.AddImage(logoPath);
-                logo.Width = "2.5cm";
-                logo.LockAspectRatio = true;
+                try
+                {
+                    var logo = leftCell.AddImage(logoPath);
+                    logo.Width = "2.5cm";
+                    logo.LockAspectRatio = true;
+                }
+                catch (Exception)
+                {
+                    // ถ้าโหลดโลโก้ล้มเหลว ให้เพิ่มข้อความแทน
+                    leftCell.AddParagraph("[Logo load failed]");
+                }
             }
+            else
+            {
+                // ถ้าไฟล์ไม่มีอยู่ ให้แสดงชื่อร้านแทน
+                leftCell.AddParagraph("Miyuna Kimono");
+            }
+
             var pLogo = leftCell.AddParagraph("Miyuna Kimono");
             pLogo.Format.Font.Size = 14;
             pLogo.Format.Font.Bold = true;
@@ -94,7 +100,6 @@ namespace MiyunaKimono.Services
             orderTable.Borders.Width = 0.5;
             orderTable.Borders.Color = Colors.LightGray;
 
-            // Columns: Date, No., Customer, Status, Total
             orderTable.AddColumn("3.5cm").Format.Alignment = ParagraphAlignment.Left; // Date
             orderTable.AddColumn("1cm").Format.Alignment = ParagraphAlignment.Center; // No.
             orderTable.AddColumn("5.5cm").Format.Alignment = ParagraphAlignment.Left; // Customer
@@ -103,7 +108,7 @@ namespace MiyunaKimono.Services
 
             // Header Row
             var orderHeader = orderTable.AddRow();
-            orderHeader.Shading.Color = Colors.LightGray; // สีเทาอ่อน
+            orderHeader.Shading.Color = Colors.LightGray;
             orderHeader.Format.Font.Bold = true;
             orderHeader.Cells[0].AddParagraph("Date");
             orderHeader.Cells[1].AddParagraph("No.");
@@ -135,7 +140,6 @@ namespace MiyunaKimono.Services
             prodTable.Borders.Width = 0.5;
             prodTable.Borders.Color = Colors.LightGray;
 
-            // Columns: Product, Brand, Category, Item off, Total Sale
             prodTable.AddColumn("5cm").Format.Alignment = ParagraphAlignment.Left; // Product
             prodTable.AddColumn("2.5cm").Format.Alignment = ParagraphAlignment.Left; // Brand
             prodTable.AddColumn("2.5cm").Format.Alignment = ParagraphAlignment.Left; // Category
@@ -144,7 +148,7 @@ namespace MiyunaKimono.Services
 
             // Header Row
             var prodHeader = prodTable.AddRow();
-            prodHeader.Shading.Color = Colors.LightGray; // สีเทาอ่อน
+            prodHeader.Shading.Color = Colors.LightGray;
             prodHeader.Format.Font.Bold = true;
             prodHeader.Cells[0].AddParagraph("Product");
             prodHeader.Cells[1].AddParagraph("Brand");
@@ -156,7 +160,7 @@ namespace MiyunaKimono.Services
             foreach (var prod in data.Products)
             {
                 var row = prodTable.AddRow();
-                row.Cells[0].AddParagraph(prod.ProductName);
+                row.Cells[0].AddParagraph(prod.ProductName); // ‼️ ถ้า Crash จุดนี้ คือเพราะ prod.ProductName เป็น NULL
                 row.Cells[1].AddParagraph(prod.Brand ?? "-");
                 row.Cells[2].AddParagraph(prod.Category ?? "-");
                 row.Cells[3].AddParagraph(prod.ItemsOff.ToString());
@@ -172,7 +176,8 @@ namespace MiyunaKimono.Services
             pGrandTotal.Format.Alignment = ParagraphAlignment.Right;
 
             // === สร้างไฟล์ PDF ===
-            var renderer = new PdfDocumentRenderer(true); // true = Unicode
+            // ‼️ แก้ไข: ส่ง false เพื่อปิดโหมด Unicode (ซึ่ง GDI มักมีปัญหา) ‼️
+            var renderer = new PdfDocumentRenderer();
             renderer.Document = doc;
             renderer.RenderDocument();
 
